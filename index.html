@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Note Party!" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Note Party! — Beat Buddy Dance</title>
+  <!--
+    Note Party! — Educational reading & math game for ~6–7 year olds
+    Theme: Original troll-blob + K-pop dance party (no copyrighted assets)
+    How to open: Open this file in Safari on iPad (or any browser). Works offline after first load.
+    Add to Home Screen: Safari Share → Add to Home Screen
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink: #ff4da6;
+      --hot: #ff2d95;
+      --purple: #9b5cff;
+      --blue: #4ecbff;
+      --yellow: #ffe566;
+      --lime: #7dff9a;
+      --orange: #ff9f43;
+      --cream: #fff7fb;
+      --ink: #2b1a4a;
+      --soft: #f3e8ff;
+      --shadow: rgba(43, 26, 74, 0.18);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: "Fredoka", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #ff9ad5 0%, #c9a0ff 40%, #7ad7ff 100%);
+      color: var(--ink);
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #app {
+      height: 100%;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      text-align: center;
+      animation: fadeIn 0.35s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.85; }
+    }
+    @keyframes dance {
+      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+      25% { transform: translateY(-14px) rotate(4deg) scale(1.05); }
+      50% { transform: translateY(0) rotate(-2deg) scale(1); }
+      75% { transform: translateY(-10px) rotate(6deg) scale(1.04); }
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 8vw, 3.4rem);
+      margin: 0.2rem 0 0.4rem;
+      line-height: 1.1;
+      text-shadow: 0 3px 0 rgba(255,255,255,0.5);
+    }
+    h2 {
+      font-size: clamp(1.5rem, 5.5vw, 2.2rem);
+      margin: 0.3rem 0;
+    }
+    .subtitle {
+      font-size: clamp(1.05rem, 3.8vw, 1.35rem);
+      opacity: 0.9;
+      margin: 0 0 1rem;
+      max-width: 22rem;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: clamp(1.25rem, 4.5vw, 1.6rem);
+      min-height: 68px;
+      min-width: 68px;
+      padding: 0.85rem 1.6rem;
+      border-radius: 999px;
+      background: var(--cream);
+      color: var(--ink);
+      box-shadow: 0 6px 0 var(--shadow), 0 10px 24px var(--shadow);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      touch-action: manipulation;
+    }
+    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--shadow); }
+    .btn-primary {
+      background: linear-gradient(180deg, #ff6eb8, var(--hot));
+      color: white;
+      text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+      font-size: clamp(1.5rem, 5.5vw, 2rem);
+      padding: 1rem 2.4rem;
+      min-height: 80px;
+    }
+    .btn-choice {
+      width: min(28vw, 120px);
+      height: min(28vw, 120px);
+      min-width: 72px;
+      min-height: 72px;
+      border-radius: 28px;
+      font-size: clamp(2rem, 9vw, 3.2rem);
+      background: white;
+      margin: 0.35rem;
+    }
+    .btn-choice.correct-flash {
+      background: var(--lime);
+      transform: scale(1.08);
+    }
+    .btn-choice.wrong-flash {
+      background: #ffd0e4;
+      animation: wiggle 0.35s ease;
+    }
+
+    /* Original troll-blob mascot (CSS shapes only) */
+    .mascot {
+      width: 140px;
+      height: 160px;
+      position: relative;
+      margin: 0.5rem auto 1rem;
+      animation: bounce 2.2s ease-in-out infinite;
+    }
+    .mascot.dancing { animation: dance 0.7s ease-in-out infinite; }
+    .mascot .hair {
+      position: absolute;
+      top: -18px; left: 50%;
+      width: 110px; height: 70px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #ff4da6, #ff9f43, #ffe566, #7dff9a, #4ecbff, #9b5cff);
+      border-radius: 60% 60% 40% 40%;
+      box-shadow: inset 0 -10px 0 rgba(255,255,255,0.25);
+    }
+    .mascot .hair::before,
+    .mascot .hair::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      width: 28px; height: 55px;
+      border-radius: 50% 50% 40% 40%;
+      background: #ff4da6;
+    }
+    .mascot .hair::before { left: -8px; transform: rotate(-25deg); background: #9b5cff; }
+    .mascot .hair::after { right: -8px; transform: rotate(25deg); background: #4ecbff; }
+    .mascot .body {
+      position: absolute;
+      bottom: 10px; left: 50%;
+      transform: translateX(-50%);
+      width: 100px; height: 100px;
+      background: radial-gradient(circle at 35% 30%, #ffe0f2, #ff7ec8);
+      border-radius: 50%;
+      box-shadow: inset -8px -10px 0 rgba(0,0,0,0.06), 0 8px 0 rgba(0,0,0,0.08);
+    }
+    .mascot .eye {
+      position: absolute;
+      top: 38px;
+      width: 18px; height: 22px;
+      background: #2b1a4a;
+      border-radius: 50%;
+    }
+    .mascot .eye.left { left: 28px; }
+    .mascot .eye.right { right: 28px; }
+    .mascot .eye::after {
+      content: "";
+      position: absolute;
+      top: 3px; left: 4px;
+      width: 6px; height: 6px;
+      background: white;
+      border-radius: 50%;
+    }
+    .mascot .smile {
+      position: absolute;
+      bottom: 28px; left: 50%;
+      width: 36px; height: 18px;
+      border: 4px solid #2b1a4a;
+      border-top: none;
+      border-radius: 0 0 20px 20px;
+      transform: translateX(-50%);
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+      min-height: 48px;
+    }
+    .note-slot {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      border: 3px dashed rgba(43,26,74,0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: transform 0.25s ease, background 0.25s;
+    }
+    .note-slot.filled {
+      background: var(--yellow);
+      border-style: solid;
+      border-color: #ffb800;
+      transform: scale(1.1);
+      box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+    }
+    .progress-label {
+      width: 100%;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+
+    .say-loud {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.75);
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      font-size: clamp(1rem, 3.5vw, 1.2rem);
+      font-weight: 600;
+      margin: 0.5rem 0 0.85rem;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .challenge-card {
+      background: rgba(255,255,255,0.88);
+      border-radius: 28px;
+      padding: 1.25rem 1rem 1.5rem;
+      width: min(100%, 420px);
+      box-shadow: 0 12px 32px var(--shadow);
+    }
+    .prompt {
+      font-size: clamp(1.25rem, 4.5vw, 1.65rem);
+      font-weight: 600;
+      margin: 0.25rem 0 0.75rem;
+    }
+    .letter-big {
+      font-size: clamp(4rem, 18vw, 6rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--purple);
+      text-shadow: 0 4px 0 rgba(155,92,255,0.2);
+      margin: 0.2rem 0 0.6rem;
+    }
+    .count-stage {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.55rem;
+      min-height: 100px;
+      margin: 0.4rem 0 0.9rem;
+      padding: 0.5rem;
+    }
+    .count-item {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+      animation: bounce 1.6s ease-in-out infinite;
+    }
+    .count-item:nth-child(odd) { animation-delay: 0.15s; }
+    .count-item:nth-child(3n) { animation-delay: 0.3s; }
+
+    .choices {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .feedback {
+      min-height: 1.6rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 0.75rem;
+      color: var(--purple);
+    }
+
+    /* Celebration confetti */
+    .confetti-layer {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 5;
+    }
+    .confetti {
+      position: absolute;
+      top: -20px;
+      width: 12px; height: 18px;
+      border-radius: 3px;
+      animation: confettiFall linear forwards;
+    }
+
+    .cele-notes {
+      font-size: 2.5rem;
+      letter-spacing: 0.15em;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .ghost-btn {
+      background: rgba(255,255,255,0.55);
+      border: none;
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      min-height: 48px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--ink);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    @media (max-height: 700px) {
+      .mascot { width: 110px; height: 130px; margin-bottom: 0.5rem; }
+      .mascot .body { width: 80px; height: 80px; }
+      .mascot .hair { width: 90px; height: 55px; }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- START -->
+    <section id="screen-start" class="screen active" aria-label="Start">
+      <div class="mascot" aria-hidden="true">
+        <div class="hair"></div>
+        <div class="body">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+      </div>
+      <h1>Note Party!</h1>
+      <p class="subtitle">Collect notes • Read letters • Count beats • Dance!</p>
+      <button type="button" class="btn btn-primary" id="btn-play">Play!</button>
+    </section>
+
+    <!-- GAME -->
+    <section id="screen-game" class="screen" aria-label="Game">
+      <div class="top-bar">
+        <button type="button" class="ghost-btn" id="btn-home">Home</button>
+        <span id="round-label">Note 1</span>
+      </div>
+      <div class="progress" id="progress" aria-live="polite"></div>
+      <div class="challenge-card">
+        <div class="say-loud" id="say-loud">🎤 Say it out loud!</div>
+        <p class="prompt" id="prompt">Find the letter</p>
+        <div id="challenge-visual"></div>
+        <div class="choices" id="choices"></div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- CELEBRATION -->
+    <section id="screen-cele" class="screen" aria-label="Celebration">
+      <div class="confetti-layer" id="confetti"></div>
+      <div class="mascot dancing" aria-hidden="true">
+        <div class="hair"></div>
+        <div class="body">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+      </div>
+      <h1>Dance Party!</h1>
+      <p class="subtitle">You collected all the notes!</p>
+      <div class="cele-notes" aria-hidden="true">🎵 🎶 🎵 🎶 🎵</div>
+      <button type="button" class="btn btn-primary" id="btn-again">Play again!</button>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var TOTAL_NOTES = 8;
+      var collected = 0;
+      var challenges = [];
+      var currentIndex = 0;
+      var locked = false;
+      var audioCtx = null;
+
+      var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      var COUNT_EMOJIS = ["⭐", "🎵", "💖", "🌟", "🥁", "✨", "🎤", "💜"];
+      var COUNT_COLORS = ["#ff4da6", "#9b5cff", "#4ecbff", "#ffe566", "#7dff9a", "#ff9f43"];
+
+      function $(id) { return document.getElementById(id); }
+
+      function showScreen(id) {
+        document.querySelectorAll(".screen").forEach(function (el) {
+          el.classList.remove("active");
+        });
+        $(id).classList.add("active");
+      }
+
+      function ensureAudio() {
+        if (!audioCtx) {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        return audioCtx;
+      }
+
+      function tone(freq, dur, type, gainVal) {
+        var ctx = ensureAudio();
+        if (!ctx) return;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = type || "sine";
+        osc.frequency.value = freq;
+        gain.gain.value = gainVal || 0.12;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        var now = ctx.currentTime;
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.start(now);
+        osc.stop(now + dur + 0.02);
+      }
+
+      function playCorrect() {
+        tone(523.25, 0.12, "triangle", 0.14);
+        setTimeout(function () { tone(659.25, 0.12, "triangle", 0.14); }, 90);
+        setTimeout(function () { tone(783.99, 0.22, "triangle", 0.16); }, 180);
+      }
+
+      function playWrong() {
+        tone(220, 0.18, "sine", 0.08);
+      }
+
+      function playCelebrate() {
+        var notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        notes.forEach(function (f, i) {
+          setTimeout(function () { tone(f, 0.18, "triangle", 0.13); }, i * 110);
+        });
+      }
+
+      function playNoteCollect() {
+        tone(880, 0.1, "sine", 0.1);
+        setTimeout(function () { tone(1174.66, 0.2, "sine", 0.12); }, 80);
+      }
+
+      function shuffle(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+
+      function pickWrongLetters(correct, n) {
+        var pool = LETTERS.filter(function (L) { return L !== correct; });
+        return shuffle(pool).slice(0, n);
+      }
+
+      function buildChallenges() {
+        var list = [];
+        // Alternate letter / count — 8 total
+        var letterTargets = shuffle(LETTERS.slice(0, 16)).slice(0, 4);
+        var counts = shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 4);
+
+        for (var i = 0; i < TOTAL_NOTES; i++) {
+          if (i % 2 === 0) {
+            var letter = letterTargets[Math.floor(i / 2) % letterTargets.length];
+            var wrong = pickWrongLetters(letter, 2);
+            var choices = shuffle([letter].concat(wrong));
+            list.push({
+              type: "letter",
+              prompt: "Find the letter " + letter + "!",
+              target: letter,
+              choices: choices,
+              showBig: letter
+            });
+          } else {
+            var n = counts[Math.floor(i / 2) % counts.length];
+            var wrongNums = [];
+            while (wrongNums.length < 2) {
+              var w = 1 + Math.floor(Math.random() * 10);
+              if (w !== n && wrongNums.indexOf(w) === -1) wrongNums.push(w);
+            }
+            list.push({
+              type: "count",
+              prompt: "How many? Count them!",
+              target: String(n),
+              count: n,
+              choices: shuffle([String(n)].concat(wrongNums.map(String))),
+              emoji: COUNT_EMOJIS[i % COUNT_EMOJIS.length]
+            });
+          }
+        }
+        return list;
+      }
+
+      function renderProgress() {
+        var el = $("progress");
+        var html = "";
+        for (var i = 0; i < TOTAL_NOTES; i++) {
+          html += '<div class="note-slot' + (i < collected ? " filled" : "") + '" aria-hidden="true">' +
+            (i < collected ? "🎵" : "") + "</div>";
+        }
+        html += '<div class="progress-label">' + collected + " / " + TOTAL_NOTES + " notes</div>";
+        el.innerHTML = html;
+      }
+
+      function renderCountItems(n, emoji) {
+        var html = '<div class="count-stage" aria-hidden="true">';
+        for (var i = 0; i < n; i++) {
+          var bg = COUNT_COLORS[i % COUNT_COLORS.length];
+          html += '<div class="count-item" style="background:' + bg + '">' + emoji + "</div>";
+        }
+        html += "</div>";
+        return html;
+      }
+
+      function showChallenge() {
+        locked = false;
+        $("feedback").textContent = "";
+        var ch = challenges[currentIndex];
+        $("round-label").textContent = "Note " + (currentIndex + 1);
+        $("prompt").textContent = ch.prompt;
+        $("say-loud").textContent = ch.type === "letter"
+          ? "🎤 Say the letter out loud!"
+          : "🎤 Count out loud!";
+
+        var visual = $("challenge-visual");
+        if (ch.type === "letter") {
+          visual.innerHTML = '<div class="letter-big" aria-hidden="true">' + ch.showBig + "</div>";
+        } else {
+          visual.innerHTML = renderCountItems(ch.count, ch.emoji);
+        }
+
+        var choices = $("choices");
+        choices.innerHTML = "";
+        ch.choices.forEach(function (c) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-choice";
+          btn.textContent = c;
+          btn.setAttribute("aria-label", "Choose " + c);
+          btn.addEventListener("click", function () { onChoose(c, btn); });
+          choices.appendChild(btn);
+        });
+
+        renderProgress();
+      }
+
+      function onChoose(value, btn) {
+        if (locked) return;
+        ensureAudio();
+        var ch = challenges[currentIndex];
+        if (value === ch.target) {
+          locked = true;
+          btn.classList.add("correct-flash");
+          $("feedback").textContent = "Yes! You got it! ✨";
+          playCorrect();
+          setTimeout(function () {
+            collected++;
+            playNoteCollect();
+            renderProgress();
+            if (collected >= TOTAL_NOTES) {
+              setTimeout(goCelebrate, 400);
+            } else {
+              currentIndex++;
+              setTimeout(showChallenge, 450);
+            }
+          }, 500);
+        } else {
+          btn.classList.add("wrong-flash");
+          $("feedback").textContent = "Almost! Try again 💛";
+          playWrong();
+          setTimeout(function () {
+            btn.classList.remove("wrong-flash");
+            $("feedback").textContent = "";
+          }, 500);
+        }
+      }
+
+      function spawnConfetti() {
+        var layer = $("confetti");
+        layer.innerHTML = "";
+        var colors = ["#ff4da6", "#9b5cff", "#4ecbff", "#ffe566", "#7dff9a", "#ff9f43", "#fff"];
+        for (var i = 0; i < 48; i++) {
+          var piece = document.createElement("div");
+          piece.className = "confetti";
+          piece.style.left = Math.random() * 100 + "%";
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDuration = (2.2 + Math.random() * 2.5) + "s";
+          piece.style.animationDelay = (Math.random() * 1.2) + "s";
+          piece.style.width = (8 + Math.random() * 10) + "px";
+          piece.style.height = (12 + Math.random() * 14) + "px";
+          piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "3px";
+          layer.appendChild(piece);
+        }
+      }
+
+      function goCelebrate() {
+        showScreen("screen-cele");
+        spawnConfetti();
+        playCelebrate();
+      }
+
+      function startGame() {
+        ensureAudio();
+        collected = 0;
+        currentIndex = 0;
+        challenges = buildChallenges();
+        showScreen("screen-game");
+        showChallenge();
+      }
+
+      $("btn-play").addEventListener("click", startGame);
+      $("btn-again").addEventListener("click", startGame);
+      $("btn-home").addEventListener("click", function () {
+        showScreen("screen-start");
+      });
+
+      // Unlock audio on first touch (iOS Safari)
+      document.body.addEventListener("touchstart", function once() {
+        ensureAudio();
+        document.body.removeEventListener("touchstart", once);
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
