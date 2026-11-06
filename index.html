@@ -400,7 +400,17 @@ button{font-family:inherit;border:none;cursor:pointer}
 }
 .sing-stars{font-size:48px;letter-spacing:6px;margin:8px 0 12px;filter:drop-shadow(0 0 12px #ffe66d)}
 .sing-end-msg{font-size:clamp(20px,5vw,28px);font-weight:700;color:#ffe66d;margin-bottom:8px}
-.sing-end-sub{font-size:16px;color:#c4b5fd;margin-bottom:20px;max-width:360px}
+.sing-end-sub{font-size:16px;color:#c4b5fd;margin-bottom:12px;max-width:360px}
+.sing-dedication{
+  font-size:clamp(20px,5.5vw,28px);font-weight:600;color:#ffe66d;margin:10px 0 18px;
+  text-shadow:0 0 12px rgba(255,230,109,.8),0 0 28px rgba(255,158,205,.5);
+  animation:shimmer 3s ease-in-out infinite;line-height:1.35;
+}
+.voice-toggle{
+  margin:0 auto 10px;padding:8px 16px;border-radius:999px;font-size:14px;font-weight:700;
+  background:rgba(255,230,109,.2);color:#ffe66d;border:2px solid rgba(255,230,109,.45);
+}
+.voice-toggle.muted{background:rgba(255,255,255,.1);color:#c4b5fd;border-color:rgba(255,255,255,.25)}
 .sing-again-btn{
   padding:14px 28px;border-radius:999px;font-size:18px;font-weight:700;margin-bottom:10px;
   background:linear-gradient(180deg,#ffe66d,#fbbf24);color:#1a0a2e;box-shadow:0 4px 0 #d97706;
@@ -482,7 +492,8 @@ button{font-family:inherit;border:none;cursor:pointer}
   <!-- SING -->
   <div id="singalong">
     <div class="sing-title">🎤 Sing-Along!</div>
-    <div class="sing-hint" id="sing-hint">Hit all 12 notes! Tap when the note lands in the glowing ring. Sing Luna’s words out loud!</div>
+    <div class="sing-hint" id="sing-hint">Hit all 12 notes! Tap when the note lands in the glowing ring. Listen and sing Luna’s words out loud!</div>
+    <button class="voice-toggle" id="voice-toggle" type="button" aria-pressed="true">🔊 Hear the song</button>
     <div class="sing-play-area" id="sing-play-area">
       <div class="countdown-banner" id="sing-countdown"></div>
       <div class="sing-progress" id="sing-progress">Note 0 of 12</div>
@@ -497,6 +508,7 @@ button{font-family:inherit;border:none;cursor:pointer}
       <div class="sing-stars" id="sing-stars">⭐⭐⭐</div>
       <div class="sing-end-msg" id="sing-end-msg">Song done!</div>
       <div class="sing-end-sub" id="sing-end-sub"></div>
+      <div class="sing-dedication" id="sing-dedication">From Daddy. Love you, Luna. 💕✨</div>
       <button class="sing-again-btn" id="sing-again" type="button">Play song again</button>
     </div>
     <button class="sing-close" id="sing-close" type="button">Back to Village</button>
@@ -1041,6 +1053,43 @@ const LUNA_LYRICS=["Luna","loves","to","sing","Luna","shines","so","bright","Dan
 const MELODY=[523,587,659,698,784,880,784,698,659,698,784,1047];
 
 let singTimer=null, beatNotes=[], songSpawned=0, songResolved=0, songCombo=0, songActive=false, songEnded=false;
+let voiceOn=true, preferredVoice=null, missTimers=[];
+
+function pickEnglishVoice(){
+  try{
+    if(!window.speechSynthesis) return null;
+    const voices=speechSynthesis.getVoices()||[];
+    const en=voices.filter(function(v){return /^en(-|_|$)/i.test(v.lang)});
+    preferredVoice = en.find(function(v){return /female|samantha|karen|moira|zira|google US/i.test(v.name)}) || en[0] || voices[0] || null;
+  }catch(e){ preferredVoice=null }
+}
+if(typeof speechSynthesis!=='undefined'){
+  pickEnglishVoice();
+  speechSynthesis.addEventListener('voiceschanged', pickEnglishVoice);
+}
+
+function stopSpeech(){
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+}
+
+function speakLyric(text, opts){
+  if(!voiceOn || !window.speechSynthesis) return;
+  try{
+    stopSpeech();
+    const u=new SpeechSynthesisUtterance(String(text).replace(/!/g,''));
+    u.rate=(opts&&opts.rate)!=null?opts.rate:0.9;
+    u.pitch=(opts&&opts.pitch)!=null?opts.pitch:1.15;
+    u.volume=1;
+    if(preferredVoice) u.voice=preferredVoice;
+    u.lang=(preferredVoice&&preferredVoice.lang)||'en-US';
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function clearMissTimers(){
+  missTimers.forEach(function(t){clearTimeout(t)});
+  missTimers=[];
+}
 
 function resetSingUI(){
   document.getElementById('sing-play-area').classList.remove('hidden');
@@ -1054,7 +1103,7 @@ function resetSingUI(){
 
 function renderLyrics(activeIdx){
   const el=document.getElementById('lyric-line');
-  el.innerHTML=LUNA_LYRICS.map((w,i)=>{
+  el.innerHTML=LUNA_LYRICS.map(function(w,i){
     let cls='lw';
     if(i<activeIdx) cls+=' done';
     else if(i===activeIdx) cls+=' on';
@@ -1064,17 +1113,24 @@ function renderLyrics(activeIdx){
 
 function openSing(){
   ensureAudio();
+  pickEnglishVoice();
   document.getElementById('singalong').classList.add('show');
   state.singing=true;
   startSong();
 }
 
 function closeSing(){
-  stopSongTimers();
+  finishSongCleanup();
   state.singing=false;
   songActive=false;
   document.getElementById('singalong').classList.remove('show');
-  beatNotes.forEach(n=>{try{n.el.remove()}catch(e){}});
+}
+
+function finishSongCleanup(){
+  stopSongTimers();
+  clearMissTimers();
+  stopSpeech();
+  beatNotes.forEach(function(n){try{n.el.remove()}catch(e){}});
   beatNotes=[];
 }
 
@@ -1083,9 +1139,7 @@ function stopSongTimers(){
 }
 
 function startSong(){
-  stopSongTimers();
-  beatNotes.forEach(n=>{try{n.el.remove()}catch(e){}});
-  beatNotes=[];
+  finishSongCleanup();
   state.singHits=0;
   songSpawned=0;
   songResolved=0;
@@ -1094,6 +1148,8 @@ function startSong(){
   songEnded=false;
   resetSingUI();
   const cd=document.getElementById('sing-countdown');
+  // Intro once, then countdown
+  speakLyric('Sing with me, Luna!', {rate:0.92, pitch:1.2});
   const steps=['Ready…','3','2','1','Go! 🎵'];
   let step=0;
   function nextCount(){
@@ -1102,13 +1158,14 @@ function startSong(){
       cd.textContent=steps[step];
       tone(step===steps.length-1?784:440,.1,'sine',.1);
       step++;
-      singTimer=setTimeout(nextCount,600);
+      singTimer=setTimeout(nextCount,650);
     } else {
       cd.textContent='';
       spawnNextNote();
     }
   }
-  nextCount();
+  // slight delay so intro can start before countdown beeps dominate
+  singTimer=setTimeout(nextCount,700);
 }
 
 function spawnNextNote(){
@@ -1117,6 +1174,8 @@ function spawnNextNote(){
   songSpawned++;
   document.getElementById('sing-progress').textContent='Note '+songSpawned+' of 12';
   renderLyrics(idx);
+  // Speak the lyric word for this note so she can hear & sing along
+  speakLyric(LUNA_LYRICS[idx], {rate:0.9, pitch:1.15});
 
   const lane=document.getElementById('beat-lane');
   const note=document.createElement('div');
@@ -1130,7 +1189,7 @@ function spawnNextNote(){
   requestAnimationFrame(function(){note.style.top='140px'});
   chimeClick();
 
-  setTimeout(function(){
+  const missT=setTimeout(function(){
     if(entry.resolved) return;
     entry.resolved=true;
     entry.missed=true;
@@ -1141,6 +1200,7 @@ function spawnNextNote(){
     setTimeout(function(){try{note.remove()}catch(e){} beatNotes=beatNotes.filter(function(b){return b!==entry})},280);
     maybeEndSong();
   },NOTE_FALL_MS+40);
+  missTimers.push(missT);
 
   if(songSpawned<SONG_LEN){
     singTimer=setTimeout(spawnNextNote,SONG_GAP);
@@ -1169,11 +1229,17 @@ function maybeEndSong(){
   songEnded=true;
   songActive=false;
   stopSongTimers();
+  clearMissTimers();
+  stopSpeech();
   document.getElementById('beat-hit').classList.add('disabled');
+  // clear any leftover falling notes
+  beatNotes.forEach(function(n){try{n.el.remove()}catch(e){}});
+  beatNotes=[];
   setTimeout(showSingEnd,450);
 }
 
 function showSingEnd(){
+  stopSpeech();
   const hits=state.singHits;
   const stars=starCount(hits);
   const starStr=(stars?('⭐'.repeat(stars)):'')+('☆'.repeat(3-stars));
@@ -1186,12 +1252,21 @@ function showSingEnd(){
   document.getElementById('sing-end-msg').textContent=msg;
   document.getElementById('sing-end-sub').textContent=hits>=10
     ? 'You sang: "'+LUNA_LYRICS.join(' ')+'"'
-    : 'Sing Luna\'s words out loud next time!';
+    : 'Listen again and sing Luna\'s words out loud!';
+  // Exact dedication on the finish panel
+  document.getElementById('sing-dedication').innerHTML='From Daddy. Love you, Luna. <span class="heart">💕</span> <span class="heart" style="animation-delay:.3s">✨</span>';
   document.getElementById('sing-play-area').classList.add('hidden');
   document.getElementById('sing-end').classList.remove('hidden');
-  if(hits>=10){chimePrize();burst(document.getElementById('sing-end-msg'),true)}
-  else if(hits>=4) chimeGood();
-  else tone(280,.2,'triangle',.08);
+  if(hits>=10){
+    chimePrize();
+    burst(document.getElementById('sing-end-msg'),true);
+    speakLyric('You did it, Luna! From Daddy. Love you!', {rate:0.9, pitch:1.15});
+  } else if(hits>=4){
+    chimeGood();
+    speakLyric('Nice singing, Luna!', {rate:0.92, pitch:1.15});
+  } else {
+    tone(280,.2,'triangle',.08);
+  }
 }
 
 document.getElementById('beat-hit').addEventListener('click',function(){
@@ -1228,6 +1303,21 @@ document.getElementById('beat-hit').addEventListener('click',function(){
 document.getElementById('sing-again').addEventListener('click',function(){
   if(!state.singing) return;
   startSong();
+});
+
+document.getElementById('voice-toggle').addEventListener('click',function(){
+  voiceOn=!voiceOn;
+  const btn=document.getElementById('voice-toggle');
+  if(voiceOn){
+    btn.textContent='🔊 Hear the song';
+    btn.classList.remove('muted');
+    btn.setAttribute('aria-pressed','true');
+  } else {
+    stopSpeech();
+    btn.textContent='🔇 Song muted';
+    btn.classList.add('muted');
+    btn.setAttribute('aria-pressed','false');
+  }
 });
 
 /* ===== CELEBRATION ===== */
