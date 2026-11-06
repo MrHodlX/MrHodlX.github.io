@@ -347,7 +347,7 @@ button{font-family:inherit;border:none;cursor:pointer}
 .particle{
   position:absolute;font-size:20px;animation:flyOut 1s ease-out forwards;pointer-events:none;
 }
-@keyframes flyOut{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.3)}}
+@keyframes flyOut{0%{opacity:1;transform:translate(0,0) scale(1)}
 
 /* ===== SING-ALONG ===== */
 #singalong{
@@ -357,11 +357,11 @@ button{font-family:inherit;border:none;cursor:pointer}
 }
 #singalong.show{display:flex}
 .sing-title{font-size:28px;font-weight:700;color:#ffe66d;margin-bottom:8px}
-.sing-hint{font-size:16px;color:#c4b5fd;margin-bottom:24px;text-align:center}
+.sing-hint{font-size:16px;color:#c4b5fd;margin-bottom:16px;text-align:center;max-width:420px}
 .beat-lane{
   width:min(90vw,360px);height:200px;position:relative;
   background:rgba(124,58,237,.3);border-radius:24px;border:3px solid #a78bfa;
-  overflow:hidden;margin-bottom:20px;
+  overflow:hidden;margin-bottom:16px;
 }
 .beat-target{
   position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
@@ -383,10 +383,35 @@ button{font-family:inherit;border:none;cursor:pointer}
 }
 @keyframes beatPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .beat-hit-btn:active{transform:scale(.92);box-shadow:0 2px 0 #d97706}
-.sing-score{font-size:20px;margin:16px 0;color:#fff}
+.beat-hit-btn.disabled{opacity:.4;pointer-events:none;animation:none}
+.sing-score{font-size:20px;margin:12px 0 4px;color:#fff;font-weight:600}
+.sing-progress{font-size:18px;color:#ffe66d;font-weight:700;margin-bottom:8px}
+.lyric-line{
+  font-size:clamp(22px,6vw,32px);font-weight:700;color:#e9d5ff;text-align:center;
+  min-height:1.4em;margin:4px 0 16px;letter-spacing:1px;line-height:1.35;max-width:95vw;
+}
+.lyric-line .lw{opacity:.45;transition:opacity .15s,color .15s,transform .15s;display:inline-block;margin:0 4px}
+.lyric-line .lw.on{opacity:1;color:#ffe66d;transform:scale(1.15);text-shadow:0 0 12px rgba(255,230,109,.7)}
+.lyric-line .lw.done{opacity:.7;color:#86efac}
+.sing-play-area{display:flex;flex-direction:column;align-items:center;width:100%}
+.sing-play-area.hidden,.sing-end.hidden{display:none!important}
+.sing-end{
+  display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px;
+}
+.sing-stars{font-size:48px;letter-spacing:6px;margin:8px 0 12px;filter:drop-shadow(0 0 12px #ffe66d)}
+.sing-end-msg{font-size:clamp(20px,5vw,28px);font-weight:700;color:#ffe66d;margin-bottom:8px}
+.sing-end-sub{font-size:16px;color:#c4b5fd;margin-bottom:20px;max-width:360px}
+.sing-again-btn{
+  padding:14px 28px;border-radius:999px;font-size:18px;font-weight:700;margin-bottom:10px;
+  background:linear-gradient(180deg,#ffe66d,#fbbf24);color:#1a0a2e;box-shadow:0 4px 0 #d97706;
+}
 .sing-close{
-  margin-top:12px;padding:12px 28px;border-radius:999px;font-size:16px;font-weight:600;
+  margin-top:8px;padding:12px 28px;border-radius:999px;font-size:16px;font-weight:600;
   background:rgba(255,255,255,.15);color:#fff;
+}
+.countdown-banner{
+  font-size:42px;font-weight:700;color:#ffe66d;text-shadow:0 0 16px rgba(255,230,109,.8);
+  margin-bottom:8px;min-height:48px;
 }
 
 /* ===== CELEBRATION ===== */
@@ -457,12 +482,23 @@ button{font-family:inherit;border:none;cursor:pointer}
   <!-- SING -->
   <div id="singalong">
     <div class="sing-title">🎤 Sing-Along!</div>
-    <div class="sing-hint">Tap the big button when the note hits the glowing ring — like Guitar Hero!</div>
-    <div class="beat-lane" id="beat-lane">
-      <div class="beat-target"></div>
+    <div class="sing-hint" id="sing-hint">Hit all 12 notes! Tap when the note lands in the glowing ring. Sing Luna’s words out loud!</div>
+    <div class="sing-play-area" id="sing-play-area">
+      <div class="countdown-banner" id="sing-countdown"></div>
+      <div class="sing-progress" id="sing-progress">Note 0 of 12</div>
+      <div class="lyric-line" id="lyric-line" aria-live="polite"></div>
+      <div class="beat-lane" id="beat-lane">
+        <div class="beat-target"></div>
+      </div>
+      <button class="beat-hit-btn" id="beat-hit" type="button">🎵</button>
+      <div class="sing-score" id="sing-score">Hits: 0 · Stars ☆☆☆</div>
     </div>
-    <button class="beat-hit-btn" id="beat-hit" type="button">🎵</button>
-    <div class="sing-score" id="sing-score">Hits: 0</div>
+    <div class="sing-end hidden" id="sing-end">
+      <div class="sing-stars" id="sing-stars">⭐⭐⭐</div>
+      <div class="sing-end-msg" id="sing-end-msg">Song done!</div>
+      <div class="sing-end-sub" id="sing-end-sub"></div>
+      <button class="sing-again-btn" id="sing-again" type="button">Play song again</button>
+    </div>
     <button class="sing-close" id="sing-close" type="button">Back to Village</button>
   </div>
 
@@ -996,72 +1032,202 @@ function burst(el,big){
 }
 
 /* ===== SING-ALONG ===== */
-let singTimer=null, beatNotes=[];
+const SONG_LEN=12;
+const SONG_GAP=820;
+const NOTE_FALL_MS=2000;
+const HIT_TARGET_MS=1600;
+const HIT_WINDOW=320;
+const LUNA_LYRICS=["Luna","loves","to","sing","Luna","shines","so","bright","Dance","with","me","Luna!"];
+const MELODY=[523,587,659,698,784,880,784,698,659,698,784,1047];
+
+let singTimer=null, beatNotes=[], songSpawned=0, songResolved=0, songCombo=0, songActive=false, songEnded=false;
+
+function resetSingUI(){
+  document.getElementById('sing-play-area').classList.remove('hidden');
+  document.getElementById('sing-end').classList.add('hidden');
+  document.getElementById('beat-hit').classList.remove('disabled');
+  document.getElementById('sing-countdown').textContent='';
+  document.getElementById('sing-progress').textContent='Note 0 of 12';
+  document.getElementById('sing-score').textContent='Hits: 0 · Stars ☆☆☆';
+  renderLyrics(-1);
+}
+
+function renderLyrics(activeIdx){
+  const el=document.getElementById('lyric-line');
+  el.innerHTML=LUNA_LYRICS.map((w,i)=>{
+    let cls='lw';
+    if(i<activeIdx) cls+=' done';
+    else if(i===activeIdx) cls+=' on';
+    return '<span class="'+cls+'">'+w+'</span>';
+  }).join(' ');
+}
+
 function openSing(){
   ensureAudio();
   document.getElementById('singalong').classList.add('show');
   state.singing=true;
-  state.singHits=0;
-  document.getElementById('sing-score').textContent='Hits: 0';
-  startBeats();
+  startSong();
 }
+
 function closeSing(){
+  stopSongTimers();
   state.singing=false;
+  songActive=false;
   document.getElementById('singalong').classList.remove('show');
-  if(singTimer){clearInterval(singTimer);singTimer=null}
-  beatNotes.forEach(n=>n.el.remove());
+  beatNotes.forEach(n=>{try{n.el.remove()}catch(e){}});
   beatNotes=[];
 }
-function startBeats(){
-  const lane=document.getElementById('beat-lane');
-  const speed=180; // px/s roughly via duration
-  const duration=2200;
-  singTimer=setInterval(()=>{
-    if(!state.singing) return;
-    const note=document.createElement('div');
-    note.className='beat-note';
-    note.textContent=['🎵','🎶','💖','⭐'][Math.floor(Math.random()*4)];
-    note.style.top='-64px';
-    note.style.transition=`top ${duration}ms linear`;
-    lane.appendChild(note);
-    const entry={el:note,born:Date.now(),hit:false};
-    beatNotes.push(entry);
-    requestAnimationFrame(()=>{note.style.top='140px'});
-    chimeClick();
-    setTimeout(()=>{
-      if(!entry.hit){note.style.opacity='0.3'}
-      setTimeout(()=>{note.remove();beatNotes=beatNotes.filter(b=>b!==entry)},300);
-    },duration);
-  },900);
+
+function stopSongTimers(){
+  if(singTimer){clearTimeout(singTimer);singTimer=null}
 }
-document.getElementById('beat-hit').addEventListener('click',()=>{
-  if(!state.singing) return;
+
+function startSong(){
+  stopSongTimers();
+  beatNotes.forEach(n=>{try{n.el.remove()}catch(e){}});
+  beatNotes=[];
+  state.singHits=0;
+  songSpawned=0;
+  songResolved=0;
+  songCombo=0;
+  songActive=true;
+  songEnded=false;
+  resetSingUI();
+  const cd=document.getElementById('sing-countdown');
+  const steps=['Ready…','3','2','1','Go! 🎵'];
+  let step=0;
+  function nextCount(){
+    if(!state.singing) return;
+    if(step<steps.length){
+      cd.textContent=steps[step];
+      tone(step===steps.length-1?784:440,.1,'sine',.1);
+      step++;
+      singTimer=setTimeout(nextCount,600);
+    } else {
+      cd.textContent='';
+      spawnNextNote();
+    }
+  }
+  nextCount();
+}
+
+function spawnNextNote(){
+  if(!state.singing||!songActive||songSpawned>=SONG_LEN) return;
+  const idx=songSpawned;
+  songSpawned++;
+  document.getElementById('sing-progress').textContent='Note '+songSpawned+' of 12';
+  renderLyrics(idx);
+
+  const lane=document.getElementById('beat-lane');
+  const note=document.createElement('div');
+  note.className='beat-note';
+  note.textContent=['🎵','🎶','💖','⭐'][idx%4];
+  note.style.top='-64px';
+  note.style.transition='top '+NOTE_FALL_MS+'ms linear';
+  lane.appendChild(note);
+  const entry={el:note,born:Date.now(),hit:false,missed:false,idx:idx,resolved:false};
+  beatNotes.push(entry);
+  requestAnimationFrame(function(){note.style.top='140px'});
+  chimeClick();
+
+  setTimeout(function(){
+    if(entry.resolved) return;
+    entry.resolved=true;
+    entry.missed=true;
+    note.style.opacity='0.25';
+    songCombo=0;
+    songResolved++;
+    updateSingScore();
+    setTimeout(function(){try{note.remove()}catch(e){} beatNotes=beatNotes.filter(function(b){return b!==entry})},280);
+    maybeEndSong();
+  },NOTE_FALL_MS+40);
+
+  if(songSpawned<SONG_LEN){
+    singTimer=setTimeout(spawnNextNote,SONG_GAP);
+  } else {
+    singTimer=null; // finite: stop spawning after 12
+  }
+}
+
+function updateSingScore(){
+  const stars=starCount(state.singHits);
+  const hollow=['☆','☆','☆'];
+  for(let i=0;i<stars;i++) hollow[i]='⭐';
+  const extra=songCombo>=3?' · Combo x'+songCombo+'!':'';
+  document.getElementById('sing-score').textContent='Hits: '+state.singHits+' / 12 · '+hollow.join('')+extra;
+}
+
+function starCount(hits){
+  if(hits>=10) return 3;
+  if(hits>=7) return 2;
+  if(hits>=4) return 1;
+  return 0;
+}
+
+function maybeEndSong(){
+  if(songEnded||songResolved<SONG_LEN) return;
+  songEnded=true;
+  songActive=false;
+  stopSongTimers();
+  document.getElementById('beat-hit').classList.add('disabled');
+  setTimeout(showSingEnd,450);
+}
+
+function showSingEnd(){
+  const hits=state.singHits;
+  const stars=starCount(hits);
+  const starStr=(stars?('⭐'.repeat(stars)):'')+('☆'.repeat(3-stars));
+  document.getElementById('sing-stars').textContent=starStr||'☆☆☆';
+  let msg='Song done! '+hits+'/12 hits';
+  if(hits>=10) msg='Luna rockstar! '+hits+'/12 hits 🎤';
+  else if(hits>=7) msg='Great singing! '+hits+'/12 hits';
+  else if(hits>=4) msg='Nice try! '+hits+'/12 hits';
+  else msg='Song done! '+hits+'/12 hits — play again!';
+  document.getElementById('sing-end-msg').textContent=msg;
+  document.getElementById('sing-end-sub').textContent=hits>=10
+    ? 'You sang: "'+LUNA_LYRICS.join(' ')+'"'
+    : 'Sing Luna\'s words out loud next time!';
+  document.getElementById('sing-play-area').classList.add('hidden');
+  document.getElementById('sing-end').classList.remove('hidden');
+  if(hits>=10){chimePrize();burst(document.getElementById('sing-end-msg'),true)}
+  else if(hits>=4) chimeGood();
+  else tone(280,.2,'triangle',.08);
+}
+
+document.getElementById('beat-hit').addEventListener('click',function(){
+  if(!state.singing||!songActive||songEnded) return;
   ensureAudio();
-  // Hit window: note near target (~ bottom of lane)
   const now=Date.now();
   let best=null,bestDist=999;
-  beatNotes.forEach(b=>{
-    if(b.hit) return;
+  beatNotes.forEach(function(b){
+    if(b.hit||b.resolved) return;
     const age=now-b.born;
-    const dist=Math.abs(age-1800); // target around 1.8s into 2.2s travel
+    const dist=Math.abs(age-HIT_TARGET_MS);
     if(dist<bestDist){bestDist=dist;best=b}
   });
-  if(best&&bestDist<350){
+  if(best&&bestDist<HIT_WINDOW){
     best.hit=true;
+    best.resolved=true;
     best.el.style.transform='scale(1.4)';
     best.el.style.opacity='0';
     state.singHits++;
-    document.getElementById('sing-score').textContent='Hits: '+state.singHits+(state.singHits>=5?' 🌟 Bonus sparkles!':'');
-    chimeGood();
+    songCombo++;
+    songResolved++;
+    const freq=MELODY[best.idx%MELODY.length];
+    tone(freq,.16,'sine',.14);
     burst(document.getElementById('beat-hit'));
-    if(state.singHits===8){
-      // bonus cheer
-      const fb=document.getElementById('sing-score');
-      fb.textContent='Hits: '+state.singHits+' — Luna rockstar! 🎸';
-    }
+    updateSingScore();
+    setTimeout(function(){try{best.el.remove()}catch(e){} beatNotes=beatNotes.filter(function(b){return b!==best})},200);
+    maybeEndSong();
   } else {
     tone(200,.08,'triangle',.06);
+    songCombo=0;
   }
+});
+
+document.getElementById('sing-again').addEventListener('click',function(){
+  if(!state.singing) return;
+  startSong();
 });
 
 /* ===== CELEBRATION ===== */
