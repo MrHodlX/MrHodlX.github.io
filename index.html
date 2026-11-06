@@ -1,986 +1,1138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Note Party!" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <title>Note Party! — Troll Village Concert</title>
-  <!--
-    Note Party! — Reading & math mini-world for ~6–7 year olds
-    Original troll-village + K-pop concert stage (no copyrighted assets)
-    Safari Share → Add to Home Screen for iPad icon
-  -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --pink:#ff4da6; --hot:#ff2d95; --purple:#9b5cff; --blue:#4ecbff;
-      --yellow:#ffe566; --lime:#7dff9a; --orange:#ff9f43; --cream:#fff7fb;
-      --ink:#2b1a4a; --soft:#f3e8ff; --shadow:rgba(43,26,74,.2);
-      --sky1:#87e8ff; --sky2:#c9a0ff; --sky3:#ff9ad5;
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{
-      margin:0;padding:0;height:100%;width:100%;
-      font-family:"Fredoka",system-ui,-apple-system,sans-serif;
-      color:var(--ink);overflow:hidden;touch-action:manipulation;
-      user-select:none;-webkit-user-select:none;background:#1a0a2e;
-    }
-    #app{position:relative;height:100%;width:100%;overflow:hidden}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Note Party">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#7b2cbf">
+<title>Note Party — For Luna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka',system-ui,sans-serif;background:#1a0a2e;color:#fff;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;border:none;cursor:pointer}
+#app{position:fixed;inset:0;overflow:hidden}
 
-    .screen{
-      position:absolute;inset:0;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
-      opacity:0;pointer-events:none;transform:translateY(12px) scale(.98);
-      transition:opacity .4s ease, transform .4s ease;
-      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      z-index:2;
-    }
-    .screen.active{opacity:1;pointer-events:auto;transform:none;z-index:3}
+/* ===== START SCREEN ===== */
+#start{
+  position:absolute;inset:0;z-index:100;
+  background:radial-gradient(ellipse at 50% 30%,#5b21b6 0%,#2e1065 45%,#0f0520 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#start.hidden{display:none}
+#sparkle-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.sparkle{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:#fff;box-shadow:0 0 8px 2px #ffe66d,0 0 16px #ff9ecd;
+  animation:twinkle var(--d,2s) ease-in-out infinite;
+  opacity:0;
+}
+.star-twinkle{
+  position:absolute;font-size:18px;opacity:0;
+  animation:starPulse var(--d,2.5s) ease-in-out infinite;
+  filter:drop-shadow(0 0 6px #ffe66d);
+}
+.glow-float{
+  position:absolute;width:40px;height:40px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,230,109,.45),transparent 70%);
+  animation:floatGlow var(--d,6s) ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.4)}40%,60%{opacity:1;transform:scale(1.2)}}
+@keyframes starPulse{0%,100%{opacity:.2;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.3) rotate(20deg)}}
+@keyframes floatGlow{0%,100%{transform:translateY(0) scale(1);opacity:.4}50%{transform:translateY(-40px) scale(1.3);opacity:.8}}
 
-    .sky{
-      position:absolute;inset:0;z-index:0;overflow:hidden;
-      background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 45%,var(--sky3) 100%);
-    }
-    .sky-cloud{
-      position:absolute;border-radius:50%;background:rgba(255,255,255,.55);
-      filter:blur(1px);animation:drift linear infinite;
-    }
-    .sky-star{
-      position:absolute;width:6px;height:6px;border-radius:50%;
-      background:#fff;box-shadow:0 0 8px #fff;animation:twinkle 2.4s ease-in-out infinite;
-    }
-    .float-note{
-      position:absolute;font-size:1.4rem;opacity:.5;
-      animation:floatNote 6s ease-in-out infinite;pointer-events:none;z-index:1;
-    }
-    @keyframes drift{from{transform:translateX(-20vw)}to{transform:translateX(120vw)}}
-    @keyframes twinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
-    @keyframes floatNote{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-28px) rotate(8deg)}}
-    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-    @keyframes dance{
-      0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}
-      25%{transform:translateY(-16px) rotate(6deg) scale(1.06)}
-      50%{transform:translateY(0) rotate(-3deg)}
-      75%{transform:translateY(-12px) rotate(8deg) scale(1.04)}
-    }
-    @keyframes hairWave{0%,100%{transform:translateX(-50%) rotate(-3deg)}50%{transform:translateX(-50%) rotate(3deg)}}
-    @keyframes pulseGlow{
-      0%,100%{box-shadow:0 0 0 0 rgba(255,229,102,.55),0 8px 0 rgba(0,0,0,.12)}
-      50%{box-shadow:0 0 22px 8px rgba(255,229,102,.85),0 8px 0 rgba(0,0,0,.12)}
-    }
-    @keyframes stagePulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
-    @keyframes confettiFall{
-      0%{transform:translateY(-8vh) rotate(0) scale(1);opacity:1}
-      100%{transform:translateY(110vh) rotate(720deg) scale(.7);opacity:.8}
-    }
-    @keyframes burstOut{
-      0%{transform:translate(0,0) scale(1);opacity:1}
-      100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}
-    }
-    @keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes wiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
-    @keyframes popIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
-    @keyframes pathShimmer{0%,100%{opacity:.55}50%{opacity:.9}}
-    @keyframes lightBeam{
-      0%,100%{opacity:.35;transform:scaleY(1)}
-      50%{opacity:.85;transform:scaleY(1.08)}
-    }
-    @keyframes slotPop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.start-content{position:relative;z-index:2;text-align:center;padding:24px;max-width:520px}
+.logo{
+  font-size:clamp(42px,12vw,72px);font-weight:700;letter-spacing:1px;
+  background:linear-gradient(135deg,#ffe66d,#ff9ecd,#a78bfa,#67e8f9);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 4px 12px rgba(255,158,205,.5));
+  margin-bottom:8px;animation:logoBob 2.5s ease-in-out infinite;
+}
+@keyframes logoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.subtitle{font-size:clamp(16px,4vw,22px);color:#e9d5ff;margin-bottom:28px;opacity:.9}
 
-    /* Mascot */
-    .mascot{width:100px;height:120px;position:relative;animation:bounce 2.2s ease-in-out infinite;flex-shrink:0}
-    .mascot.sm{width:64px;height:78px}
-    .mascot.xs{width:48px;height:58px}
-    .mascot.lg{width:130px;height:155px}
-    .mascot.dancing{animation:dance .65s ease-in-out infinite}
-    .mascot .hair{
-      position:absolute;top:-14px;left:50%;width:78%;height:42%;transform:translateX(-50%);
-      background:linear-gradient(180deg,#ff4da6,#ff9f43,#ffe566,#7dff9a,#4ecbff,#9b5cff);
-      border-radius:60% 60% 40% 40%;box-shadow:inset 0 -8px 0 rgba(255,255,255,.28);
-      animation:hairWave 2.8s ease-in-out infinite;
-    }
-    .mascot .hair::before,.mascot .hair::after{
-      content:"";position:absolute;top:6px;width:24%;height:70%;border-radius:50% 50% 40% 40%;
-    }
-    .mascot .hair::before{left:-6%;transform:rotate(-28deg);background:#9b5cff}
-    .mascot .hair::after{right:-6%;transform:rotate(28deg);background:#4ecbff}
-    .mascot .body{
-      position:absolute;bottom:6%;left:50%;transform:translateX(-50%);width:72%;height:62%;
-      background:radial-gradient(circle at 35% 30%,#ffe0f2,#ff7ec8);border-radius:50%;
-      box-shadow:inset -6px -8px 0 rgba(0,0,0,.06),0 6px 0 rgba(0,0,0,.1);
-    }
-    .mascot.teal .body{background:radial-gradient(circle at 35% 30%,#d6fff5,#4fd6c2)}
-    .mascot.lilac .body{background:radial-gradient(circle at 35% 30%,#f0e6ff,#b388ff)}
-    .mascot.sunny .body{background:radial-gradient(circle at 35% 30%,#fff6d0,#ffc14d)}
-    .mascot .eye{position:absolute;top:34%;width:16%;height:20%;background:#2b1a4a;border-radius:50%}
-    .mascot .eye.left{left:26%}.mascot .eye.right{right:26%}
-    .mascot .eye::after{content:"";position:absolute;top:15%;left:22%;width:35%;height:30%;background:#fff;border-radius:50%}
-    .mascot .smile{
-      position:absolute;bottom:26%;left:50%;width:32%;height:14%;
-      border:3px solid #2b1a4a;border-top:none;border-radius:0 0 16px 16px;transform:translateX(-50%);
-    }
+.dedication{
+  font-size:clamp(22px,6vw,36px);font-weight:600;color:#ffe66d;
+  text-shadow:0 0 12px rgba(255,230,109,.8),0 0 28px rgba(255,158,205,.5),0 2px 0 #c026d3;
+  margin:16px 0 8px;padding:12px 20px;
+  animation:shimmer 3s ease-in-out infinite;
+  line-height:1.35;
+}
+.dedication .heart{display:inline-block;animation:heartBeat 1.2s ease-in-out infinite;font-size:1.1em}
+@keyframes shimmer{
+  0%,100%{filter:brightness(1);text-shadow:0 0 12px rgba(255,230,109,.8),0 0 28px rgba(255,158,205,.5),0 2px 0 #c026d3}
+  50%{filter:brightness(1.25);text-shadow:0 0 20px rgba(255,230,109,1),0 0 40px rgba(255,158,205,.8),0 2px 0 #c026d3}
+}
+@keyframes heartBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
 
-    .btn{
-      appearance:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;
-      font-size:clamp(1.2rem,4.2vw,1.55rem);min-height:64px;min-width:64px;
-      padding:.8rem 1.5rem;border-radius:999px;background:var(--cream);color:var(--ink);
-      box-shadow:0 6px 0 var(--shadow),0 10px 22px var(--shadow);
-      transition:transform .12s ease,box-shadow .12s ease;touch-action:manipulation;
-    }
-    .btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--shadow)}
-    .btn-primary{
-      background:linear-gradient(180deg,#ff6eb8,var(--hot));color:#fff;
-      text-shadow:0 1px 0 rgba(0,0,0,.15);
-      font-size:clamp(1.45rem,5.2vw,1.95rem);padding:1rem 2.3rem;min-height:78px;
-    }
-    .btn-choice{
-      min-width:min(42vw,150px);min-height:72px;height:auto;
-      padding:.65rem 1.1rem;border-radius:22px;
-      font-size:clamp(1.45rem,5.5vw,2.1rem);background:#fff;margin:.3rem;
-      line-height:1.15;
-    }
-    .btn-choice.num{
-      min-width:min(26vw,110px);width:min(26vw,110px);height:min(26vw,110px);
-      font-size:clamp(1.9rem,8.5vw,3rem);border-radius:26px;padding:0;
-    }
-    .btn-choice.correct-flash{background:var(--lime);transform:scale(1.08)}
-    .btn-choice.wrong-flash{background:#ffd0e4;animation:wiggle .35s ease}
-    .ghost-btn{
-      background:rgba(255,255,255,.7);border:none;border-radius:999px;
-      padding:.5rem .95rem;min-height:46px;font-family:inherit;font-weight:600;
-      font-size:1rem;color:var(--ink);cursor:pointer;touch-action:manipulation;
-      box-shadow:0 3px 0 rgba(0,0,0,.08);
-    }
+.mascot-row{display:flex;justify-content:center;gap:18px;margin:20px 0 28px;flex-wrap:wrap}
+.mascot{
+  width:72px;height:88px;position:relative;
+  animation:danceBob 1.1s ease-in-out infinite;
+}
+.mascot:nth-child(2){animation-delay:.2s}
+.mascot:nth-child(3){animation-delay:.4s}
+@keyframes danceBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
 
-    h1{font-size:clamp(2.1rem,7.5vw,3.2rem);margin:.15rem 0 .35rem;line-height:1.1;text-shadow:0 3px 0 rgba(255,255,255,.45)}
-    .subtitle{font-size:clamp(1rem,3.6vw,1.3rem);opacity:.92;margin:0 0 .9rem;max-width:22rem}
+.play-btn{
+  display:inline-block;padding:18px 56px;font-size:clamp(24px,6vw,32px);font-weight:700;
+  color:#1a0a2e;background:linear-gradient(180deg,#ffe66d,#fbbf24);
+  border-radius:999px;box-shadow:0 6px 0 #d97706,0 10px 24px rgba(251,191,36,.45);
+  transition:transform .1s;animation:pulsePlay 2s ease-in-out infinite;
+}
+.play-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #d97706,0 4px 12px rgba(251,191,36,.4)}
+@keyframes pulsePlay{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 
-    /* START */
-    #screen-start{background:transparent;z-index:4}
-    .start-card{
-      position:relative;z-index:2;text-align:center;
-      background:rgba(255,255,255,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      border-radius:32px;padding:1.4rem 1.2rem 1.6rem;box-shadow:0 16px 40px var(--shadow);
-      max-width:420px;width:min(92%,420px);animation:popIn .5s ease;
-    }
-    .start-crew{display:flex;justify-content:center;align-items:flex-end;gap:.35rem;margin-bottom:.4rem}
+/* ===== HUD ===== */
+#hud{
+  position:absolute;top:0;left:0;right:0;z-index:50;
+  display:none;padding:calc(10px + env(safe-area-inset-top)) 12px 8px;
+  background:linear-gradient(180deg,rgba(26,10,46,.85),transparent);
+  pointer-events:none;
+}
+#hud.show{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hud-pill{
+  pointer-events:auto;background:rgba(91,33,182,.85);backdrop-filter:blur(8px);
+  border:2px solid rgba(255,230,109,.4);border-radius:999px;
+  padding:8px 14px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.hud-pill button{background:transparent;color:#ffe66d;font-size:14px;font-weight:700;padding:4px 8px}
+#prize-shelf{
+  pointer-events:auto;display:flex;gap:4px;flex-wrap:wrap;max-width:min(100%,340px);
+  background:rgba(15,5,32,.75);border-radius:16px;padding:6px 8px;
+  border:2px solid rgba(255,158,205,.35);
+}
+.prize-slot{
+  width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  border:1px dashed rgba(255,255,255,.2);
+}
+.prize-slot.filled{background:linear-gradient(135deg,#7c3aed,#db2777);border-style:solid;border-color:#ffe66d;animation:prizePop .4s ease}
+@keyframes prizePop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 
-    /* WORLD */
-    #screen-world{align-items:stretch;justify-content:flex-start;padding:0}
-    .world-hud{
-      position:absolute;top:0;left:0;right:0;z-index:10;
-      display:flex;justify-content:space-between;align-items:center;
-      padding:calc(env(safe-area-inset-top) + .5rem) .75rem .5rem;pointer-events:none;
-    }
-    .world-hud > *{pointer-events:auto}
-    .hud-notes{
-      display:flex;gap:.3rem;flex-wrap:wrap;align-items:center;
-      background:rgba(255,255,255,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-      border-radius:999px;padding:.35rem .65rem;box-shadow:0 4px 12px var(--shadow);
-    }
-    .note-pip{
-      width:26px;height:26px;border-radius:50%;
-      background:rgba(43,26,74,.12);border:2px dashed rgba(43,26,74,.25);
-      display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;
-      transition:transform .25s,background .25s;
-    }
-    .note-pip.filled{background:var(--yellow);border-style:solid;border-color:#ffb800;transform:scale(1.12);box-shadow:0 2px 0 rgba(0,0,0,.1)}
-    .hint-chip{
-      margin:.35rem auto 0;background:rgba(255,255,255,.88);border-radius:999px;
-      padding:.45rem 1rem;font-weight:600;font-size:clamp(.95rem,3.2vw,1.1rem);
-      box-shadow:0 3px 10px var(--shadow);animation:pulseGlow 2.5s ease-in-out infinite;
-      position:relative;z-index:10;max-width:92%;text-align:center;
-    }
-    .world-scroller{
-      flex:1;width:100%;overflow:auto;-webkit-overflow-scrolling:touch;
-      touch-action:pan-x pan-y;position:relative;z-index:1;
-    }
-    .village{
-      position:relative;width:max(100%,780px);height:max(100%,720px);
-      min-height:720px;margin:0 auto;
-    }
+/* ===== WORLD ===== */
+#world-wrap{
+  position:absolute;inset:0;overflow:hidden;display:none;
+  background:linear-gradient(180deg,#67e8f9 0%,#a5f3fc 30%,#86efac 55%,#4ade80 100%);
+}
+#world-wrap.show{display:block}
+#world{
+  position:absolute;width:1600px;height:1100px;
+  transform-origin:0 0;
+  cursor:grab;
+}
+#world.dragging{cursor:grabbing}
+.sky-cloud{
+  position:absolute;background:rgba(255,255,255,.85);border-radius:40px;
+  box-shadow:30px 0 0 rgba(255,255,255,.85),-25px 8px 0 rgba(255,255,255,.7);
+  animation:cloudDrift linear infinite;
+}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(80px)}}
 
-    .layer{position:absolute;left:0;right:0;pointer-events:none}
-    .hills-far{
-      bottom:30%;height:36%;
-      background:
-        radial-gradient(ellipse 40% 80% at 15% 100%,#a8e6a0 0%,transparent 70%),
-        radial-gradient(ellipse 45% 90% at 55% 100%,#8fd98a 0%,transparent 70%),
-        radial-gradient(ellipse 40% 75% at 90% 100%,#b5f0b0 0%,transparent 70%);
-      opacity:.85;
-    }
-    .hills-near{
-      bottom:14%;height:40%;
-      background:
-        radial-gradient(ellipse 50% 100% at 0% 100%,#5ecf6a 0%,transparent 65%),
-        radial-gradient(ellipse 55% 110% at 50% 100%,#4cbc5c 0%,transparent 68%),
-        radial-gradient(ellipse 48% 95% at 100% 100%,#6ad976 0%,transparent 65%);
-    }
-    .ground{
-      bottom:0;height:24%;
-      background:linear-gradient(180deg,#7adf6a 0%,#4aaa4a 55%,#3d8f3d 100%);
-      border-radius:50% 50% 0 0 / 40px 40px 0 0;
-      box-shadow:inset 0 12px 0 rgba(255,255,255,.15);
-    }
+.hill{
+  position:absolute;border-radius:50% 50% 0 0;
+  background:linear-gradient(180deg,#4ade80,#22c55e);
+}
+.tree{position:absolute;width:50px;height:70px}
+.tree-top{
+  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+  width:48px;height:48px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#86efac,#16a34a);
+  box-shadow:0 0 0 4px #15803d inset;
+}
+.tree-trunk{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:12px;height:24px;background:#92400e;border-radius:3px;
+}
+.hut{
+  position:absolute;width:90px;height:80px;
+}
+.hut-body{
+  position:absolute;bottom:0;left:8px;right:8px;height:48px;
+  border-radius:8px 8px 4px 4px;
+  background:linear-gradient(180deg,var(--hut,#f472b6),color-mix(in srgb,var(--hut,#f472b6) 70%,#000));
+  border:3px solid rgba(0,0,0,.15);
+}
+.hut-roof{
+  position:absolute;bottom:42px;left:0;right:0;height:0;
+  border-left:45px solid transparent;border-right:45px solid transparent;
+  border-bottom:36px solid var(--roof,#7c3aed);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));
+}
+.hut-door{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:22px;height:28px;background:#78350f;border-radius:10px 10px 0 0;
+}
+.hut-window{
+  position:absolute;bottom:22px;width:14px;height:14px;border-radius:50%;
+  background:#fef08a;box-shadow:0 0 8px #fde047;border:2px solid rgba(0,0,0,.2);
+}
+.path{
+  position:absolute;background:rgba(217,119,6,.35);border-radius:20px;
+  transform-origin:center;
+}
 
-    /* Village path → stage */
-    .path{
-      position:absolute;z-index:3;pointer-events:none;
-      left:42%;width:16%;bottom:8%;height:42%;
-      background:linear-gradient(180deg,
-        rgba(255,214,140,.95) 0%,
-        rgba(232,180,100,.9) 40%,
-        rgba(210,150,70,.85) 100%);
-      border-radius:40% 40% 20% 20% / 12% 12% 8% 8%;
-      box-shadow:inset 0 0 0 4px rgba(255,255,255,.25),0 0 16px rgba(255,200,100,.35);
-      animation:pathShimmer 3s ease-in-out infinite;
-      clip-path:ellipse(70% 50% at 50% 50%);
-    }
-    .path-curve-l,.path-curve-r{
-      position:absolute;z-index:3;pointer-events:none;height:10%;width:28%;
-      background:rgba(232,180,100,.75);border-radius:50%;
-      box-shadow:inset 0 0 0 3px rgba(255,255,255,.2);
-    }
-    .path-curve-l{left:18%;bottom:28%}
-    .path-curve-r{right:16%;bottom:30%}
+/* Concert stage */
+.stage{
+  position:absolute;width:320px;height:200px;
+  left:640px;top:380px;
+}
+.stage-floor{
+  position:absolute;bottom:0;left:20px;right:20px;height:50px;
+  background:linear-gradient(180deg,#a78bfa,#7c3aed);
+  border-radius:12px;border:3px solid #5b21b6;
+  box-shadow:0 8px 0 #4c1d95,0 12px 24px rgba(0,0,0,.3);
+}
+.stage-back{
+  position:absolute;bottom:48px;left:40px;right:40px;height:100px;
+  background:linear-gradient(180deg,#c026d3,#7c3aed);
+  border-radius:16px 16px 0 0;border:3px solid #86198f;
+}
+.stage-lights{
+  position:absolute;bottom:140px;left:50px;right:50px;display:flex;justify-content:space-around;
+}
+.stage-light{
+  width:14px;height:14px;border-radius:50%;
+  background:#ffe66d;box-shadow:0 0 12px #ffe66d;
+  animation:lightBlink 1.5s ease-in-out infinite;
+}
+.stage-light:nth-child(2){animation-delay:.3s;background:#67e8f9;box-shadow:0 0 12px #67e8f9}
+.stage-light:nth-child(3){animation-delay:.6s;background:#ff9ecd;box-shadow:0 0 12px #ff9ecd}
+.stage-light:nth-child(4){animation-delay:.9s;background:#86efac;box-shadow:0 0 12px #86efac}
+@keyframes lightBlink{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.stage-label{
+  position:absolute;bottom:58px;left:0;right:0;text-align:center;
+  font-size:18px;font-weight:700;color:#ffe66d;text-shadow:0 2px 4px rgba(0,0,0,.4);
+}
+.song-slots{
+  position:absolute;bottom:12px;left:40px;right:40px;display:flex;justify-content:center;gap:8px;
+}
+.song-slot{
+  width:36px;height:28px;border-radius:8px;background:rgba(0,0,0,.25);
+  border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.song-slot.lit{background:linear-gradient(135deg,#ffe66d,#f472b6);border-style:solid;border-color:#fff;animation:prizePop .4s}
+.dancer{
+  position:absolute;bottom:52px;width:36px;height:48px;opacity:.35;transition:opacity .4s;
+}
+.dancer.active{opacity:1;animation:danceBob .8s ease-in-out infinite}
+.dancer:nth-child(1){left:70px}.dancer:nth-child(2){left:140px;animation-delay:.15s}.dancer:nth-child(3){left:210px;animation-delay:.3s}
+.sing-btn{
+  position:absolute;bottom:-48px;left:50%;transform:translateX(-50%);
+  padding:12px 24px;font-size:16px;font-weight:700;border-radius:999px;
+  background:linear-gradient(180deg,#ff9ecd,#db2777);color:#fff;
+  box-shadow:0 4px 0 #9d174d;display:none;white-space:nowrap;
+}
+.sing-btn.show{display:block}
 
-    /* —— CONCERT STAGE (central) —— */
-    .concert{
-      position:absolute;z-index:5;left:50%;transform:translateX(-50%);
-      bottom:38%;width:min(78%,340px);height:210px;pointer-events:none;
-    }
-    .concert-backdrop{
-      position:absolute;left:8%;right:8%;top:0;height:58%;
-      background:linear-gradient(180deg,#5a2d8a,#2b1450);
-      border-radius:18px 18px 8px 8px;
-      box-shadow:0 8px 24px rgba(0,0,0,.25),inset 0 0 30px rgba(155,92,255,.3);
-      transition:box-shadow .4s,filter .4s;
-    }
-    .concert.lit .concert-backdrop{
-      box-shadow:0 8px 32px rgba(255,77,166,.45),inset 0 0 40px rgba(255,229,102,.35);
-      filter:brightness(1.15);
-    }
-    .concert.full .concert-backdrop{
-      animation:stagePulse 1.4s ease-in-out infinite;
-      box-shadow:0 0 40px rgba(255,77,166,.7),0 0 60px rgba(155,92,255,.5),inset 0 0 50px rgba(255,229,102,.45);
-    }
-    .concert-arch{
-      position:absolute;left:4%;right:4%;top:-18px;height:36px;
-      background:linear-gradient(90deg,#ff4da6,#ffe566,#4ecbff,#9b5cff,#ff4da6);
-      border-radius:20px 20px 6px 6px;
-      box-shadow:0 4px 12px rgba(0,0,0,.2);
-    }
-    .concert-arch::after{
-      content:"♪ CONCERT ♪";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      font-size:.72rem;font-weight:700;color:#fff;letter-spacing:.08em;text-shadow:0 1px 2px rgba(0,0,0,.35);
-    }
-    .beam{
-      position:absolute;top:8%;width:14px;height:70%;
-      background:linear-gradient(180deg,rgba(255,255,255,.7),transparent);
-      border-radius:40%;opacity:0;transform-origin:top center;
-      transition:opacity .4s;
-    }
-    .beam.b1{left:18%;background:linear-gradient(180deg,rgba(255,77,166,.85),transparent);transform:rotate(-12deg)}
-    .beam.b2{left:46%;background:linear-gradient(180deg,rgba(255,229,102,.9),transparent)}
-    .beam.b3{right:18%;background:linear-gradient(180deg,rgba(78,203,255,.85),transparent);transform:rotate(12deg)}
-    .concert.lit .beam{opacity:.55;animation:lightBeam 2s ease-in-out infinite}
-    .concert.full .beam{opacity:.9}
+/* Notes */
+.note-spot{
+  position:absolute;width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,#ffe66d 40%,#f59e0b);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 0 20px rgba(255,230,109,.8),0 4px 0 #d97706;
+  animation:notePulse 1.6s ease-in-out infinite;cursor:pointer;z-index:5;
+}
+.note-spot.collected{opacity:0;pointer-events:none;transform:scale(0);transition:all .5s}
+@keyframes notePulse{0%,100%{transform:scale(1);box-shadow:0 0 16px rgba(255,230,109,.7),0 4px 0 #d97706}50%{transform:scale(1.12);box-shadow:0 0 28px rgba(255,230,109,1),0 4px 0 #d97706}}
 
-    .concert-platform{
-      position:absolute;left:0;right:0;bottom:18px;height:48px;
-      background:linear-gradient(180deg,#ff6eb8,#9b5cff 55%,#6a3db8);
-      border-radius:16px;box-shadow:0 8px 0 #4a2580,0 12px 20px rgba(0,0,0,.25);
-    }
-    .concert-platform::before{
-      content:"";position:absolute;left:8%;right:8%;top:6px;height:10px;border-radius:8px;
-      background:linear-gradient(90deg,#ffe566,#fff,#4ecbff,#ff4da6,#ffe566);
-      opacity:.7;
-    }
-    .concert-steps{
-      position:absolute;left:50%;transform:translateX(-50%);bottom:0;
-      width:70px;height:22px;background:#7a4ec4;border-radius:6px;
-      box-shadow:0 4px 0 #4a2580;
-    }
+/* Troll villagers */
+.troll{
+  position:absolute;width:70px;height:95px;cursor:pointer;z-index:6;
+  animation:trollBounce 2s ease-in-out infinite;
+}
+.troll:nth-child(odd){animation-duration:2.3s}
+@keyframes trollBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.troll-body{
+  position:absolute;bottom:8px;left:10px;width:50px;height:55px;border-radius:50% 50% 40% 40%;
+  background:var(--skin,#67e8f9);
+  box-shadow:inset -6px -8px 0 rgba(0,0,0,.08);
+}
+.troll-hair{
+  position:absolute;top:0;left:8px;width:54px;height:36px;border-radius:50% 50% 40% 40%;
+  background:var(--hair,#f472b6);
+  box-shadow:-12px 8px 0 -4px var(--hair,#f472b6),12px 8px 0 -4px var(--hair,#f472b6),0 -6px 0 -2px var(--hair,#f472b6);
+}
+.troll-eye{
+  position:absolute;bottom:42px;width:12px;height:14px;background:#fff;border-radius:50%;
+  border:2px solid #1a0a2e;
+}
+.troll-eye::after{
+  content:'';position:absolute;top:4px;left:3px;width:5px;height:5px;background:#1a0a2e;border-radius:50%;
+}
+.troll-eye.l{left:18px}.troll-eye.r{right:18px}
+.troll-smile{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  width:18px;height:10px;border:3px solid #1a0a2e;border-top:none;border-radius:0 0 12px 12px;
+}
+.troll-arm{
+  position:absolute;bottom:40px;width:12px;height:28px;border-radius:8px;background:var(--skin,#67e8f9);
+  animation:waveArm 1.5s ease-in-out infinite;
+}
+.troll-arm.l{left:0;transform-origin:top center}
+.troll-arm.r{right:0;transform-origin:top center;animation-delay:.2s}
+@keyframes waveArm{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(25deg)}}
+.cheer-chip{
+  position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  background:#fff;color:#7c3aed;padding:8px 12px;border-radius:12px;
+  font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;
+  max-width:160px;white-space:normal;text-align:center;z-index:20;
+}
+.cheer-chip.show{opacity:1}
 
-    /* Song slots under arch */
-    .song-slots{
-      position:absolute;left:12%;right:12%;top:28%;display:flex;gap:5px;justify-content:center;
-      z-index:2;
-    }
-    .song-slot{
-      width:28px;height:28px;border-radius:8px;
-      background:rgba(255,255,255,.15);border:2px dashed rgba(255,255,255,.35);
-      display:flex;align-items:center;justify-content:center;font-size:.85rem;
-      transition:background .3s,transform .3s,border-color .3s;
-    }
-    .song-slot.unlocked{
-      background:linear-gradient(180deg,#ffe566,#ffb800);border-style:solid;border-color:#fff;
-      transform:scale(1.08);box-shadow:0 0 10px rgba(255,229,102,.8);
-      animation:slotPop .35s ease;
-    }
+/* ===== CHALLENGE MODAL ===== */
+#challenge{
+  position:absolute;inset:0;z-index:80;display:none;
+  background:rgba(15,5,32,.72);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:16px;
+}
+#challenge.show{display:flex}
+.chal-card{
+  background:linear-gradient(160deg,#5b21b6,#2e1065);
+  border:3px solid #ffe66d;border-radius:28px;
+  padding:24px 20px;max-width:440px;width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  text-align:center;max-height:90vh;overflow-y:auto;
+}
+.chal-type{
+  display:inline-block;padding:4px 14px;border-radius:999px;font-size:13px;font-weight:600;
+  background:rgba(255,230,109,.2);color:#ffe66d;margin-bottom:12px;
+}
+.chal-prompt{font-size:clamp(18px,4.5vw,24px);font-weight:600;margin-bottom:8px;line-height:1.3;color:#fce7f3}
+.chal-say{
+  font-size:14px;color:#c4b5fd;margin-bottom:16px;
+  background:rgba(167,139,250,.2);padding:8px 12px;border-radius:12px;display:inline-block;
+}
+.chal-word{
+  font-size:clamp(40px,12vw,64px);font-weight:700;color:#ffe66d;
+  text-shadow:0 0 20px rgba(255,230,109,.5);margin:12px 0 20px;letter-spacing:1px;
+}
+.chal-sentence{
+  font-size:clamp(22px,5.5vw,32px);font-weight:600;color:#fff;
+  background:rgba(0,0,0,.25);padding:16px;border-radius:16px;margin:12px 0 20px;line-height:1.4;
+}
+.obj-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0 16px;min-height:40px}
+.obj{width:28px;height:28px;border-radius:50%;font-size:22px;display:flex;align-items:center;justify-content:center}
+.place-viz{display:flex;justify-content:center;gap:24px;margin:16px 0}
+.place-box{
+  background:rgba(0,0,0,.25);border-radius:16px;padding:12px 18px;min-width:100px;
+}
+.place-box h4{font-size:14px;color:#c4b5fd;margin-bottom:8px}
+.place-box .num{font-size:36px;font-weight:700;color:#ffe66d}
+.choices{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px}
+.choice-btn{
+  min-width:72px;min-height:64px;padding:12px 18px;font-size:clamp(20px,5vw,28px);font-weight:700;
+  border-radius:18px;background:linear-gradient(180deg,#a78bfa,#7c3aed);color:#fff;
+  box-shadow:0 5px 0 #5b21b6;transition:transform .1s;
+}
+.choice-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #5b21b6}
+.choice-btn.correct{background:linear-gradient(180deg,#86efac,#22c55e);box-shadow:0 5px 0 #15803d}
+.choice-btn.wrong{background:linear-gradient(180deg,#fca5a5,#ef4444);box-shadow:0 5px 0 #b91c1c;animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.chal-feedback{margin-top:14px;font-size:18px;font-weight:600;min-height:28px}
+.chal-feedback.good{color:#86efac}.chal-feedback.bad{color:#fca5a5}
 
-    /* Stage dancers appear as songs unlock */
-    .stage-crew{
-      position:absolute;left:0;right:0;bottom:52px;height:70px;
-      display:flex;justify-content:center;align-items:flex-end;gap:2px;z-index:3;
-    }
-    .stage-crew .mascot{opacity:0;transform:scale(.5) translateY(10px);transition:opacity .4s,transform .4s}
-    .stage-crew .mascot.on{opacity:1;transform:scale(1) translateY(0)}
+/* Particles */
+#particles{position:absolute;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+.particle{
+  position:absolute;font-size:20px;animation:flyOut 1s ease-out forwards;pointer-events:none;
+}
+@keyframes flyOut{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.3)}}
 
-    .stage-speakers{
-      position:absolute;bottom:28px;width:36px;height:44px;border-radius:8px;
-      background:linear-gradient(180deg,#3d2a55,#1a0a2e);box-shadow:0 4px 0 #0a0414;
-    }
-    .stage-speakers::before{
-      content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
-      width:18px;height:18px;border-radius:50%;border:3px solid #ff4da6;
-      box-shadow:0 0 10px #ff4da6;opacity:.4;transition:opacity .3s,box-shadow .3s;
-    }
-    .concert.lit .stage-speakers::before{opacity:1;box-shadow:0 0 14px #ff4da6,0 0 24px #ff4da6}
-    .stage-speakers.left{left:-8px}
-    .stage-speakers.right{right:-8px}
+/* ===== SING-ALONG ===== */
+#singalong{
+  position:absolute;inset:0;z-index:85;display:none;
+  background:linear-gradient(180deg,#2e1065,#0f0520);
+  flex-direction:column;align-items:center;justify-content:center;padding:20px;
+}
+#singalong.show{display:flex}
+.sing-title{font-size:28px;font-weight:700;color:#ffe66d;margin-bottom:8px}
+.sing-hint{font-size:16px;color:#c4b5fd;margin-bottom:24px;text-align:center}
+.beat-lane{
+  width:min(90vw,360px);height:200px;position:relative;
+  background:rgba(124,58,237,.3);border-radius:24px;border:3px solid #a78bfa;
+  overflow:hidden;margin-bottom:20px;
+}
+.beat-target{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  width:80px;height:80px;border-radius:50%;
+  border:4px solid #ffe66d;background:rgba(255,230,109,.15);
+  box-shadow:0 0 20px rgba(255,230,109,.4);
+}
+.beat-note{
+  position:absolute;left:50%;width:64px;height:64px;margin-left:-32px;
+  border-radius:50%;background:linear-gradient(135deg,#ff9ecd,#a78bfa);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 0 16px rgba(255,158,205,.6);
+}
+.beat-hit-btn{
+  width:100px;height:100px;border-radius:50%;font-size:40px;
+  background:linear-gradient(180deg,#ffe66d,#fbbf24);color:#1a0a2e;
+  box-shadow:0 6px 0 #d97706,0 0 30px rgba(255,230,109,.5);
+  animation:beatPulse .5s ease-in-out infinite;font-weight:700;
+}
+@keyframes beatPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.beat-hit-btn:active{transform:scale(.92);box-shadow:0 2px 0 #d97706}
+.sing-score{font-size:20px;margin:16px 0;color:#fff}
+.sing-close{
+  margin-top:12px;padding:12px 28px;border-radius:999px;font-size:16px;font-weight:600;
+  background:rgba(255,255,255,.15);color:#fff;
+}
 
-    /* Huts / homes */
-    .prop{position:absolute;pointer-events:none;z-index:4}
-    .hut{
-      width:70px;height:62px;
-    }
-    .hut .roof{
-      position:absolute;top:0;left:50%;transform:translateX(-50%);
-      width:78px;height:34px;border-radius:50% 50% 8% 8%;
-      box-shadow:0 4px 0 rgba(0,0,0,.1);
-    }
-    .hut .wall{
-      position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-      width:54px;height:36px;border-radius:8px 8px 4px 4px;
-      box-shadow:inset 0 -4px 0 rgba(0,0,0,.08),0 4px 0 rgba(0,0,0,.1);
-    }
-    .hut .door{
-      position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-      width:16px;height:20px;border-radius:8px 8px 0 0;background:rgba(43,26,74,.35);
-    }
-    .hut .window{
-      position:absolute;bottom:14px;width:10px;height:10px;border-radius:3px;
-      background:#ffe566;box-shadow:0 0 8px rgba(255,229,102,.6);
-    }
-    .hut .window.l{left:10px}.hut .window.r{right:10px}
-    .hut.pink .roof{background:linear-gradient(180deg,#ff8ec8,#ff4da6)}
-    .hut.pink .wall{background:linear-gradient(180deg,#ffe0f0,#ffb0d8)}
-    .hut.teal .roof{background:linear-gradient(180deg,#7dffd4,#2ec4a0)}
-    .hut.teal .wall{background:linear-gradient(180deg,#d6fff5,#9aead8)}
-    .hut.lilac .roof{background:linear-gradient(180deg,#d0b0ff,#9b5cff)}
-    .hut.lilac .wall{background:linear-gradient(180deg,#f0e6ff,#d4bfff)}
-    .hut.sunny .roof{background:linear-gradient(180deg,#ffe566,#ffb800)}
-    .hut.sunny .wall{background:linear-gradient(180deg,#fff6d0,#ffe0a0)}
-    .hut.blue .roof{background:linear-gradient(180deg,#8adaff,#4ecbff)}
-    .hut.blue .wall{background:linear-gradient(180deg,#e0f6ff,#b0e4ff)}
-
-    .tree{width:48px;height:70px}
-    .tree::before{
-      content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-      width:10px;height:22px;background:#8b5a2b;border-radius:4px;
-    }
-    .tree::after{
-      content:"";position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
-      width:44px;height:44px;border-radius:50%;
-      background:radial-gradient(circle at 35% 35%,#9dff8a,#2e9b45);box-shadow:0 4px 0 rgba(0,0,0,.1);
-    }
-    .mushroom{
-      width:36px;height:36px;border-radius:50% 50% 45% 45%;
-      background:radial-gradient(circle at 40% 35%,#ff6eb8,#e02070);
-      box-shadow:inset 0 -8px 0 rgba(0,0,0,.08);
-    }
-    .mushroom::after{
-      content:"";position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
-      width:10px;height:14px;background:#fff0e8;border-radius:4px;
-    }
-    .fence{
-      width:60px;height:18px;border-radius:4px;
-      background:repeating-linear-gradient(90deg,#c4894a 0 8px,transparent 8px 12px);
-      box-shadow:0 3px 0 rgba(0,0,0,.1);opacity:.85;
-    }
-    .village-dancer{position:absolute;z-index:4;pointer-events:none}
-
-    /* Note spots */
-    .note-spot{
-      position:absolute;z-index:6;width:68px;height:68px;
-      border:none;padding:0;cursor:pointer;touch-action:manipulation;
-      background:transparent;appearance:none;
-    }
-    .note-spot .orb{
-      width:100%;height:100%;border-radius:50%;
-      background:radial-gradient(circle at 35% 30%,#fff9c4,#ffe566 40%,#ffb800);
-      box-shadow:0 0 0 4px rgba(255,255,255,.55),0 8px 0 rgba(0,0,0,.12);
-      display:flex;align-items:center;justify-content:center;font-size:1.7rem;
-      animation:pulseGlow 2s ease-in-out infinite;transition:transform .2s,filter .2s;
-    }
-    .note-spot:active .orb{transform:scale(.92)}
-    .note-spot.collected .orb{
-      background:radial-gradient(circle at 35% 30%,#e8ffe8,#7dff9a);
-      box-shadow:0 0 0 4px rgba(255,255,255,.4),0 4px 0 rgba(0,0,0,.1);
-      animation:none;filter:saturate(.85);opacity:.85;
-    }
-    .note-spot .label{
-      position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
-      white-space:nowrap;font-size:.75rem;font-weight:600;
-      background:rgba(255,255,255,.88);padding:.12rem .45rem;border-radius:999px;pointer-events:none;
-    }
-    .pad{
-      position:absolute;z-index:5;width:84px;height:32px;border-radius:50%;
-      background:rgba(255,255,255,.3);box-shadow:0 4px 0 rgba(0,0,0,.08);pointer-events:none;
-    }
-
-    /* Challenge */
-    #screen-challenge{
-      background:rgba(43,26,74,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);justify-content:center;
-    }
-    .challenge-card{
-      background:rgba(255,255,255,.94);border-radius:28px;padding:1.15rem 1rem 1.4rem;
-      width:min(94%,420px);box-shadow:0 16px 40px var(--shadow);animation:slideUp .35s ease;
-      text-align:center;max-height:92%;overflow:auto;
-    }
-    .say-loud{
-      display:inline-flex;align-items:center;gap:.35rem;background:rgba(155,92,255,.15);
-      padding:.5rem .95rem;border-radius:999px;font-size:clamp(.95rem,3.3vw,1.15rem);
-      font-weight:600;margin:.4rem 0 .7rem;animation:bounce 1.8s ease-in-out infinite;
-    }
-    .prompt{font-size:clamp(1.2rem,4.3vw,1.55rem);font-weight:600;margin:.2rem 0 .65rem}
-    .word-big{
-      font-size:clamp(2.8rem,12vw,4.6rem);font-weight:700;line-height:1.1;
-      color:var(--purple);text-shadow:0 4px 0 rgba(155,92,255,.2);margin:.15rem 0 .5rem;
-      word-break:keep-all;letter-spacing:.02em;
-    }
-    .add-equation{
-      display:flex;align-items:center;justify-content:center;gap:.45rem;flex-wrap:wrap;
-      margin:.35rem 0 .7rem;font-size:clamp(2rem,9vw,3.2rem);font-weight:700;color:var(--ink);
-    }
-    .add-equation .op{color:var(--pink);font-size:1.1em}
-    .add-pile{display:inline-flex;gap:.2rem;flex-wrap:wrap;justify-content:center;max-width:9rem}
-    .add-dot.dim{opacity:.32;filter:grayscale(.7)}
-    .add-dot{width:28px;height:28px;border-radius:50%;box-shadow:0 2px 0 rgba(0,0,0,.1)}
-    .count-stage{
-      display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;
-      min-height:90px;margin:.35rem 0 .8rem;padding:.4rem;
-    }
-    .count-item{
-      width:46px;height:46px;border-radius:50%;display:flex;align-items:center;
-      justify-content:center;font-size:1.5rem;box-shadow:0 3px 0 rgba(0,0,0,.08);
-      animation:bounce 1.5s ease-in-out infinite;
-    }
-    .count-item:nth-child(odd){animation-delay:.12s}
-    .count-item:nth-child(3n){animation-delay:.28s}
-    .choices{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem}
-    .feedback{min-height:1.5rem;font-size:1.15rem;font-weight:600;margin-top:.65rem;color:var(--purple)}
-    .chal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem}
-
-    .burst-layer,.confetti-layer{pointer-events:none;position:absolute;inset:0;overflow:hidden;z-index:20}
-    .burst-bit{position:absolute;width:14px;height:14px;border-radius:50%;animation:burstOut .7s ease-out forwards}
-    .confetti{position:absolute;top:-20px;width:12px;height:18px;border-radius:3px;animation:confettiFall linear forwards}
-
-    #screen-cele{text-align:center;background:transparent}
-    .cele-inner{
-      position:relative;z-index:2;background:rgba(255,255,255,.78);
-      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      border-radius:32px;padding:1.5rem 1.2rem;max-width:440px;width:min(92%,440px);
-      box-shadow:0 16px 40px var(--shadow);animation:popIn .5s ease;
-    }
-    .cele-crew{display:flex;justify-content:center;align-items:flex-end;gap:.4rem;margin:.3rem 0 .6rem}
-    .cele-notes{font-size:2.2rem;letter-spacing:.12em;margin:.4rem 0 1rem}
-
-    @media (max-height:700px){
-      .mascot.lg{width:100px;height:120px}
-      .start-card,.cele-inner{padding:1rem}
-      h1{font-size:1.9rem}
-      .village{min-height:640px}
-      .concert{height:180px;bottom:36%}
-    }
-  </style>
+/* ===== CELEBRATION ===== */
+#celeb{
+  position:absolute;inset:0;z-index:95;display:none;
+  background:radial-gradient(ellipse at center,#7c3aed 0%,#1a0a2e 70%);
+  flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:hidden;
+}
+#celeb.show{display:flex}
+.luna-lights{
+  font-size:clamp(48px,14vw,80px);font-weight:700;letter-spacing:8px;
+  background:linear-gradient(90deg,#ffe66d,#ff9ecd,#67e8f9,#ffe66d);
+  background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:lightMarquee 2s linear infinite,logoBob 2s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(255,230,109,.8));
+  margin-bottom:12px;
+}
+@keyframes lightMarquee{to{background-position:200% center}}
+.trophy{font-size:80px;margin:12px 0;animation:danceBob 1s ease-in-out infinite;filter:drop-shadow(0 0 20px #ffe66d)}
+.celeb-msg{font-size:clamp(20px,5vw,28px);text-align:center;color:#fce7f3;margin:8px 0 20px;line-height:1.4}
+.celeb-prizes{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:24px;max-width:360px}
+.celeb-prizes span{
+  width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;background:linear-gradient(135deg,#7c3aed,#db2777);border:2px solid #ffe66d;
+}
+.fw{position:absolute;width:6px;height:6px;border-radius:50%;animation:fwBoom 1.2s ease-out forwards}
+@keyframes fwBoom{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(0)}}
+.again-btn{
+  padding:16px 40px;font-size:22px;font-weight:700;border-radius:999px;
+  background:linear-gradient(180deg,#ffe66d,#fbbf24);color:#1a0a2e;
+  box-shadow:0 5px 0 #d97706;
+}
+</style>
 </head>
 <body>
-  <div id="app">
-    <div class="sky" id="sky" aria-hidden="true"></div>
-    <div id="float-notes" aria-hidden="true"></div>
-
-    <section id="screen-start" class="screen active" aria-label="Start">
-      <div class="start-card">
-        <div class="start-crew" aria-hidden="true">
-          <div class="mascot sm teal"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-          <div class="mascot lg dancing"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-          <div class="mascot sm lilac"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-        </div>
-        <h1>Note Party!</h1>
-        <p class="subtitle">Explore the village • Sight words • Add &amp; subtract • Concert!</p>
-        <button type="button" class="btn btn-primary" id="btn-play">Let's Go!</button>
+<div id="app">
+  <!-- START -->
+  <div id="start">
+    <div id="sparkle-layer"></div>
+    <div class="start-content">
+      <div class="logo">🎵 Note Party</div>
+      <div class="subtitle">Troll Village Dance Adventure</div>
+      <div class="dedication">
+        From Daddy. Love you, Luna. <span class="heart">💕</span> <span class="heart" style="animation-delay:.3s">✨</span>
       </div>
-    </section>
-
-    <section id="screen-world" class="screen" aria-label="Village">
-      <div class="world-hud">
-        <button type="button" class="ghost-btn" id="btn-home">Home</button>
-        <div class="hud-notes" id="hud-notes" aria-live="polite"></div>
-      </div>
-      <div class="hint-chip" id="world-hint">Tap glowing notes around the village! 🎵</div>
-      <div class="world-scroller" id="world-scroller">
-        <div class="village" id="island">
-          <div class="layer hills-far"></div>
-          <div class="layer hills-near"></div>
-          <div class="layer ground"></div>
-
-          <!-- Paths to stage -->
-          <div class="path" aria-hidden="true"></div>
-          <div class="path-curve-l" aria-hidden="true"></div>
-          <div class="path-curve-r" aria-hidden="true"></div>
-
-          <!-- Central concert stage -->
-          <div class="concert" id="concert" aria-label="Concert stage">
-            <div class="concert-arch"></div>
-            <div class="concert-backdrop">
-              <div class="beam b1"></div>
-              <div class="beam b2"></div>
-              <div class="beam b3"></div>
-              <div class="song-slots" id="song-slots"></div>
-            </div>
-            <div class="stage-crew" id="stage-crew">
-              <div class="mascot xs dancing teal" data-need="1"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-              <div class="mascot sm dancing" data-need="2"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-              <div class="mascot xs dancing lilac" data-need="3"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-              <div class="mascot xs dancing sunny" data-need="5"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-              <div class="mascot xs dancing teal" data-need="7"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-            </div>
-            <div class="stage-speakers left"></div>
-            <div class="stage-speakers right"></div>
-            <div class="concert-platform"></div>
-            <div class="concert-steps"></div>
-          </div>
-
-          <!-- Colorful village huts -->
-          <div class="prop hut pink" style="left:4%;bottom:22%"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
-          <div class="prop hut teal" style="left:16%;bottom:18%;transform:scale(.9)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
-          <div class="prop hut lilac" style="left:8%;bottom:36%;transform:scale(.85)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
-          <div class="prop hut sunny" style="right:6%;bottom:24%"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
-          <div class="prop hut blue" style="right:18%;bottom:17%;transform:scale(.9)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
-          <div class="prop hut pink" style="right:10%;bottom:38%;transform:scale(.8)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
-
-          <!-- Trees, mushrooms, fences -->
-          <div class="prop tree" style="left:28%;bottom:16%"></div>
-          <div class="prop tree" style="left:2%;bottom:40%;transform:scale(.75)"></div>
-          <div class="prop tree" style="right:28%;bottom:14%;transform:scale(.85)"></div>
-          <div class="prop tree" style="right:2%;bottom:42%;transform:scale(.7)"></div>
-          <div class="prop tree" style="left:36%;bottom:48%;transform:scale(.65)"></div>
-          <div class="prop tree" style="right:38%;bottom:50%;transform:scale(.6)"></div>
-          <div class="prop mushroom" style="left:24%;bottom:20%"></div>
-          <div class="prop mushroom" style="right:26%;bottom:19%;transform:scale(.85);filter:hue-rotate(50deg)"></div>
-          <div class="prop fence" style="left:22%;bottom:14%"></div>
-          <div class="prop fence" style="right:22%;bottom:13%"></div>
-
-          <!-- Village wanderers -->
-          <div class="village-dancer mascot sm bouncing teal" style="left:20%;bottom:28%"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-          <div class="village-dancer mascot sm bouncing lilac" style="right:22%;bottom:30%;animation-delay:.3s"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-
-          <div id="spots"></div>
-        </div>
-      </div>
-      <div class="burst-layer" id="burst"></div>
-    </section>
-
-    <section id="screen-challenge" class="screen" aria-label="Challenge">
-      <div class="challenge-card">
-        <div class="chal-top">
-          <button type="button" class="ghost-btn" id="btn-back-world">Back</button>
-          <span id="chal-label" style="font-weight:600">Note</span>
-        </div>
-        <div class="say-loud" id="say-loud">🎤 Say it out loud!</div>
-        <p class="prompt" id="prompt">Find the word</p>
-        <div id="challenge-visual"></div>
-        <div class="choices" id="choices"></div>
-        <div class="feedback" id="feedback" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <section id="screen-cele" class="screen" aria-label="Celebration">
-      <div class="confetti-layer" id="confetti"></div>
-      <div class="cele-inner">
-        <div class="cele-crew" aria-hidden="true">
-          <div class="mascot dancing teal"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-          <div class="mascot lg dancing"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-          <div class="mascot dancing lilac"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-          <div class="mascot dancing sunny"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
-        </div>
-        <h1>Concert Time!</h1>
-        <p class="subtitle">Every song unlocked — dance party!</p>
-        <div class="cele-notes" aria-hidden="true">🎵 🎶 🎵 🎶 🎵</div>
-        <button type="button" class="btn btn-primary" id="btn-again">Play again!</button>
-      </div>
-    </section>
+      <div class="mascot-row" id="start-mascots"></div>
+      <button class="play-btn" id="play-btn" type="button">▶ Play!</button>
+    </div>
   </div>
 
-  <script>
-  (function () {
-    "use strict";
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-pill" id="progress-pill">⭐ <span id="progress-text">0 of 10</span></div>
+    <div id="prize-shelf"></div>
+    <div class="hud-pill"><button type="button" id="sing-hud-btn" style="display:none">🎤 Sing</button></div>
+  </div>
 
-    var TOTAL = 8;
-    var collected = 0;
-    var done = {};
-    var challenges = [];
-    var activeSpot = -1;
-    var locked = false;
-    var audioCtx = null;
+  <!-- WORLD -->
+  <div id="world-wrap">
+    <div id="world"></div>
+  </div>
 
-    var SIGHT_WORDS = ["the","and","is","you","that","was","for","are","with","his","they","I","at","be","this","have","from","or","one","had","by","word","but","not","what","all","were","we","when","your","can","said","there","use","an","each","which","she","do","how","their","if","will","up","other","about","out","many","then","them","these","so","some","her","would","make","like","him","into","time","has","look","two","more","write","go","see","number","no","way","could","people","my","than","first","water","been","call","who","oil","its","now","find","long","down","day","did","get","come","made","may","part"];
-    var COUNT_EMOJIS = ["⭐","🎵","💖","🌟","🥁","✨","🎤","💜"];
-    var COUNT_COLORS = ["#ff4da6","#9b5cff","#4ecbff","#ffe566","#7dff9a","#ff9f43"];
-    var SONG_GLYPHS = ["🎵","🎶","🎤","🥁","🎸","🎹","🎺","🎧"];
+  <!-- CHALLENGE -->
+  <div id="challenge">
+    <div class="chal-card" id="chal-card"></div>
+  </div>
 
-    /* Note spots around the village (paths & homes), stage is center */
-    var SPOTS = [
-      {x:12,y:62,name:"Pink Hut"},
-      {x:28,y:55,name:"Beat Path"},
-      {x:18,y:42,name:"Lilac Lane"},
-      {x:78,y:58,name:"Sunny Hut"},
-      {x:88,y:44,name:"Blue Roof"},
-      {x:70,y:70,name:"Lime Yard"},
-      {x:35,y:78,name:"Front Gate"},
-      {x:62,y:80,name:"Stage Path"}
-    ];
+  <!-- SING -->
+  <div id="singalong">
+    <div class="sing-title">🎤 Sing-Along!</div>
+    <div class="sing-hint">Tap the big button when the note hits the glowing ring — like Guitar Hero!</div>
+    <div class="beat-lane" id="beat-lane">
+      <div class="beat-target"></div>
+    </div>
+    <button class="beat-hit-btn" id="beat-hit" type="button">🎵</button>
+    <div class="sing-score" id="sing-score">Hits: 0</div>
+    <button class="sing-close" id="sing-close" type="button">Back to Village</button>
+  </div>
 
-    function $(id){return document.getElementById(id)}
+  <!-- CELEBRATION -->
+  <div id="celeb">
+    <div class="luna-lights">LUNA</div>
+    <div class="trophy">🏆</div>
+    <div class="celeb-msg">You collected all 10 notes!<br>Dance party forever! 🎉</div>
+    <div class="celeb-prizes" id="celeb-prizes"></div>
+    <button class="again-btn" id="again-btn" type="button">Play again</button>
+  </div>
 
-    function showScreen(id){
-      document.querySelectorAll(".screen").forEach(function(el){el.classList.remove("active")});
-      $(id).classList.add("active");
+  <div id="particles"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ===== AUDIO ===== */
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq,dur,type,vol){
+  try{
+    const ctx=ensureAudio();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type||'sine'; o.frequency.value=freq;
+    g.gain.value=vol||0.12;
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+function chimeGood(){tone(523,.12,'sine',.14);setTimeout(()=>tone(659,.12,'sine',.14),80);setTimeout(()=>tone(784,.2,'sine',.12),160)}
+function chimeBad(){tone(220,.2,'triangle',.1);setTimeout(()=>tone(180,.25,'triangle',.08),120)}
+function chimePrize(){tone(392,.1);setTimeout(()=>tone(523,.1),70);setTimeout(()=>tone(659,.1),140);setTimeout(()=>tone(784,.25),210)}
+function chimeClick(){tone(880,.05,'square',.06)}
+
+/* ===== DATA ===== */
+const PRIZES=[
+  {id:'wig',emoji:'💇',name:'Rainbow Wig'},
+  {id:'guitar',emoji:'🎸',name:'Tiny Guitar'},
+  {id:'disco',emoji:'🪩',name:'Disco Ball'},
+  {id:'foam',emoji:'☝️',name:'Foam Finger'},
+  {id:'mic',emoji:'🎙️',name:'Star Mic'},
+  {id:'balloon',emoji:'🎈',name:'Balloon'},
+  {id:'moon',emoji:'🌙',name:'Moon'},
+  {id:'crown',emoji:'👑',name:'Crown'},
+  {id:'heart',emoji:'💖',name:'Heart'},
+  {id:'drum',emoji:'🥁',name:'Drum'}
+];
+
+const CHEERS=[
+  'You got this, Luna! 🌟','Sing it loud! 🎤','Dance break! 💃',
+  'Super star! ⭐','Try saying it out loud!','Trolls believe in you!',
+  'Beat those notes! 🎵','Rainbow high-five! 🌈','Keep bouncing! 🎉'
+];
+
+const CHALLENGES=[
+  // Reading: two-syllable / harder sight
+  {kind:'read-word',type:'Reading',prompt:'Say this word out loud, then tap it!',word:'happy',choices:['happy','hoppy','hippo'],answer:'happy'},
+  {kind:'read-word',type:'Reading',prompt:'Big word time! Say it, then tap!',word:'under',choices:['under','uncle','over'],answer:'under'},
+  {kind:'read-word',type:'Reading',prompt:'Read it loud!',word:'sister',choices:['sister','mister','sitter'],answer:'sister'},
+  // Blends
+  {kind:'blend',type:'Reading · Blend',prompt:'Which word starts with bl?',word:'bl',choices:['blue','true','stew'],answer:'blue'},
+  {kind:'blend',type:'Reading · Blend',prompt:'Which word starts with st?',word:'st',choices:['star','trap','blob'],answer:'star'},
+  {kind:'blend',type:'Reading · Blend',prompt:'Which word starts with tr?',word:'tr',choices:['tree','bee','sleep'],answer:'tree'},
+  // Sentences
+  {kind:'sentence',type:'Reading · Sentence',prompt:'Read the sentence out loud, then pick what it says.',sentence:'The cat sat on the mat.',choices:['The cat sat on the mat.','The dog ran to the park.','A bird flew up high.'],answer:'The cat sat on the mat.'},
+  {kind:'sentence',type:'Reading · Sentence',prompt:'Read it out loud!',sentence:'We like to sing and dance.',choices:['We like to sing and dance.','I can hop on one foot.','She has a red balloon.'],answer:'We like to sing and dance.'},
+  // Math: add/sub within 20 with pictures
+  {kind:'math-pic',type:'Math · Add',prompt:'How many in all? Count the pictures, then tap the answer.',op:'+',a:7,b:5,emoji:'🍬'},
+  {kind:'math-pic',type:'Math · Subtract',prompt:'How many are left?',op:'-',a:12,b:4,emoji:'⭐'},
+  {kind:'math-pic',type:'Math · Add',prompt:'Add them up!',op:'+',a:9,b:8,emoji:'🎈'},
+  {kind:'math-pic',type:'Math · Subtract',prompt:'Take some away — how many left?',op:'-',a:15,b:6,emoji:'🍀'},
+  // Two-digit + one-digit no regrouping
+  {kind:'math-2d',type:'Math · Add',prompt:'Add the ones — no carrying!',a:12,b:5},
+  {kind:'math-2d',type:'Math · Add',prompt:'Add these numbers!',a:23,b:4},
+  {kind:'math-2d',type:'Math · Add',prompt:'What is the sum?',a:31,b:7},
+  // Place value
+  {kind:'place',type:'Math · Place Value',prompt:'How many tens and ones?',num:27},
+  {kind:'place',type:'Math · Place Value',prompt:'Look at the number — tens & ones!',num:45},
+  {kind:'place',type:'Math · Place Value',prompt:'Find the tens and ones!',num:18}
+];
+
+/* Pick 10 unique challenges: mix reading + math */
+function pickChallenges(){
+  const reading=CHALLENGES.filter(c=>c.type.startsWith('Reading'));
+  const math=CHALLENGES.filter(c=>c.type.startsWith('Math'));
+  shuffle(reading); shuffle(math);
+  const picks=[...reading.slice(0,5),...math.slice(0,5)];
+  shuffle(picks);
+  return picks;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ===== STATE ===== */
+let state={
+  notesCollected:0,
+  prizes:[],
+  noteDone:{},
+  challenges:[],
+  singing:false,
+  singHits:0
+};
+
+/* ===== START SPARKLES ===== */
+function buildStartFX(){
+  const layer=document.getElementById('sparkle-layer');
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');
+    s.className='sparkle';
+    s.style.left=(Math.random()*100)+'%';
+    s.style.top=(Math.random()*100)+'%';
+    s.style.setProperty('--d',(1.5+Math.random()*2.5)+'s');
+    s.style.animationDelay=(Math.random()*3)+'s';
+    layer.appendChild(s);
+  }
+  for(let i=0;i<18;i++){
+    const s=document.createElement('div');
+    s.className='star-twinkle';
+    s.textContent=['✨','⭐','🌟','✦'][i%4];
+    s.style.left=(Math.random()*100)+'%';
+    s.style.top=(Math.random()*100)+'%';
+    s.style.setProperty('--d',(2+Math.random()*3)+'s');
+    s.style.animationDelay=(Math.random()*2)+'s';
+    layer.appendChild(s);
+  }
+  for(let i=0;i<10;i++){
+    const g=document.createElement('div');
+    g.className='glow-float';
+    g.style.left=(Math.random()*100)+'%';
+    g.style.top=(Math.random()*100)+'%';
+    g.style.setProperty('--d',(4+Math.random()*5)+'s');
+    g.style.animationDelay=(Math.random()*4)+'s';
+    layer.appendChild(g);
+  }
+  const row=document.getElementById('start-mascots');
+  const skins=[['#67e8f9','#f472b6'],['#86efac','#a78bfa'],['#fde047','#fb7185']];
+  skins.forEach(([skin,hair])=>{
+    const m=document.createElement('div');
+    m.className='mascot';
+    m.innerHTML=trollSVG(skin,hair,64);
+    row.appendChild(m);
+  });
+}
+
+function trollSVG(skin,hair,w){
+  return `<svg width="${w}" height="${w*1.25}" viewBox="0 0 70 90" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="35" cy="58" rx="24" ry="26" fill="${skin}"/>
+    <ellipse cx="35" cy="22" rx="26" ry="18" fill="${hair}"/>
+    <ellipse cx="18" cy="30" rx="10" ry="12" fill="${hair}"/>
+    <ellipse cx="52" cy="30" rx="10" ry="12" fill="${hair}"/>
+    <ellipse cx="35" cy="8" rx="8" ry="10" fill="${hair}"/>
+    <circle cx="26" cy="52" r="7" fill="#fff" stroke="#1a0a2e" stroke-width="2"/>
+    <circle cx="44" cy="52" r="7" fill="#fff" stroke="#1a0a2e" stroke-width="2"/>
+    <circle cx="27" cy="53" r="3" fill="#1a0a2e"/>
+    <circle cx="45" cy="53" r="3" fill="#1a0a2e"/>
+    <path d="M28 64 Q35 72 42 64" fill="none" stroke="#1a0a2e" stroke-width="3" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ===== WORLD BUILD ===== */
+const NOTE_POS=[
+  [180,520],[320,280],[480,640],[560,200],[720,720],
+  [880,260],[1040,580],[1180,340],[1320,700],[1480,420]
+];
+const TROLL_POS=[
+  [220,400,'#67e8f9','#ec4899'],
+  [450,500,'#fde047','#8b5cf6'],
+  [900,480,'#86efac','#f472b6'],
+  [1100,620,'#fda4af','#22d3ee'],
+  [1300,280,'#c4b5fd','#f97316']
+];
+
+function buildWorld(){
+  const world=document.getElementById('world');
+  world.innerHTML='';
+
+  // Clouds
+  for(let i=0;i<6;i++){
+    const c=document.createElement('div');
+    c.className='sky-cloud';
+    c.style.width=(50+Math.random()*40)+'px';
+    c.style.height=(20+Math.random()*12)+'px';
+    c.style.left=(100+i*250)+'px';
+    c.style.top=(40+Math.random()*120)+'px';
+    c.style.animationDuration=(20+Math.random()*20)+'s';
+    world.appendChild(c);
+  }
+
+  // Hills
+  [[-50,700,500,450,'#4ade80'],[300,750,600,400,'#22c55e'],[800,720,550,420,'#16a34a'],[1200,740,500,400,'#4ade80']].forEach(([x,y,w,h,col])=>{
+    const hill=document.createElement('div');
+    hill.className='hill';
+    hill.style.left=x+'px'; hill.style.top=y+'px';
+    hill.style.width=w+'px'; hill.style.height=h+'px';
+    hill.style.background=`linear-gradient(180deg,${col},color-mix(in srgb,${col} 70%,#14532d))`;
+    world.appendChild(hill);
+  });
+
+  // Paths to stage
+  const paths=[[200,550,500,36,15],[500,450,200,40,0],[900,500,400,36,-10],[700,580,80,200,0]];
+  paths.forEach(([x,y,w,h,rot])=>{
+    const p=document.createElement('div');
+    p.className='path';
+    p.style.left=x+'px'; p.style.top=y+'px';
+    p.style.width=w+'px'; p.style.height=h+'px';
+    p.style.transform=`rotate(${rot}deg)`;
+    world.appendChild(p);
+  });
+
+  // Trees
+  const treeSpots=[[100,480],[260,620],[400,350],[600,680],[850,300],[1000,700],[1200,450],[1400,600],[1500,320],[70,700]];
+  treeSpots.forEach(([x,y])=>{
+    const t=document.createElement('div');
+    t.className='tree';
+    t.style.left=x+'px'; t.style.top=y+'px';
+    t.innerHTML='<div class="tree-top"></div><div class="tree-trunk"></div>';
+    world.appendChild(t);
+  });
+
+  // Huts
+  const huts=[[140,560,'#f472b6','#7c3aed'],[380,700,'#67e8f9','#db2777'],[1050,680,'#fde047','#8b5cf6'],[1280,520,'#86efac','#ec4899'],[1450,650,'#fda4af','#6366f1']];
+  huts.forEach(([x,y,hut,roof])=>{
+    const el=document.createElement('div');
+    el.className='hut';
+    el.style.left=x+'px'; el.style.top=y+'px';
+    el.style.setProperty('--hut',hut);
+    el.style.setProperty('--roof',roof);
+    el.innerHTML='<div class="hut-roof"></div><div class="hut-body"><div class="hut-door"></div><div class="hut-window" style="left:12px"></div><div class="hut-window" style="right:12px"></div></div>';
+    world.appendChild(el);
+  });
+
+  // Stage
+  const stage=document.createElement('div');
+  stage.className='stage';
+  stage.id='concert-stage';
+  stage.innerHTML=`
+    <div class="stage-lights"><div class="stage-light"></div><div class="stage-light"></div><div class="stage-light"></div><div class="stage-light"></div></div>
+    <div class="stage-back">
+      <div class="dancer" id="dancer0">${trollSVG('#ff9ecd','#a78bfa',36)}</div>
+      <div class="dancer" id="dancer1">${trollSVG('#67e8f9','#f472b6',36)}</div>
+      <div class="dancer" id="dancer2">${trollSVG('#fde047','#8b5cf6',36)}</div>
+      <div class="stage-label">🎤 Concert Stage</div>
+    </div>
+    <div class="stage-floor">
+      <div class="song-slots" id="song-slots"></div>
+    </div>
+    <button class="sing-btn" id="stage-sing-btn" type="button">🎤 Sing Along!</button>
+  `;
+  world.appendChild(stage);
+
+  const slots=stage.querySelector('#song-slots');
+  for(let i=0;i<10;i++){
+    const s=document.createElement('div');
+    s.className='song-slot';
+    s.id='slot'+i;
+    s.textContent='♪';
+    slots.appendChild(s);
+  }
+
+  // Notes
+  NOTE_POS.forEach((pos,i)=>{
+    const n=document.createElement('div');
+    n.className='note-spot';
+    n.dataset.idx=i;
+    n.style.left=pos[0]+'px';
+    n.style.top=pos[1]+'px';
+    n.style.animationDelay=(i*0.15)+'s';
+    n.textContent='🎵';
+    n.addEventListener('click',e=>{e.stopPropagation(); onNoteTap(i,n)});
+    world.appendChild(n);
+  });
+
+  // Troll villagers
+  TROLL_POS.forEach((t,i)=>{
+    const el=document.createElement('div');
+    el.className='troll';
+    el.style.left=t[0]+'px';
+    el.style.top=t[1]+'px';
+    el.style.setProperty('--skin',t[2]);
+    el.style.setProperty('--hair',t[3]);
+    el.style.animationDelay=(i*0.3)+'s';
+    el.innerHTML=`
+      <div class="cheer-chip" id="cheer${i}"></div>
+      <div class="troll-hair"></div>
+      <div class="troll-arm l"></div>
+      <div class="troll-arm r"></div>
+      <div class="troll-body"></div>
+      <div class="troll-eye l"></div>
+      <div class="troll-eye r"></div>
+      <div class="troll-smile"></div>
+    `;
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      const chip=el.querySelector('.cheer-chip');
+      chip.textContent=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+      chip.classList.add('show');
+      tone(660,.1,'sine',.1);
+      setTimeout(()=>chip.classList.remove('show'),2200);
+    });
+    world.appendChild(el);
+  });
+
+  setupPan();
+  // Center on stage initially
+  panTo(640,380);
+}
+
+/* Pan / scroll */
+let panX=0,panY=0,dragging=false,lastTX=0,lastTY=0;
+function setupPan(){
+  const wrap=document.getElementById('world-wrap');
+  const world=document.getElementById('world');
+  function apply(){
+    const scale=Math.min(1, Math.max(wrap.clientWidth/1600, wrap.clientHeight/1100)*1.15);
+    const maxX=0, minX=wrap.clientWidth-1600*scale;
+    const maxY=0, minY=wrap.clientHeight-1100*scale;
+    panX=Math.min(maxX,Math.max(minX,panX));
+    panY=Math.min(maxY,Math.max(minY,panY));
+    world.style.transform=`translate(${panX}px,${panY}px) scale(${scale})`;
+  }
+  window._applyPan=apply;
+  apply();
+  window.addEventListener('resize',apply);
+
+  wrap.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.note-spot,.troll,.sing-btn,button')) return;
+    dragging=true; lastTX=e.clientX; lastTY=e.clientY;
+    world.classList.add('dragging');
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    panX+=e.clientX-lastTX; panY+=e.clientY-lastTY;
+    lastTX=e.clientX; lastTY=e.clientY;
+    apply();
+  });
+  wrap.addEventListener('pointerup',()=>{dragging=false;world.classList.remove('dragging')});
+  wrap.addEventListener('pointercancel',()=>{dragging=false;world.classList.remove('dragging')});
+}
+function panTo(wx,wy){
+  const wrap=document.getElementById('world-wrap');
+  const scale=Math.min(1, Math.max(wrap.clientWidth/1600, wrap.clientHeight/1100)*1.15);
+  panX=wrap.clientWidth/2 - wx*scale;
+  panY=wrap.clientHeight/2 - wy*scale;
+  if(window._applyPan) window._applyPan();
+}
+
+/* ===== HUD / PRIZES ===== */
+function renderShelf(){
+  const shelf=document.getElementById('prize-shelf');
+  shelf.innerHTML='';
+  for(let i=0;i<10;i++){
+    const slot=document.createElement('div');
+    slot.className='prize-slot'+(state.prizes[i]?' filled':'');
+    slot.textContent=state.prizes[i]?PRIZES[i].emoji:'';
+    slot.title=state.prizes[i]?PRIZES[i].name:'';
+    shelf.appendChild(slot);
+  }
+  document.getElementById('progress-text').textContent=state.notesCollected+' of 10';
+}
+function updateStage(){
+  for(let i=0;i<10;i++){
+    const slot=document.getElementById('slot'+i);
+    if(slot) slot.classList.toggle('lit', i<state.notesCollected);
+  }
+  const dancers=Math.min(3, Math.floor(state.notesCollected/3));
+  for(let i=0;i<3;i++){
+    const d=document.getElementById('dancer'+i);
+    if(d) d.classList.toggle('active', i<dancers);
+  }
+  const singBtn=document.getElementById('stage-sing-btn');
+  const hudSing=document.getElementById('sing-hud-btn');
+  if(state.notesCollected>=3){
+    if(singBtn) singBtn.classList.add('show');
+    if(hudSing) hudSing.style.display='inline';
+  }
+}
+
+/* ===== CHALLENGES ===== */
+function onNoteTap(idx,el){
+  if(state.noteDone[idx]) return;
+  ensureAudio();
+  openChallenge(idx,el);
+}
+
+function openChallenge(idx,el){
+  const chal=state.challenges[idx];
+  const card=document.getElementById('chal-card');
+  const modal=document.getElementById('challenge');
+  let html=`<div class="chal-type">${chal.type}</div>`;
+  html+=`<div class="chal-prompt">${chal.prompt}</div>`;
+  html+=`<div class="chal-say">🗣️ Say it out loud — then tap your answer!</div>`;
+
+  if(chal.kind==='read-word'||chal.kind==='blend'){
+    html+=`<div class="chal-word">${chal.kind==='blend'?chal.word+'…':chal.word}</div>`;
+  } else if(chal.kind==='sentence'){
+    html+=`<div class="chal-sentence">${chal.sentence}</div>`;
+  } else if(chal.kind==='math-pic'){
+    const showA=chal.a, showB=chal.op==='-'?chal.b:chal.b;
+    html+=`<div class="obj-row" id="obj-a"></div>`;
+    html+=`<div style="font-size:32px;font-weight:700;color:#ffe66d;margin:4px">${chal.op==='+'?'+':'−'}</div>`;
+    html+=`<div class="obj-row" id="obj-b"></div>`;
+    html+=`<div style="font-size:28px;margin:8px;color:#c4b5fd">${chal.a} ${chal.op==='+'?'+':'−'} ${chal.b} = ?</div>`;
+  } else if(chal.kind==='math-2d'){
+    html+=`<div class="chal-word">${chal.a} + ${chal.b}</div>`;
+  } else if(chal.kind==='place'){
+    const tens=Math.floor(chal.num/10), ones=chal.num%10;
+    html+=`<div class="chal-word">${chal.num}</div>`;
+    html+=`<div class="place-viz">
+      <div class="place-box"><h4>Tens</h4><div class="num">?</div></div>
+      <div class="place-box"><h4>Ones</h4><div class="num">?</div></div>
+    </div>`;
+    html+=`<div class="chal-say">Tap the correct tens & ones pair</div>`;
+  }
+
+  html+=`<div class="choices" id="chal-choices"></div>`;
+  html+=`<div class="chal-feedback" id="chal-fb"></div>`;
+  card.innerHTML=html;
+  modal.classList.add('show');
+
+  // Picture objects
+  if(chal.kind==='math-pic'){
+    const ea=document.getElementById('obj-a'), eb=document.getElementById('obj-b');
+    for(let i=0;i<chal.a;i++){const s=document.createElement('div');s.className='obj';s.textContent=chal.emoji;ea.appendChild(s)}
+    const bCount=chal.op==='+'?chal.b:chal.b;
+    for(let i=0;i<bCount;i++){const s=document.createElement('div');s.className='obj';s.textContent=chal.op==='-'?'💨':chal.emoji;eb.appendChild(s)}
+  }
+
+  // Build choices
+  const choicesEl=document.getElementById('chal-choices');
+  let choices, answer;
+  if(chal.kind==='read-word'||chal.kind==='blend'||chal.kind==='sentence'){
+    choices=[...chal.choices]; answer=chal.answer;
+  } else if(chal.kind==='math-pic'){
+    answer=chal.op==='+'?(chal.a+chal.b):(chal.a-chal.b);
+    choices=makeNumChoices(answer,0,20);
+  } else if(chal.kind==='math-2d'){
+    answer=chal.a+chal.b;
+    choices=makeNumChoices(answer,10,50);
+  } else if(chal.kind==='place'){
+    const tens=Math.floor(chal.num/10), ones=chal.num%10;
+    answer=`${tens} tens, ${ones} ones`;
+    choices=shuffle([
+      answer,
+      `${ones} tens, ${tens} ones`,
+      `${tens+1} tens, ${Math.max(0,ones-1)} ones`,
+      `${Math.max(0,tens-1)} tens, ${ones+1} ones`
+    ]);
+  }
+  shuffle(choices);
+  choices.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='choice-btn';
+    btn.textContent=c;
+    btn.addEventListener('click',()=>onAnswer(btn,c,answer,idx,el));
+    choicesEl.appendChild(btn);
+  });
+}
+
+function makeNumChoices(ans,lo,hi){
+  const set=new Set([ans]);
+  while(set.size<4){
+    let n=ans+(Math.floor(Math.random()*7)-3);
+    if(n===ans||n<lo||n>hi||n<0) n=lo+Math.floor(Math.random()*(hi-lo+1));
+    if(n!==ans&&n>=0) set.add(n);
+  }
+  return [...set];
+}
+
+function onAnswer(btn,choice,answer,idx,el){
+  const fb=document.getElementById('chal-fb');
+  const correct=String(choice)===String(answer);
+  if(correct){
+    btn.classList.add('correct');
+    fb.textContent='Yes! Great job, Luna! 🌟';
+    fb.className='chal-feedback good';
+    chimeGood();
+    burst(btn);
+    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    setTimeout(()=>{
+      document.getElementById('challenge').classList.remove('show');
+      collectNote(idx,el);
+    },900);
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent='Almost — try again! You can do it! 💪';
+    fb.className='chal-feedback bad';
+    chimeBad();
+    setTimeout(()=>btn.classList.remove('wrong'),500);
+  }
+}
+
+function collectNote(idx,el){
+  state.noteDone[idx]=true;
+  state.notesCollected++;
+  state.prizes.push(PRIZES[state.notesCollected-1]);
+  el.classList.add('collected');
+  chimePrize();
+  renderShelf();
+  updateStage();
+  burst(el,true);
+  if(state.notesCollected>=10){
+    setTimeout(showCelebration,800);
+  }
+}
+
+function burst(el,big){
+  const layer=document.getElementById('particles');
+  const r=el.getBoundingClientRect?el.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:40,height:40};
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const emojis=big?['✨','⭐','🎉','💖','🌟','🎵']:['✨','⭐','💫'];
+  for(let i=0;i<(big?16:8);i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.textContent=emojis[i%emojis.length];
+    p.style.left=cx+'px'; p.style.top=cy+'px';
+    const ang=Math.random()*Math.PI*2, dist=40+Math.random()*(big?120:60);
+    p.style.setProperty('--tx',Math.cos(ang)*dist+'px');
+    p.style.setProperty('--ty',Math.sin(ang)*dist+'px');
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(),1000);
+  }
+}
+
+/* ===== SING-ALONG ===== */
+let singTimer=null, beatNotes=[];
+function openSing(){
+  ensureAudio();
+  document.getElementById('singalong').classList.add('show');
+  state.singing=true;
+  state.singHits=0;
+  document.getElementById('sing-score').textContent='Hits: 0';
+  startBeats();
+}
+function closeSing(){
+  state.singing=false;
+  document.getElementById('singalong').classList.remove('show');
+  if(singTimer){clearInterval(singTimer);singTimer=null}
+  beatNotes.forEach(n=>n.el.remove());
+  beatNotes=[];
+}
+function startBeats(){
+  const lane=document.getElementById('beat-lane');
+  const speed=180; // px/s roughly via duration
+  const duration=2200;
+  singTimer=setInterval(()=>{
+    if(!state.singing) return;
+    const note=document.createElement('div');
+    note.className='beat-note';
+    note.textContent=['🎵','🎶','💖','⭐'][Math.floor(Math.random()*4)];
+    note.style.top='-64px';
+    note.style.transition=`top ${duration}ms linear`;
+    lane.appendChild(note);
+    const entry={el:note,born:Date.now(),hit:false};
+    beatNotes.push(entry);
+    requestAnimationFrame(()=>{note.style.top='140px'});
+    chimeClick();
+    setTimeout(()=>{
+      if(!entry.hit){note.style.opacity='0.3'}
+      setTimeout(()=>{note.remove();beatNotes=beatNotes.filter(b=>b!==entry)},300);
+    },duration);
+  },900);
+}
+document.getElementById('beat-hit').addEventListener('click',()=>{
+  if(!state.singing) return;
+  ensureAudio();
+  // Hit window: note near target (~ bottom of lane)
+  const now=Date.now();
+  let best=null,bestDist=999;
+  beatNotes.forEach(b=>{
+    if(b.hit) return;
+    const age=now-b.born;
+    const dist=Math.abs(age-1800); // target around 1.8s into 2.2s travel
+    if(dist<bestDist){bestDist=dist;best=b}
+  });
+  if(best&&bestDist<350){
+    best.hit=true;
+    best.el.style.transform='scale(1.4)';
+    best.el.style.opacity='0';
+    state.singHits++;
+    document.getElementById('sing-score').textContent='Hits: '+state.singHits+(state.singHits>=5?' 🌟 Bonus sparkles!':'');
+    chimeGood();
+    burst(document.getElementById('beat-hit'));
+    if(state.singHits===8){
+      // bonus cheer
+      const fb=document.getElementById('sing-score');
+      fb.textContent='Hits: '+state.singHits+' — Luna rockstar! 🎸';
     }
+  } else {
+    tone(200,.08,'triangle',.06);
+  }
+});
 
-    function buildSky(){
-      var sky=$("sky"), html="";
-      for(var i=0;i<5;i++){
-        var w=60+Math.random()*80,h=w*0.45;
-        html+='<div class="sky-cloud" style="width:'+w+'px;height:'+h+'px;top:'+(8+i*12)+'%;animation-duration:'+(28+i*6)+'s;animation-delay:'+(-i*5)+'s;opacity:'+(0.4+Math.random()*0.35)+'"></div>';
+/* ===== CELEBRATION ===== */
+function showCelebration(){
+  const celeb=document.getElementById('celeb');
+  const prizes=document.getElementById('celeb-prizes');
+  prizes.innerHTML='';
+  PRIZES.forEach(p=>{
+    const s=document.createElement('span');
+    s.textContent=p.emoji;
+    s.title=p.name;
+    prizes.appendChild(s);
+  });
+  celeb.classList.add('show');
+  launchFireworks();
+  chimePrize();
+  setTimeout(chimeGood,300);
+}
+function launchFireworks(){
+  const celeb=document.getElementById('celeb');
+  const colors=['#ffe66d','#ff9ecd','#67e8f9','#86efac','#a78bfa','#f472b6'];
+  for(let wave=0;wave<5;wave++){
+    setTimeout(()=>{
+      const cx=10+Math.random()*80, cy=15+Math.random()*40;
+      for(let i=0;i<20;i++){
+        const fw=document.createElement('div');
+        fw.className='fw';
+        fw.style.left=cx+'%'; fw.style.top=cy+'%';
+        fw.style.background=colors[i%colors.length];
+        fw.style.boxShadow=`0 0 8px ${colors[i%colors.length]}`;
+        const ang=Math.random()*Math.PI*2, dist=30+Math.random()*80;
+        fw.style.setProperty('--x',Math.cos(ang)*dist+'px');
+        fw.style.setProperty('--y',Math.sin(ang)*dist+'px');
+        celeb.appendChild(fw);
+        setTimeout(()=>fw.remove(),1200);
       }
-      for(var s=0;s<12;s++){
-        html+='<div class="sky-star" style="left:'+(5+Math.random()*90)+'%;top:'+(3+Math.random()*35)+'%;animation-delay:'+(Math.random()*2)+'s"></div>';
-      }
-      sky.innerHTML=html;
-      var notes=["♪","♫","♩","♬","🎵","🎶"], fhtml="";
-      for(var n=0;n<8;n++){
-        fhtml+='<div class="float-note" style="left:'+(8+n*11)+'%;top:'+(12+((n*17)%50))+'%;animation-delay:'+(n*0.4)+'s;font-size:'+(1.1+Math.random()*0.6)+'rem">'+(notes[n%notes.length])+'</div>';
-      }
-      $("float-notes").innerHTML=fhtml;
-    }
+      tone(400+Math.random()*400,.15,'sine',.08);
+    },wave*400);
+  }
+}
 
-    function ensureAudio(){
-      if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC()}
-      if(audioCtx && audioCtx.state==="suspended") audioCtx.resume();
-      return audioCtx;
-    }
-    function tone(freq,dur,type,gainVal){
-      var ctx=ensureAudio(); if(!ctx) return;
-      var osc=ctx.createOscillator(), gain=ctx.createGain();
-      osc.type=type||"sine"; osc.frequency.value=freq; gain.gain.value=gainVal||0.12;
-      osc.connect(gain); gain.connect(ctx.destination);
-      var now=ctx.currentTime;
-      gain.gain.setValueAtTime(gain.gain.value,now);
-      gain.gain.exponentialRampToValueAtTime(0.001,now+dur);
-      osc.start(now); osc.stop(now+dur+0.02);
-    }
-    function playCorrect(){
-      tone(523.25,0.12,"triangle",0.14);
-      setTimeout(function(){tone(659.25,0.12,"triangle",0.14)},90);
-      setTimeout(function(){tone(783.99,0.22,"triangle",0.16)},180);
-    }
-    function playWrong(){tone(220,0.18,"sine",0.08)}
-    function playCelebrate(){
-      [523.25,659.25,783.99,1046.5,783.99,1046.5].forEach(function(f,i){
-        setTimeout(function(){tone(f,0.18,"triangle",0.13)},i*110);
-      });
-    }
-    function playNoteCollect(){
-      tone(880,0.1,"sine",0.1);
-      setTimeout(function(){tone(1174.66,0.2,"sine",0.12)},80);
-    }
-    function playTap(){tone(660,0.08,"sine",0.06)}
-    function playUnlock(){
-      tone(523.25,0.1,"triangle",0.1);
-      setTimeout(function(){tone(784,0.15,"triangle",0.12)},100);
-      setTimeout(function(){tone(1046.5,0.2,"triangle",0.14)},200);
-    }
+/* ===== BOOT ===== */
+function startGame(){
+  ensureAudio();
+  state={notesCollected:0,prizes:[],noteDone:{},challenges:pickChallenges(),singing:false,singHits:0};
+  document.getElementById('start').classList.add('hidden');
+  document.getElementById('celeb').classList.remove('show');
+  document.getElementById('world-wrap').classList.add('show');
+  document.getElementById('hud').classList.add('show');
+  buildWorld();
+  renderShelf();
+  updateStage();
+  document.getElementById('stage-sing-btn').onclick=openSing;
+  document.getElementById('sing-hud-btn').onclick=openSing;
+}
 
-    function shuffle(arr){
-      var a=arr.slice();
-      for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}
-      return a;
-    }
-    function pickWrongWords(correct,n){
-      return shuffle(SIGHT_WORDS.filter(function(w){return w.toLowerCase()!==correct.toLowerCase()})).slice(0,n);
-    }
+document.getElementById('play-btn').addEventListener('click',startGame);
+document.getElementById('sing-close').addEventListener('click',closeSing);
+document.getElementById('again-btn').addEventListener('click',()=>{
+  document.getElementById('celeb').classList.remove('show');
+  startGame();
+});
 
-    function pickWrongNums(correct,n,minV,maxV){
-      var wrong=[];
-      while(wrong.length<n){
-        var w=minV+Math.floor(Math.random()*(maxV-minV+1));
-        if(w!==correct && wrong.indexOf(w)===-1) wrong.push(w);
-      }
-      return wrong;
-    }
+buildStartFX();
 
-    function makeAddChallenge(){
-      var a=1+Math.floor(Math.random()*5);
-      var b=1+Math.floor(Math.random()*(10-a));
-      var sum=a+b;
-      var wrong=pickWrongNums(sum,2,1,10);
-      return {
-        type:"add",
-        prompt:"What is "+a+" + "+b+"?",
-        target:String(sum),
-        a:a, b:b, sum:sum,
-        choices:shuffle([String(sum)].concat(wrong.map(String)))
-      };
-    }
+// Prevent iOS bounce scroll
+document.addEventListener('touchmove',e=>{
+  if(!e.target.closest('.chal-card')) e.preventDefault();
+},{passive:false});
 
-    function makeSubChallenge(){
-      var a=3+Math.floor(Math.random()*7); /* 3-9 */
-      var b=1+Math.floor(Math.random()*(a-1)); /* keep difference >=1 */
-      var diff=a-b;
-      var wrong=pickWrongNums(diff,2,0,10);
-      var emoji=COUNT_EMOJIS[Math.floor(Math.random()*COUNT_EMOJIS.length)];
-      return {
-        type:"sub",
-        prompt:"What is "+a+" − "+b+"?",
-        target:String(diff),
-        a:a, b:b, diff:diff,
-        emoji:emoji,
-        choices:shuffle([String(diff)].concat(wrong.map(String)))
-      };
-    }
-
-    function makeWordChallenge(word){
-      return {
-        type:"word",
-        prompt:"Find the word!",
-        target:word,
-        choices:shuffle([word].concat(pickWrongWords(word,2))),
-        showBig:word
-      };
-    }
-
-    function buildChallenges(){
-      var list=[];
-      var words=shuffle(SIGHT_WORDS).slice(0,4); /* 4 sight-word rounds */
-      var mathKinds=shuffle(["add","sub","add","sub"]); /* 4 math: add + subtract within 10 */
-      /* Interleave: word, math, word, math... for 8 notes */
-      for(var i=0;i<TOTAL;i++){
-        if(i%2===0){
-          list.push(makeWordChallenge(words[Math.floor(i/2)%words.length]));
-        } else {
-          var kind=mathKinds[Math.floor(i/2)%mathKinds.length];
-          if(kind==="add") list.push(makeAddChallenge());
-          else list.push(makeSubChallenge());
-        }
-      }
-      return list;
-    }
-
-    function updateStage(){
-      var concert=$("concert");
-      concert.classList.toggle("lit", collected>=1);
-      concert.classList.toggle("full", collected>=TOTAL);
-
-      var slots=$("song-slots");
-      var html="";
-      for(var i=0;i<TOTAL;i++){
-        html+='<div class="song-slot'+(i<collected?" unlocked":"")+'" title="Song '+(i+1)+'">'+(i<collected?SONG_GLYPHS[i]:"")+'</div>';
-      }
-      slots.innerHTML=html;
-
-      $("stage-crew").querySelectorAll(".mascot").forEach(function(m){
-        var need=parseInt(m.getAttribute("data-need"),10);
-        m.classList.toggle("on", collected>=need);
-        if(collected>=need) m.classList.add("dancing");
-      });
-    }
-
-    function renderHud(){
-      var html="";
-      for(var i=0;i<TOTAL;i++){
-        html+='<div class="note-pip'+(done[i]?" filled":"")+'">'+(done[i]?"🎵":"")+'</div>';
-      }
-      $("hud-notes").innerHTML=html;
-      var left=TOTAL-collected;
-      if(left===0) $("world-hint").textContent="Concert unlocked — dance party! 🎉";
-      else if(collected===0) $("world-hint").textContent="Tap glowing notes around the village! 🎵";
-      else $("world-hint").textContent=collected+" song"+(collected>1?"s":"")+" on stage • "+left+" notes left!";
-      updateStage();
-    }
-
-    function buildSpots(){
-      var wrap=$("spots"), html="";
-      SPOTS.forEach(function(s,i){
-        html+='<div class="pad" style="left:calc('+s.x+'% - 42px);top:calc('+s.y+'% + 26px)"></div>';
-        html+='<button type="button" class="note-spot'+(done[i]?" collected":"")+'" data-i="'+i+'" style="left:calc('+s.x+'% - 34px);top:calc('+s.y+'% - 34px)" aria-label="'+(done[i]?"Collected ":"")+'Note at '+s.name+'">';
-        html+='<div class="orb">'+(done[i]?"✓":"🎵")+'</div>';
-        html+='<span class="label">'+s.name+'</span></button>';
-      });
-      wrap.innerHTML=html;
-      wrap.querySelectorAll(".note-spot").forEach(function(btn){
-        btn.addEventListener("click",function(){
-          var i=+btn.getAttribute("data-i");
-          if(done[i]){playTap();return}
-          openChallenge(i);
-        });
-      });
-    }
-
-    function openChallenge(i){
-      ensureAudio(); playTap();
-      activeSpot=i; locked=false;
-      $("feedback").textContent="";
-      var ch=challenges[i];
-      $("chal-label").textContent=SPOTS[i].name;
-      $("prompt").textContent=ch.prompt;
-      if(ch.type==="word") $("say-loud").textContent="🎤 Say the word out loud!";
-      else $("say-loud").textContent="🎤 Say the answer out loud!";
-      var visual=$("challenge-visual");
-      if(ch.type==="word"){
-        visual.innerHTML='<div class="word-big" aria-hidden="true">'+ch.showBig+"</div>";
-      } else if(ch.type==="add"){
-        var dotsA="", dotsB="", ci;
-        for(ci=0;ci<ch.a;ci++) dotsA+='<span class="add-dot" style="background:'+COUNT_COLORS[ci%COUNT_COLORS.length]+'">★</span>';
-        for(ci=0;ci<ch.b;ci++) dotsB+='<span class="add-dot" style="background:'+COUNT_COLORS[(ci+3)%COUNT_COLORS.length]+'">★</span>';
-        visual.innerHTML='<div class="add-equation" aria-hidden="true">'+
-          '<span class="add-pile">'+dotsA+'</span><span class="op">+</span><span class="add-pile">'+dotsB+'</span>'+
-          '<span class="op">=</span><span>?</span></div>'+
-          '<div style="font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;margin-bottom:.4rem">'+ch.a+' + '+ch.b+' = ?</div>';
-      } else if(ch.type==="sub"){
-        var objs="", ci;
-        for(ci=0;ci<ch.a;ci++){
-          var gone=ci>=(ch.a-ch.b);
-          objs+='<span class="add-dot'+(gone?" dim":"")+'" style="background:'+(gone?"#cbb8e0":COUNT_COLORS[ci%COUNT_COLORS.length])+'">'+ch.emoji+'</span>';
-        }
-        visual.innerHTML='<div class="add-equation" aria-hidden="true"><span class="add-pile">'+objs+'</span></div>'+
-          '<div style="font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;margin-bottom:.4rem">'+ch.a+' − '+ch.b+' = ?</div>';
-      } else {
-        visual.innerHTML='';
-      }
-      var choices=$("choices"); choices.innerHTML="";
-      ch.choices.forEach(function(c){
-        var btn=document.createElement("button");
-        btn.type="button";
-        btn.className="btn btn-choice"+(ch.type!=="word"?" num":"");
-        btn.textContent=c; btn.setAttribute("aria-label","Choose "+c);
-        btn.addEventListener("click",function(){onChoose(c,btn)});
-        choices.appendChild(btn);
-      });
-      showScreen("screen-challenge");
-    }
-
-    function burstAt(cx,cy){
-      var layer=$("burst");
-      var colors=["#ff4da6","#9b5cff","#4ecbff","#ffe566","#7dff9a","#ff9f43","#fff"];
-      var glyphs=["★","✦","♪","•"];
-      for(var i=0;i<22;i++){
-        var bit=document.createElement("div");
-        bit.className="burst-bit";
-        var ang=(Math.PI*2*i)/22, dist=40+Math.random()*90;
-        bit.style.left=cx+"px"; bit.style.top=cy+"px";
-        bit.style.setProperty("--dx",(Math.cos(ang)*dist)+"px");
-        bit.style.setProperty("--dy",(Math.sin(ang)*dist)+"px");
-        bit.style.background=colors[i%colors.length];
-        if(i%3===0){bit.textContent=glyphs[i%glyphs.length];bit.style.background="transparent";bit.style.fontSize="14px";bit.style.width="auto";bit.style.height="auto"}
-        bit.style.borderRadius=Math.random()>0.5?"50%":"3px";
-        layer.appendChild(bit);
-        setTimeout(function(el){return function(){el.remove()}}(bit),800);
-      }
-    }
-
-    function onChoose(value,btn){
-      if(locked) return;
-      ensureAudio();
-      var ch=challenges[activeSpot];
-      if(value===ch.target){
-        locked=true;
-        btn.classList.add("correct-flash");
-        $("feedback").textContent="Yes! Song unlocked! ✨";
-        playCorrect();
-        var rect=btn.getBoundingClientRect();
-        burstAt(rect.left+rect.width/2, rect.top+rect.height/2);
-        setTimeout(function(){
-          done[activeSpot]=true;
-          collected++;
-          playNoteCollect();
-          setTimeout(playUnlock,120);
-          buildSpots();
-          renderHud();
-          if(collected>=TOTAL){
-            setTimeout(goCelebrate,600);
-          } else {
-            showScreen("screen-world");
-          }
-        },550);
-      } else {
-        btn.classList.add("wrong-flash");
-        $("feedback").textContent="Almost! Try again 💛";
-        playWrong();
-        setTimeout(function(){
-          btn.classList.remove("wrong-flash");
-          $("feedback").textContent="";
-        },500);
-      }
-    }
-
-    function spawnConfetti(){
-      var layer=$("confetti"); layer.innerHTML="";
-      var colors=["#ff4da6","#9b5cff","#4ecbff","#ffe566","#7dff9a","#ff9f43","#fff"];
-      for(var i=0;i<56;i++){
-        var p=document.createElement("div");
-        p.className="confetti";
-        p.style.left=(Math.random()*100)+"%";
-        p.style.background=colors[i%colors.length];
-        p.style.animationDuration=(2+Math.random()*2.8)+"s";
-        p.style.animationDelay=(Math.random()*1.3)+"s";
-        p.style.width=(8+Math.random()*10)+"px";
-        p.style.height=(12+Math.random()*14)+"px";
-        p.style.borderRadius=Math.random()>0.5?"50%":"3px";
-        layer.appendChild(p);
-      }
-    }
-
-    function goCelebrate(){
-      showScreen("screen-cele");
-      spawnConfetti();
-      playCelebrate();
-    }
-
-    function startGame(){
-      ensureAudio();
-      collected=0; done={}; activeSpot=-1;
-      challenges=buildChallenges();
-      buildSpots(); renderHud();
-      showScreen("screen-world");
-      setTimeout(function(){
-        var sc=$("world-scroller"), isl=$("island");
-        if(sc && isl){
-          sc.scrollLeft=Math.max(0,(isl.scrollWidth-sc.clientWidth)/2);
-          sc.scrollTop=Math.max(0,(isl.scrollHeight-sc.clientHeight)*0.2);
-        }
-      },50);
-    }
-
-    $("btn-play").addEventListener("click",startGame);
-    $("btn-again").addEventListener("click",startGame);
-    $("btn-home").addEventListener("click",function(){showScreen("screen-start")});
-    $("btn-back-world").addEventListener("click",function(){showScreen("screen-world")});
-
-    document.body.addEventListener("touchstart",function once(){
-      ensureAudio();
-      document.body.removeEventListener("touchstart",once);
-    },{passive:true});
-
-    buildSky();
-  })();
-  </script>
+})();
+</script>
 </body>
 </html>
