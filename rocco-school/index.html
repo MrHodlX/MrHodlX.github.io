@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-06-walkaround v1 -->
+<!-- build 2026-11-06-walkaround v2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -147,8 +147,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 #hintFloat{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:34;display:none;max-width:46vw;background:rgba(10,14,28,.8);border:1px solid rgba(180,200,255,.22);border-radius:16px;padding:10px 12px;font-size:13px;color:#c9d4ff;line-height:1.35;pointer-events:none}
 #hintFloat.show{display:block}
 
-#quiz{position:absolute;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;padding:16px 12px max(18px,env(safe-area-inset-bottom));background:rgba(4,8,18,.55)}
-#quiz.show{display:flex}
+#quiz{position:absolute;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:16px 12px max(18px,env(safe-area-inset-bottom));background:rgba(4,8,18,.62);pointer-events:none}
+#quiz.show{display:flex;pointer-events:auto}
 .quiz-card{width:min(560px,100%);background:rgba(16,22,40,.96);border:2px solid rgba(124,240,255,.3);border-radius:22px;padding:18px 14px 14px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
 .prompt{font-size:clamp(18px,5vw,26px);font-weight:600;line-height:1.35;margin:4px 0 14px}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -169,12 +169,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 #speech.show{opacity:1}
 #speech span{display:inline-block;background:rgba(255,255,255,.94);color:#1a2040;border-radius:16px;padding:10px 14px;font-size:clamp(15px,3.8vw,18px);font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:90%}
 
-#jumpscare{position:absolute;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#4a1020,#12040a 70%);flex-direction:column}
-#jumpscare.show{display:flex;animation:scareIn .12s ease-out}
-#jumpscare svg{width:min(80vw,420px);height:auto;filter:drop-shadow(0 0 24px #ff3b3b);animation:scareShake .1s infinite}
-#jumpscare .boom{margin-top:8px;font-size:clamp(28px,8vw,48px);color:#ffe66d;text-shadow:0 0 18px #ff3b3b;font-weight:800}
-@keyframes scareIn{from{transform:scale(2.2);filter:brightness(3)}to{transform:scale(1);filter:brightness(1)}}
-@keyframes scareShake{0%{transform:translate(-8px,4px) rotate(-2deg)}50%{transform:translate(9px,-5px) rotate(3deg)}100%{transform:translate(-6px,-3px) rotate(-1deg)}}
+#jumpscare{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,#6a0a18,#080204 72%);flex-direction:column;pointer-events:none;overflow:hidden}
+#jumpscare.show{display:flex}
+#jumpscare.show .scare-slam{animation:scareSlam .28s cubic-bezier(.12,1.5,.28,.98) both}
+#jumpscare .scare-slam svg{width:min(96vw,580px);height:auto;filter:drop-shadow(0 0 34px #ff1a1a) drop-shadow(0 16px 12px rgba(0,0,0,.65));animation:scareShake .09s infinite}
+#jumpscare .boom{margin-top:6px;font-size:clamp(30px,9vw,52px);color:#ffe66d;text-shadow:0 0 22px #ff2020,0 4px 0 #7a1020;font-weight:800}
+#jumpscare.show .boom{animation:boomPop .18s ease-out .05s both}
+@keyframes scareSlam{0%{transform:translateY(115vh) scale(.22);filter:brightness(4)}58%{transform:translateY(-6vh) scale(1.32);filter:brightness(1.35)}100%{transform:translateY(0) scale(1.14);filter:brightness(1)}}
+@keyframes scareShake{0%{transform:translate(-10px,6px) rotate(-3deg)}50%{transform:translate(12px,-7px) rotate(4deg)}100%{transform:translate(-8px,-4px) rotate(-2deg)}}
+@keyframes boomPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes flameFlicker{from{transform:translateX(-50%) scaleY(.85) scaleX(1.05);opacity:.85}to{transform:translateX(-50%) scaleY(1.15) scaleX(.95);opacity:1}}
 
 .vignette{position:absolute;inset:0;pointer-events:none;z-index:8;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.55) 100%);opacity:0;transition:opacity .4s}
@@ -242,29 +245,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   </div>
 
   <div id="jumpscare" aria-hidden="true">
-    <svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g>
-        <rect x="108" y="78" width="34" height="58" rx="10" fill="#5b6b8c"/>
-        <rect x="114" y="84" width="22" height="34" rx="6" fill="#8fa3c7"/>
-        <ellipse class="flame" cx="125" cy="148" rx="10" ry="18" fill="#ffb347"/>
-        <ellipse class="flame" cx="125" cy="152" rx="6" ry="12" fill="#ff6b3d"/>
-        <ellipse class="flame" cx="125" cy="156" rx="3" ry="7" fill="#ffe66d"/>
-      </g>
-      <ellipse cx="78" cy="150" rx="42" ry="48" fill="#3d7cff"/>
-      <ellipse cx="78" cy="150" rx="28" ry="32" fill="#6aa0ff"/>
-      <ellipse cx="38" cy="140" rx="14" ry="22" fill="#f6c39a" transform="rotate(-18 38 140)"/>
-      <ellipse cx="118" cy="138" rx="14" ry="20" fill="#f6c39a" transform="rotate(22 118 138)"/>
-      <circle cx="78" cy="78" r="42" fill="#e87070"/>
-      <ellipse cx="62" cy="56" rx="10" ry="4" fill="#3a2a1a"/>
-      <ellipse cx="94" cy="56" rx="10" ry="4" fill="#3a2a1a"/>
-      <circle cx="62" cy="78" r="9" fill="#1a1a2e"/>
-      <circle cx="94" cy="78" r="9" fill="#1a1a2e"/>
-      <circle cx="64" cy="76" r="2.4" fill="#fff"/>
-      <circle cx="96" cy="76" r="2.4" fill="#fff"/>
-      <path d="M62 102 Q78 88 94 102" stroke="#7a2020" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <rect x="48" y="48" width="60" height="10" rx="4" fill="#2dd4bf"/>
-      <text x="78" y="168" text-anchor="middle" font-size="14" font-family="Fredoka,sans-serif" fill="#fff" font-weight="700">CALC</text>
-    </svg>
+    <div class="scare-slam" id="scareArt"></div>
     <div class="boom" id="scareText">GOTCHA, ROCCO!</div>
   </div>
 
@@ -298,7 +279,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const PW = 6.6, PH = 11.2;
   const SPEED = 34;
 
-  const CALC_SVG = '<svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g><rect x="108" y="78" width="34" height="58" rx="10" fill="#5b6b8c"/><rect x="114" y="84" width="22" height="34" rx="6" fill="#8fa3c7"/><ellipse class="flame" cx="125" cy="148" rx="10" ry="18" fill="#ffb347"/><ellipse class="flame" cx="125" cy="152" rx="6" ry="12" fill="#ff6b3d"/><ellipse class="flame" cx="125" cy="156" rx="3" ry="7" fill="#ffe66d"/></g><ellipse cx="78" cy="150" rx="42" ry="48" fill="#3d7cff"/><ellipse cx="78" cy="150" rx="28" ry="32" fill="#6aa0ff"/><circle cx="78" cy="78" r="42" fill="#f7c8a0"/><ellipse cx="62" cy="62" rx="10" ry="4" fill="#3a2a1a"/><ellipse cx="94" cy="62" rx="10" ry="4" fill="#3a2a1a"/><circle cx="62" cy="78" r="7" fill="#1a1a2e"/><circle cx="94" cy="78" r="7" fill="#1a1a2e"/><circle cx="64" cy="76" r="2.2" fill="#fff"/><circle cx="96" cy="76" r="2.2" fill="#fff"/><path d="M62 96 Q78 108 94 96" stroke="#c45c5c" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="48" y="48" width="60" height="10" rx="4" fill="#2dd4bf"/><text x="78" y="168" text-anchor="middle" font-size="16" font-family="Fredoka,sans-serif" fill="#fff" font-weight="700">CALC</text></svg>';
+  const CALC_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="11" ry="20" fill="#ffb347"/><ellipse class="flame" cx="149" cy="218" rx="6" ry="13" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="222" rx="3" ry="8" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="48" y="150" width="10" height="52" rx="5" fill="#f3c19a" transform="rotate(18 53 176)"/><rect x="140" y="148" width="10" height="48" rx="5" fill="#f3c19a" transform="rotate(-22 145 172)"/><g transform="rotate(-18 168 150)"><rect x="154" y="108" width="14" height="92" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M157 116h8M157 128h8M157 140h8M157 152h8M157 164h8M157 176h8M157 188h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#f3c19a"/><circle cx="102" cy="88" r="50" fill="#f3c19a"/><ellipse cx="84" cy="70" rx="16" ry="10" fill="#fbe0c8" opacity=".75"/><ellipse cx="52" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="152" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="84" cy="88" rx="6" ry="8" fill="#1a1a2e"/><ellipse cx="120" cy="88" rx="6" ry="8" fill="#1a1a2e"/><circle cx="86" cy="85" r="2" fill="#fff"/><circle cx="122" cy="85" r="2" fill="#fff"/><path d="M74 108 Q102 132 130 108" stroke="#c45c5c" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
+  const SCARE_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="14" ry="26" fill="#ffb347"/><ellipse class="flame" cx="149" cy="220" rx="8" ry="16" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="226" rx="4" ry="10" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="44" y="148" width="10" height="54" rx="5" fill="#f3c19a" transform="rotate(28 49 175)"/><rect x="138" y="78" width="10" height="70" rx="5" fill="#f3c19a" transform="rotate(-38 143 113)"/><g transform="rotate(-52 150 70)"><rect x="136" y="8" width="16" height="110" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M140 18h8M140 32h8M140 46h8M140 60h8M140 74h8M140 88h8M140 102h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#e8a090"/><circle cx="102" cy="86" r="54" fill="#e8a090"/><ellipse cx="84" cy="68" rx="16" ry="10" fill="#f3c19a" opacity=".55"/><ellipse cx="48" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="156" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="82" cy="86" rx="9" ry="12" fill="#1a1a2e"/><ellipse cx="124" cy="86" rx="9" ry="12" fill="#1a1a2e"/><circle cx="85" cy="82" r="3" fill="#fff"/><circle cx="127" cy="82" r="3" fill="#fff"/><path d="M68 112 Q102 168 136 112" fill="#7a2020" stroke="#5a1010" stroke-width="3"/><path d="M78 124 Q102 150 126 124" fill="#3a0c0c"/></svg>';
 
   const ROOMS = {
     hallway: {
@@ -425,6 +407,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const $ = (id) => document.getElementById(id);
   const keys = {up:false, down:false, left:false, right:false};
   let state = 'title';
+  let quizOpen = false;
+  let paused = false;
+  let choiceReadyAt = 0;
   let roomId = 'hallway';
   let player = {x:46.7, y:58};
   let calc = {x:80, y:20, visible:false};
@@ -504,6 +489,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
       masterGain.gain.linearRampToValueAtTime(muted ? 0.0001 : 1, audioCtx.currentTime + 0.08);
     }
+    if(bgmNodes && bgmNodes.gain && audioCtx){
+      bgmNodes.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+      bgmNodes.gain.gain.linearRampToValueAtTime(muted ? 0.0001 : 0.42, audioCtx.currentTime + 0.08);
+    }
     if(muted && window.speechSynthesis){
       try { speechSynthesis.cancel(); } catch(e){}
     }
@@ -582,13 +571,27 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   function sfxJumpScare(){
     ensureAudio();
     if(!audioCtx || muted) return;
-    [55,58,82,117,156,233,311,466,659,988].forEach((f,i)=>{
-      toneSlide(f, f*(i%2?1.37:0.68), .62, i%2?'sawtooth':'square', 0.16, i*0.018);
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const dest = outNode();
+    if(!dest) return;
+    const t0 = audioCtx.currentTime;
+    const freqs = [49, 52, 73.4, 98, 104, 146.8, 185, 207.6, 277, 311, 370, 466];
+    freqs.forEach((f,i)=>{
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = i%3===0 ? 'square' : 'sawtooth';
+      o.frequency.setValueAtTime(f, t0);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f*(i%2?1.41:0.61)), t0+0.58);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.22, t0+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.72);
+      o.connect(g); g.connect(dest);
+      o.start(t0); o.stop(t0+0.74);
     });
-    noiseBurst(.62, .32, 0, 900);
-    noiseBurst(.48, .22, .06, 1900);
-    toneSlide(1480, 220, .75, 'square', .18, .02);
-    toneSlide(90, 40, .85, 'sawtooth', .2, 0);
+    noiseBurst(.58, .58, 0, 680);
+    noiseBurst(.42, .48, .03, 2100);
+    toneSlide(1760, 130, .62, 'square', .38, 0);
+    toneSlide(90, 28, .7, 'sawtooth', .4, 0);
     sfxRocket();
   }
   function sfxWin(){ [523,659,784,988,1175].forEach((f,i)=>tone(f,.18,'triangle',.1,i*.11)); }
@@ -612,49 +615,55 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     humGain.gain.cancelScheduledValues(audioCtx.currentTime);
     humGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 0.35);
   }
-  function scheduleBgmBar(){
-    if(!audioCtx || muted || !bgmNodes) return;
-    const t0 = audioCtx.currentTime + 0.02;
-    const bass = [110, 130.81, 98, 146.83];
-    const arp = [220, 261.63, 293.66, 349.23, 293.66, 261.63, 246.94, 220];
-    bass.forEach((f,i)=>{
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = 'triangle';
-      o.frequency.value = f;
-      const start = t0 + i*1.0;
-      g.gain.setValueAtTime(0.0001, start);
-      g.gain.linearRampToValueAtTime(0.024, start+0.15);
-      g.gain.linearRampToValueAtTime(0.0001, start+0.95);
-      o.connect(g); g.connect(bgmNodes.gain);
-      o.start(start); o.stop(start+1.0);
-    });
-    arp.forEach((f,i)=>{
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = 'sine';
-      o.frequency.value = f;
-      const start = t0 + i*0.5;
-      g.gain.setValueAtTime(0.0001, start);
-      g.gain.linearRampToValueAtTime(0.014, start+0.05);
-      g.gain.linearRampToValueAtTime(0.0001, start+0.4);
-      o.connect(g); g.connect(bgmNodes.gain);
-      o.start(start); o.stop(start+0.45);
-    });
-  }
   function startBgm(){
     ensureAudio();
     if(!audioCtx) return;
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    if(!bgmNodes){
+    const boot = function(){
+      if(bgmNodes && bgmNodes.started){
+        const g = muted ? 0.0001 : 0.42;
+        bgmNodes.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+        bgmNodes.gain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
+        return;
+      }
+      const dest = outNode();
+      if(!dest) return;
       const gain = audioCtx.createGain();
-      gain.gain.value = 0.9;
-      gain.connect(outNode());
-      bgmNodes = {gain};
-    }
-    if(bgmTimer) clearInterval(bgmTimer);
-    scheduleBgmBar();
-    bgmTimer = setInterval(scheduleBgmBar, 4000);
+      gain.gain.value = muted ? 0.0001 : 0.42;
+      gain.connect(dest);
+      function layer(type, freq, vol, detune){
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        if(detune) o.detune.value = detune;
+        g.gain.value = vol;
+        o.connect(g); g.connect(gain);
+        try { o.start(); } catch(e){}
+        return o;
+      }
+      const drone = layer('sine', 61.74, 0.16, 0);
+      const fifth = layer('triangle', 98, 0.11, 6);
+      const eerie = layer('triangle', 146.83, 0.08, -9);
+      const high = audioCtx.createOscillator();
+      const highG = audioCtx.createGain();
+      high.type = 'sine';
+      high.frequency.value = 196;
+      highG.gain.value = 0.045;
+      const lfo = audioCtx.createOscillator();
+      const lfoG = audioCtx.createGain();
+      lfo.frequency.value = 0.28;
+      lfoG.gain.value = 0.03;
+      lfo.connect(lfoG);
+      lfoG.connect(highG.gain);
+      high.connect(highG); highG.connect(gain);
+      try { high.start(); lfo.start(); } catch(e){}
+      bgmNodes = {gain, started:true, oscs:[drone, fifth, eerie, high, lfo]};
+    };
+    const p = audioCtx.state === 'suspended' ? audioCtx.resume() : Promise.resolve();
+    Promise.resolve(p).then(boot).catch(function(){
+      try { audioCtx.resume(); } catch(e){}
+      setTimeout(boot, 60);
+    });
   }
   function pickVoice(){
     if(!window.speechSynthesis) return null;
@@ -812,14 +821,14 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
 
   function checkDoors(){
-    if(doorCD > 0) return;
+    if(quizOpen || paused || doorCD > 0 || state !== 'explore') return;
     const box = playerBox(player.x, player.y);
     const door = currentRoom().doors.find(d => overlap(box, d));
     if(door) enterRoom(door.to, door.sx, door.sy);
   }
 
   function checkNotebooks(){
-    if(doorCD > 0) return;
+    if(quizOpen || paused || doorCD > 0 || state !== 'explore') return;
     const box = playerBox(player.x, player.y);
     const hit = books.find(b => !b.got && b.room === roomId && overlap(box, {x:b.x, y:b.y, w:8, h:10}));
     if(hit) startQuiz(hit);
@@ -878,28 +887,41 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }, 1000);
   }
 
+  function releaseKeys(){
+    keys.up = keys.down = keys.left = keys.right = false;
+    document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('held'));
+  }
+
   function startQuiz(book){
+    if(quizOpen || paused) return;
+    quizOpen = true;
+    paused = true;
     state = 'quiz';
     quizBook = book;
     locked = false;
     lastMissTimeout = false;
+    releaseKeys();
     $('prompt').textContent = book.q.q;
     const box = $('choices');
     box.innerHTML = '';
     book.q.c.forEach(n => {
       const b = document.createElement('button');
       b.className = 'choice';
+      b.type = 'button';
       b.textContent = String(n);
-      b.addEventListener('click', () => onPick(n, b));
+      b.addEventListener('pointerup', (ev) => { ev.preventDefault(); ev.stopPropagation(); onPick(n, b); });
+      b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); onPick(n, b); });
       box.appendChild(b);
     });
     $('quiz').classList.add('show');
+    choiceReadyAt = performance.now() + 420;
     startQuestionTimer();
   }
 
   function closeQuiz(){
     stopTimer();
     $('quiz').classList.remove('show');
+    quizOpen = false;
     quizBook = null;
   }
 
@@ -919,12 +941,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       endWin();
     } else {
       state = 'explore';
-      doorCD = 0.35;
+      paused = false;
+      quizOpen = false;
+      doorCD = 0.45;
     }
   }
 
   function onPick(n, btn){
-    if(locked || state !== 'quiz') return;
+    if(locked || state !== 'quiz' || !quizBook) return;
+    if(performance.now() < choiceReadyAt) return;
     locked = true;
     stopTimer();
     const item = quizBook.q;
@@ -966,12 +991,16 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   function jumpScare(line){
     state = 'scare';
+    paused = true;
+    quizOpen = false;
     const app = $('app');
     app.classList.remove('shake');
     void app.offsetWidth;
     app.classList.add('shake');
     const scare = $('jumpscare');
     $('scareText').textContent = wrongs >= MAX_WRONG ? 'GOTCHA, ROCCO!' : 'POP QUIZ, ROCCO!';
+    scare.classList.remove('show');
+    void scare.offsetWidth;
     scare.classList.add('show');
     sfxJumpScare();
     say(line, 1600);
@@ -1036,6 +1065,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     ensureAudio();
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     startBgm();
+    quizOpen = false;
+    paused = false;
     const pool = shuffle(QUESTIONS.slice());
     const spots = [];
     Object.keys(ROOMS).forEach(id => {
@@ -1062,7 +1093,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const dt = lastTs ? Math.min(0.05, (ts-lastTs)/1000) : 0.016;
     lastTs = ts;
     if(doorCD > 0) doorCD -= dt;
-    if(state === 'explore'){
+    if(paused || quizOpen){
+      if(state === 'quiz' || state === 'scare') renderActors();
+    } else if(state === 'explore'){
       updatePlayer(dt);
       updateCalc(dt);
       renderActors();
@@ -1108,6 +1141,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
   makeStars();
   bindPad();
+  if($('scareArt')) $('scareArt').innerHTML = SCARE_SVG;
   requestAnimationFrame(tick);
 })();
 </script>
