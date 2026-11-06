@@ -92,6 +92,21 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
 .wrong-dots{display:flex;gap:6px;align-items:center}
 .wrong-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,140,140,.4)}
 .wrong-dot.on{background:#ff6b6b;border-color:#ff9a9a;box-shadow:0 0 10px #ff6b6b}
+#timerPill{
+  position:fixed;z-index:55;left:50%;transform:translateX(-50%);
+  top:max(66px, calc(env(safe-area-inset-top) + 56px));
+  min-width:110px;padding:10px 18px;border-radius:18px;text-align:center;
+  background:rgba(10,14,28,.92);border:2px solid rgba(124,240,255,.45);
+  box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:none;display:none;
+}
+#timerPill.show{display:block}
+#timerPill .lab{font-size:12px;color:#b8c4ef;letter-spacing:.06em;text-transform:uppercase}
+#timerVal{font-size:clamp(34px,9vw,48px);font-weight:700;line-height:1;color:#7cf0ff;font-variant-numeric:tabular-nums}
+#timerPill.warn{border-color:rgba(255,200,80,.7)}
+#timerPill.warn #timerVal{color:#ffd166;animation:timerPulse .5s ease-in-out infinite}
+#timerPill.danger{border-color:rgba(255,100,100,.85);background:rgba(40,10,16,.95)}
+#timerPill.danger #timerVal{color:#ff6b6b;animation:timerPulse .28s ease-in-out infinite}
+@keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 
 /* Play layout */
 #play{justify-content:flex-end;padding-bottom:max(20px,env(safe-area-inset-bottom));}
@@ -198,6 +213,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       </div>
     </div>
   </div>
+  <div id="timerPill" aria-live="polite"><div class="lab">Time</div><div id="timerVal">30</div></div>
 
   <div id="start" class="screen active">
     <div class="panel">
@@ -206,7 +222,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       <p class="tagline">He grades forever</p>
       <p class="sub">Help Rocco finish the school day on Station Zoom! Answer Captain Calc’s questions… but don’t let the chaos get too silly-spooky!</p>
       <button class="big-btn" id="btnPlay">Play, Rocco!</button>
-      <p class="tiny">3rd-grade space math · big touch buttons · fun spooky vibes (not scary)</p>
+      <p class="tiny">3rd-grade space math · 30 seconds per problem · big touch buttons</p>
     </div>
   </div>
 
@@ -294,6 +310,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
 (function(){
   const TOTAL = 12;
   const MAX_WRONG = 3;
+  const TIME_PER_Q = 30;
   let questions = [];
   let qi = 0;
   let wrongs = 0;
@@ -301,6 +318,9 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
   let mistakes = 0;
   let peakChaos = 0;
   let locked = false;
+  let timeLeft = TIME_PER_Q;
+  let timerId = null;
+  let lastMissTimeout = false;
   let audioCtx = null;
   let humOsc = null, humGain = null;
   let muted = false;
@@ -348,6 +368,9 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     $(id).classList.add('active');
     $('hud').classList.toggle('show', id === 'play');
+    const tp = $('timerPill');
+    if(tp) tp.classList.toggle('show', id === 'play');
+    if(id !== 'play') stopTimer();
   }
 
   function makeStars(){
@@ -651,6 +674,83 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     redFlash.classList.add('on');
   }
 
+
+  function stopTimer(){
+    if(timerId){ clearInterval(timerId); timerId = null; }
+  }
+
+  function updateTimerHud(){
+    const el = $('timerVal');
+    const pill = $('timerPill');
+    if(!el || !pill) return;
+    el.textContent = String(Math.max(0, timeLeft));
+    pill.classList.remove('warn','danger');
+    if(timeLeft <= 5) pill.classList.add('danger');
+    else if(timeLeft <= 10) pill.classList.add('warn');
+  }
+
+  function startQuestionTimer(){
+    stopTimer();
+    timeLeft = TIME_PER_Q;
+    updateTimerHud();
+    timerId = setInterval(function(){
+      if(locked) return;
+      timeLeft -= 1;
+      updateTimerHud();
+      if(timeLeft === 10){
+        say('Hurry, Rocco!', 1200);
+        speak('Ten seconds, Rocco!', {rate:1.1, pitch:1.15});
+      }
+      if(timeLeft <= 0){
+        stopTimer();
+        onTimeout();
+      }
+    }, 1000);
+  }
+
+  function onTimeout(){
+    if(locked) return;
+    locked = true;
+    lastMissTimeout = true;
+    document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+    applyMiss('Time\'s up, Rocco!');
+  }
+
+  function advanceAfterMiss(){
+    if(wrongs >= MAX_WRONG){
+      endCaught();
+    } else {
+      qi++;
+      updateHud();
+      if(qi >= TOTAL){
+        endWin();
+      } else {
+        renderQ();
+      }
+    }
+  }
+
+  function applyMiss(forcedLine){
+    wrongs++;
+    mistakes++;
+    peakChaos = Math.max(peakChaos, wrongs);
+    sfxBad();
+    sfxCreep();
+    sfxPop();
+    shake();
+    teacher.className = 'teacher-wrap';
+    teacher.classList.add(wrongs>=3?'mad3':wrongs===2?'mad2':wrongs===1?'mad1':'pop');
+    setTeacherMood();
+    const bLine = forcedLine || BAD_LINES[rand(0, BAD_LINES.length-1)];
+    say(bLine, 1800);
+    if(forcedLine){
+      speak(forcedLine, {rate:1.0, pitch:0.95});
+    } else {
+      speakBad();
+    }
+    setTimeout(advanceAfterMiss, 1000);
+  }
+
   function updateHud(){
     $('qNum').textContent = Math.min(qi+1, TOTAL);
     $('qTotal').textContent = TOTAL;
@@ -659,6 +759,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
 
   function renderQ(){
     locked = false;
+    lastMissTimeout = false;
     updateHud();
     setTeacherMood();
     const item = questions[qi];
@@ -672,11 +773,13 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       b.addEventListener('click', () => onPick(n, b));
       box.appendChild(b);
     });
+    startQuestionTimer();
   }
 
   function onPick(n, btn){
     if(locked) return;
     locked = true;
+    stopTimer();
     const item = questions[qi];
     const ok = n === item.a;
     document.querySelectorAll('.choice').forEach(c => c.disabled = true);
@@ -702,40 +805,22 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       }, 900);
     } else {
       btn.classList.add('bad');
-      wrongs++;
-      mistakes++;
-      peakChaos = Math.max(peakChaos, wrongs);
-      sfxBad();
-      sfxCreep();
-      sfxPop();
-      shake();
-      teacher.className = 'teacher-wrap';
-      teacher.classList.add(wrongs>=3?'mad3':wrongs===2?'mad2':wrongs===1?'mad1':'pop');
-      setTeacherMood();
-      const bLine = BAD_LINES[rand(0, BAD_LINES.length-1)];
-      say(bLine, 1800);
-      speakBad();
-      setTimeout(()=>{
-        if(wrongs >= MAX_WRONG){
-          endCaught();
-        } else {
-          qi++; // still advance so game progresses; wrongs are the threat
-          
-          if(qi >= TOTAL){
-            // finished questions despite wrongs under max
-            endWin();
-          } else {
-            renderQ();
-          }
-        }
-      }, 1000);
+      lastMissTimeout = false;
+      applyMiss(null);
     }
   }
 
   function endCaught(){
+    stopTimer();
     setHum(0);
     sfxCaught();
-    speak('Gotcha, Rocco!', {rate:0.95, pitch:0.85});
+    if(lastMissTimeout){
+      speak("Time's up! Gotcha, Rocco!", {rate:0.95, pitch:0.85});
+      const sub = document.querySelector('#caught .sub');
+      if(sub) sub.textContent = "Time's up, Rocco! Cap'n Calc rocket-hopped in before you finished. Silly spooky catch — try again!";
+    } else {
+      speak('Gotcha, Rocco!', {rate:0.95, pitch:0.85});
+    }
     showScreen('caught');
   }
   function pickEnding(){
@@ -790,6 +875,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
   }
 
   function endWin(){
+    stopTimer();
     setHum(0);
     sfxWin();
     const e = pickEnding();
@@ -816,7 +902,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     startBgm();
     questions = buildQuestions();
-    qi = 0; wrongs = 0; rights = 0; mistakes = 0; peakChaos = 0; locked = false;
+    qi = 0; wrongs = 0; rights = 0; mistakes = 0; peakChaos = 0; locked = false; lastMissTimeout = false; stopTimer();
     showScreen('play');
     setTeacherMood();
     say('Welcome, Rocco... Cap\'n Calc is lurking...', 2200);
