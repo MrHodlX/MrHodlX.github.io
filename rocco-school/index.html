@@ -1,284 +1,278 @@
 <!DOCTYPE html>
-<!-- build 2026-11-06-timer-audio v2 -->
+<!-- build 2026-11-06-walkaround v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Rocco School">
+<meta name="apple-mobile-web-app-title" content="Principal's Wrath">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1020">
-<title>Principal’s Wrath — For Rocco</title>
+<title>Principal's Wrath — For Rocco</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka',system-ui,sans-serif;background:#0b1020;color:#f5f7ff;user-select:none;-webkit-user-select:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka',system-ui,sans-serif;background:#070a14;color:#f5f7ff;user-select:none;-webkit-user-select:none}
 button{font-family:inherit;border:none;cursor:pointer;color:inherit}
-#app{position:fixed;inset:0;overflow:hidden}
-
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));z-index:10}
+#app{position:fixed;inset:0;overflow:hidden;background:#070a14}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));z-index:40}
 .screen.active{display:flex}
 
-/* Hall / ambient */
-.hall-bg{
-  position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse at 50% 120%, rgba(90,40,120,.35), transparent 55%),
-    radial-gradient(ellipse at 20% 10%, rgba(40,80,160,.25), transparent 40%),
-    linear-gradient(180deg,#12182c 0%,#0b1020 55%,#080b16 100%);
-}
-.hall-bg::before{
-  content:"";position:absolute;inset:0;
-  background-image:
-    linear-gradient(90deg,transparent 0 46%,rgba(255,255,255,.03) 46% 54%,transparent 54%),
-    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 48px);
-  opacity:.55;
-}
-.hall-bg::after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:28%;
-  background:linear-gradient(180deg,transparent,rgba(0,0,0,.55));
-}
-.stars{position:absolute;inset:0;overflow:hidden;opacity:.7}
+.stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .star{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.5;animation:twinkle var(--d,2.4s) ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.3)}}
 
-.panel{
-  position:relative;z-index:2;width:min(520px,100%);
-  background:rgba(18,24,44,.88);border:2px solid rgba(160,190,255,.22);
-  border-radius:24px;padding:22px 18px;box-shadow:0 18px 50px rgba(0,0,0,.45);
-  backdrop-filter:blur(8px);text-align:center;
-}
-h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
-.sub{color:#b8c4ef;font-size:clamp(15px,4vw,18px);margin-bottom:16px;line-height:1.35}
-.big-btn{
-  min-height:64px;width:100%;max-width:320px;margin:10px auto;display:block;
-  border-radius:18px;font-size:22px;font-weight:700;padding:14px 18px;
-  background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;
-  box-shadow:0 8px 0 #1d5fad,0 12px 24px rgba(58,160,255,.35);
-  transition:transform .08s,box-shadow .08s;
-}
-.big-btn:active{transform:translateY(4px);box-shadow:0 4px 0 #1d5fad,0 6px 12px rgba(58,160,255,.25)}
-.ghost-btn{
-  min-height:52px;margin-top:10px;background:transparent;color:#c9d4ff;
-  font-size:16px;text-decoration:underline;padding:8px 12px;
-}
-.tag{display:inline-block;background:rgba(124,240,255,.15);color:#9ef3ff;border-radius:999px;padding:6px 12px;font-size:13px;margin-bottom:12px}
-.tagline{font-size:clamp(15px,4vw,18px);letter-spacing:.18em;text-transform:uppercase;color:#c4b5fd;opacity:.85;margin:2px 0 14px;text-shadow:0 0 12px rgba(167,139,250,.45),0 0 28px rgba(88,28,135,.35)}
+.panel{position:relative;z-index:2;width:min(540px,100%);background:rgba(16,22,40,.92);border:2px solid rgba(160,190,255,.22);border-radius:24px;padding:22px 18px;box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
+h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
+.sub{color:#b8c4ef;font-size:clamp(15px,3.8vw,18px);margin-bottom:14px;line-height:1.4}
+.tag{display:inline-block;background:rgba(124,240,255,.15);color:#9ef3ff;border-radius:999px;padding:6px 12px;font-size:13px;margin-bottom:10px}
+.tagline{font-size:clamp(15px,4vw,18px);letter-spacing:.18em;text-transform:uppercase;color:#c4b5fd;opacity:.9;margin:2px 0 14px;text-shadow:0 0 12px rgba(167,139,250,.45)}
+.big-btn{min-height:64px;width:100%;max-width:320px;margin:10px auto;display:block;border-radius:18px;font-size:22px;font-weight:700;padding:14px 18px;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;box-shadow:0 8px 0 #1d5fad,0 12px 24px rgba(58,160,255,.35)}
+.big-btn:active{transform:translateY(4px);box-shadow:0 4px 0 #1d5fad}
+.tiny{font-size:13px;color:#9aa8d8;margin-top:10px;line-height:1.4}
+.emoji-row{font-size:42px;letter-spacing:6px;margin:8px 0 12px}
+.ending-label{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#a78bfa;margin-bottom:6px}
+.ending-label.secret{color:#ffe66d;text-shadow:0 0 12px rgba(255,230,109,.55)}
+.ending-title{font-size:clamp(14px,3.8vw,17px);color:#9ef3ff;opacity:.9;margin-bottom:6px}
+#winPanel.secret-mode{border-color:rgba(255,230,109,.45);box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 40px rgba(255,230,109,.18)}
 
-/* HUD */
-#hud{
-  position:absolute;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;z-index:30;
-  display:none;gap:8px;align-items:stretch;justify-content:space-between;pointer-events:none;
-}
+#hud{position:absolute;top:max(10px,env(safe-area-inset-top));left:12px;right:72px;z-index:30;display:none;gap:8px;align-items:stretch;pointer-events:none}
 #hud.show{display:flex}
-#btnMute{
-  position:fixed;z-index:60;top:max(10px,env(safe-area-inset-top));right:12px;
-  width:52px;height:52px;border-radius:16px;font-size:22px;
-  background:rgba(10,14,28,.9);border:2px solid rgba(180,200,255,.35);
-  box-shadow:0 6px 16px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
-}
-#btnMute.muted{opacity:.55;filter:grayscale(.4)}
-#btnMute:active{transform:scale(.94)}
-.hud-pill{
-  background:rgba(10,14,28,.85);border:1px solid rgba(180,200,255,.25);
-  border-radius:14px;padding:8px 12px;font-size:14px;min-width:0;
-}
+.hud-pill{background:rgba(10,14,28,.88);border:1px solid rgba(180,200,255,.25);border-radius:14px;padding:8px 12px;font-size:14px}
 .hud-pill strong{color:#7cf0ff}
-.meter-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:90px}
-.meter{height:12px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden}
-.meter>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#7CFFB2,#7cf0ff);border-radius:inherit;transition:width .25s}
 .wrong-dots{display:flex;gap:6px;align-items:center}
 .wrong-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,140,140,.4)}
 .wrong-dot.on{background:#ff6b6b;border-color:#ff9a9a;box-shadow:0 0 10px #ff6b6b}
-#timerPill{
-  position:fixed;z-index:55;left:50%;transform:translateX(-50%);
-  top:max(66px, calc(env(safe-area-inset-top) + 56px));
-  min-width:110px;padding:10px 18px;border-radius:18px;text-align:center;
-  background:rgba(10,14,28,.92);border:2px solid rgba(124,240,255,.45);
-  box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:none;display:none;
-}
-#timerPill.show{display:block}
+#btnMute{position:fixed;z-index:60;top:max(10px,env(safe-area-inset-top));right:12px;width:52px;height:52px;border-radius:16px;font-size:22px;background:rgba(10,14,28,.9);border:2px solid rgba(180,200,255,.35);box-shadow:0 6px 16px rgba(0,0,0,.35)}
+#btnMute.muted{opacity:.55;filter:grayscale(.4)}
+#roomLabel{position:absolute;top:max(58px,calc(env(safe-area-inset-top) + 48px));left:50%;transform:translateX(-50%);z-index:28;display:none;background:rgba(10,14,28,.82);border:1px solid rgba(180,200,255,.22);border-radius:999px;padding:6px 16px;font-size:14px;letter-spacing:.04em;pointer-events:none;white-space:nowrap}
+#roomLabel.show{display:block}
+
+#explore{position:absolute;inset:0;display:none;z-index:5}
+#explore.show{display:block}
+#viewport{position:absolute;inset:0;overflow:hidden}
+#room{position:absolute;inset:0;overflow:hidden}
+#room.chaos1{filter:saturate(1.05)}
+#room.chaos2{filter:saturate(1.15) hue-rotate(-8deg)}
+#room.chaos3{filter:saturate(1.3) hue-rotate(-16deg) contrast(1.08)}
+
+.room-hallway{background:
+  linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 48px),
+  linear-gradient(#1a2744,#141c33 70%,#101628);
+  background-size:48px 100%,auto}
+.room-classroom{background:
+  repeating-linear-gradient(90deg,rgba(90,60,30,.18) 0 28px,rgba(70,46,22,.12) 28px 56px),
+  linear-gradient(#3d5a32,#2a3d28 30%,#c4a574 30%,#b3915e)}
+.room-cafeteria{background:
+  repeating-conic-gradient(#f3e6c4 0% 25%,#d9b87a 0% 50%) 0 0/44px 44px;
+  background-color:#d9b87a}
+.room-gym{background:
+  linear-gradient(#c47a3a,#c47a3a) 0 46%/100% 8px no-repeat,
+  linear-gradient(90deg,#c47a3a,#c47a3a) 50% 0/8px 100% no-repeat,
+  repeating-linear-gradient(#c9a06a,#c9a06a 18px,#b88a52 18px 20px)}
+.room-rocketbay{background:
+  repeating-linear-gradient(90deg,transparent 0 36px,rgba(255,160,40,.12) 36px 38px),
+  linear-gradient(#2a3348,#161b28 55%,#3a2a16)}
+
+.prop{position:absolute;border-radius:10px;box-shadow:0 6px 0 rgba(0,0,0,.25);z-index:4}
+.prop.lockers{background:repeating-linear-gradient(90deg,#4b628c 0 28%,#3a4e72 28% 32%);border:3px solid #2a3a58}
+.prop.lockers::after{content:"LOCKERS";position:absolute;inset:auto 4px 6px;text-align:center;font-size:10px;letter-spacing:.08em;color:#c9d8ff;opacity:.8}
+.prop.desk{background:linear-gradient(180deg,#8b5a2b,#6b4220);border:3px solid #4a2c12}
+.prop.chalkboard{background:#2f6b3a;border:8px solid #5a3a1a;box-shadow:inset 0 0 0 2px #1e4a28}
+.prop.chalkboard::after{content:"SPACE MATH";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#d7ffe2;font-size:clamp(12px,2.4vw,18px);letter-spacing:.12em}
+.prop.table{background:#fff6e0;border:4px solid #c9a36a;border-radius:16px}
+.prop.counter{background:linear-gradient(180deg,#8a9bb8,#6a7a96);border:3px solid #3d4a62}
+.prop.counter::after{content:"LUNCH LINE";position:absolute;left:12px;top:8px;font-size:12px;color:#e8eefc;letter-spacing:.1em}
+.prop.bleacher{background:repeating-linear-gradient(#b04040,#b04040 28%,#8c2c2c 28% 32%);border:3px solid #6a2020}
+.prop.bench{background:#6b4220;border:3px solid #3d2410}
+.prop.bookshelf{background:repeating-linear-gradient(#6b2d2d,#6b2d2d 18%,#2d4a6b 18% 36%,#2d6b48 36% 54%,#6b5a2d 54% 72%,#4a2d6b 72% 90%,#333 90% 100%);border:3px solid #2a1a10}
+.prop.banner{background:linear-gradient(90deg,#5b21b6,#2563eb);border:2px solid #c4b5fd;box-shadow:0 0 18px rgba(124,240,255,.25);display:flex;align-items:center;justify-content:center;font-size:clamp(12px,2.6vw,18px);letter-spacing:.14em;color:#fff}
+.prop.trophy{background:radial-gradient(circle at 50% 30%,#ffe66d,#d4a017);border:3px solid #8a6a10;border-radius:50%}
+.prop.fountain{background:linear-gradient(#8ecae6,#219ebc);border:3px solid #115e75;border-radius:50%}
+.prop.hoop{background:transparent;border:6px solid #f97316;border-radius:50%;box-shadow:none}
+.prop.rocket{background:linear-gradient(180deg,#e8eefc,#7c8db0 70%,#ef4444);border:3px solid #cbd5e1;border-radius:40% 40% 12px 12px;overflow:visible}
+.prop.rocket::before{content:"";position:absolute;left:50%;bottom:-18%;width:36%;height:28%;transform:translateX(-50%);background:linear-gradient(#ffe66d,#ff6b3d);border-radius:50%;animation:flameFlicker .18s infinite alternate}
+.prop.rocket::after{content:"🚀";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(28px,8vw,64px)}
+.prop.console{background:linear-gradient(180deg,#1e293b,#0f172a);border:3px solid #22d3ee;box-shadow:0 0 16px rgba(34,211,238,.35)}
+.prop.console::after{content:"LAUNCH";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#7cf0ff;font-size:12px;letter-spacing:.12em}
+.prop.crate{background:repeating-linear-gradient(90deg,#b45309,#b45309 12px,#92400e 12px 16px);border:3px solid #78350f}
+.prop.plant{background:radial-gradient(circle at 50% 70%,#166534,#14532d);border-radius:50% 50% 40% 40%}
+
+.door{position:absolute;z-index:6;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.55);border:2px dashed rgba(124,240,255,.55);color:#9ef3ff;font-size:11px;letter-spacing:.06em;text-align:center;padding:2px;text-transform:uppercase}
+.notebook{position:absolute;z-index:15;width:auto;min-width:7%;min-height:9%;display:flex;align-items:center;justify-content:center;font-size:clamp(26px,6vw,40px);filter:drop-shadow(0 0 10px #7cf0ff);animation:pulseBook 1.1s ease-in-out infinite;pointer-events:none}
+.notebook.got{opacity:0;transform:scale(.4);transition:.3s}
+@keyframes pulseBook{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.08)}}
+
+#player{position:absolute;z-index:20;width:7.2%;height:12%;min-width:42px;min-height:56px;pointer-events:none;transition:none}
+#player .body{position:absolute;inset:0}
+#player .shadow{position:absolute;left:15%;right:15%;bottom:-4%;height:14%;background:rgba(0,0,0,.35);border-radius:50%;filter:blur(1px)}
+#player .head{position:absolute;left:22%;top:0;width:56%;height:38%;background:#f7c8a0;border-radius:50%;border:2px solid #e0a878}
+#player .hair{position:absolute;left:20%;top:-4%;width:60%;height:22%;background:#5b3a1c;border-radius:12px 12px 4px 4px}
+#player .eye{position:absolute;top:16%;width:8%;height:8%;background:#1a1a2e;border-radius:50%}
+#player .eye.l{left:32%}
+#player .eye.r{right:32%}
+#player .smile{position:absolute;left:38%;top:24%;width:24%;height:10%;border-bottom:3px solid #c45c5c;border-radius:50%;background:transparent}
+#player .torso{position:absolute;left:24%;top:38%;width:52%;height:34%;background:linear-gradient(#3b82f6,#1d4ed8);border-radius:10px}
+#player .leg{position:absolute;bottom:2%;width:16%;height:26%;background:#1e293b;border-radius:6px}
+#player .leg.l{left:30%}
+#player .leg.r{right:30%}
+#player.walk .leg.l{animation:step .28s infinite alternate}
+#player.walk .leg.r{animation:step .28s infinite alternate-reverse}
+#player.walk{animation:bob .28s infinite}
+@keyframes step{from{transform:translateY(0)}to{transform:translateY(-18%)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+#player.face-left .eye.l{left:24%}
+#player.face-left .eye.r{right:40%}
+#player.face-right .eye.l{left:40%}
+#player.face-right .eye.r{right:24%}
+
+#calcNPC{position:absolute;z-index:18;width:10%;height:18%;min-width:52px;min-height:78px;opacity:0;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.4));transition:opacity .35s}
+#calcNPC.show{opacity:.85}
+#calcNPC.chase{opacity:1;filter:drop-shadow(0 0 12px rgba(255,80,80,.45)) drop-shadow(0 8px 10px rgba(0,0,0,.4))}
+#calcNPC svg{width:100%;height:100%;display:block}
+
+#dpad{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:35;width:210px;height:210px;display:none;touch-action:none}
+#dpad.show{display:grid;grid-template-areas:". up ." "left mid right" ". down .";grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:8px}
+#dpad .hint{grid-area:mid;display:flex;align-items:center;justify-content:center;font-size:11px;color:#c9d4ff;text-align:center;line-height:1.2;pointer-events:none}
+.dir-btn{border-radius:22px;background:rgba(16,24,48,.88);border:3px solid rgba(124,240,255,.4);color:#7cf0ff;font-size:32px;font-weight:700;box-shadow:0 6px 0 rgba(0,0,0,.35);touch-action:none}
+.dir-btn[data-dir="up"]{grid-area:up}
+.dir-btn[data-dir="down"]{grid-area:down}
+.dir-btn[data-dir="left"]{grid-area:left}
+.dir-btn[data-dir="right"]{grid-area:right}
+.dir-btn.held,.dir-btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.35);background:rgba(56,189,248,.35)}
+
+#hintFloat{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:34;display:none;max-width:46vw;background:rgba(10,14,28,.8);border:1px solid rgba(180,200,255,.22);border-radius:16px;padding:10px 12px;font-size:13px;color:#c9d4ff;line-height:1.35;pointer-events:none}
+#hintFloat.show{display:block}
+
+#quiz{position:absolute;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;padding:16px 12px max(18px,env(safe-area-inset-bottom));background:rgba(4,8,18,.55)}
+#quiz.show{display:flex}
+.quiz-card{width:min(560px,100%);background:rgba(16,22,40,.96);border:2px solid rgba(124,240,255,.3);border-radius:22px;padding:18px 14px 14px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.prompt{font-size:clamp(18px,5vw,26px);font-weight:600;line-height:1.35;margin:4px 0 14px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{min-height:64px;border-radius:16px;font-size:clamp(20px,5vw,26px);font-weight:700;background:linear-gradient(180deg,#2a3558,#1b243d);border:2px solid rgba(180,200,255,.28);color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.35);font-family:'Nunito',Fredoka,sans-serif}
+.choice:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.choice.good{background:linear-gradient(180deg,#5dffb0,#2bbb78);border-color:#9dffd0;color:#062016}
+.choice.bad{background:linear-gradient(180deg,#ff8a8a,#d94c4c);border-color:#ffc0c0}
+#timerPill{margin:0 auto 10px;width:fit-content;min-width:110px;padding:8px 18px;border-radius:18px;text-align:center;background:rgba(10,14,28,.92);border:2px solid rgba(124,240,255,.45)}
 #timerPill .lab{font-size:12px;color:#b8c4ef;letter-spacing:.06em;text-transform:uppercase}
-#timerVal{font-size:clamp(34px,9vw,48px);font-weight:700;line-height:1;color:#7cf0ff;font-variant-numeric:tabular-nums}
+#timerVal{font-size:clamp(32px,8vw,44px);font-weight:700;line-height:1;color:#7cf0ff;font-variant-numeric:tabular-nums;font-family:'Nunito',Fredoka,sans-serif}
 #timerPill.warn{border-color:rgba(255,200,80,.7)}
 #timerPill.warn #timerVal{color:#ffd166;animation:timerPulse .5s ease-in-out infinite}
 #timerPill.danger{border-color:rgba(255,100,100,.85);background:rgba(40,10,16,.95)}
 #timerPill.danger #timerVal{color:#ff6b6b;animation:timerPulse .28s ease-in-out infinite}
 @keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 
-/* Play layout */
-#play{justify-content:flex-end;padding-bottom:max(20px,env(safe-area-inset-bottom));}
-.stage{
-  position:absolute;inset:0;z-index:1;pointer-events:none;
-  display:flex;align-items:flex-end;justify-content:center;
-}
-.teacher-wrap{
-  position:absolute;bottom:38%;right:6%;
-  transform-origin:center bottom;transition:transform .35s,filter .35s,right .35s,bottom .35s,opacity .2s;
-  opacity:0;pointer-events:none;
-}
-.teacher-wrap.lurk{opacity:.35;right:-8%;bottom:42%;transform:scale(.72) rotate(-4deg);filter:brightness(.55) saturate(.7)}
-.teacher-wrap.pop{opacity:1;right:4%;bottom:34%;transform:scale(1.05);filter:brightness(1) saturate(1.1);animation:popIn .28s ease-out}
-.teacher-wrap.mad1{opacity:1;right:10%;bottom:32%;transform:scale(1.12);filter:hue-rotate(-8deg) saturate(1.2) brightness(1.05)}
-.teacher-wrap.mad2{opacity:1;right:18%;bottom:28%;transform:scale(1.28);filter:hue-rotate(-18deg) saturate(1.35) brightness(1.08);animation:twitch .18s infinite}
-.teacher-wrap.mad3{opacity:1;right:28%;bottom:24%;transform:scale(1.45);filter:hue-rotate(-28deg) saturate(1.5) brightness(1.1);animation:twitch .12s infinite}
-.teacher-wrap.dance{opacity:1;right:12%;bottom:36%;transform:scale(1);animation:happyBob .4s ease-in-out 3}
-@keyframes popIn{0%{transform:scale(.4) translateY(40px);opacity:0}100%{transform:scale(1.05) translateY(0);opacity:1}}
-@keyframes twitch{0%,100%{transform:scale(1.28) rotate(-2deg)}50%{transform:scale(1.32) rotate(3deg)}}
-@keyframes happyBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(6deg)}}
+#speech{position:absolute;left:12px;right:12px;top:max(92px,calc(env(safe-area-inset-top) + 82px));z-index:32;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s}
+#speech.show{opacity:1}
+#speech span{display:inline-block;background:rgba(255,255,255,.94);color:#1a2040;border-radius:16px;padding:10px 14px;font-size:clamp(15px,3.8vw,18px);font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:90%}
 
-.teacher-svg{width:min(42vw,180px);height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.5))}
-.flame{transform-origin:50% 0%;animation:flameFlicker .18s infinite alternate}
-@keyframes flameFlicker{from{transform:scaleY(.85) scaleX(1.05);opacity:.85}to{transform:scaleY(1.15) scaleX(.95);opacity:1}}
+#jumpscare{position:absolute;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#4a1020,#12040a 70%);flex-direction:column}
+#jumpscare.show{display:flex;animation:scareIn .12s ease-out}
+#jumpscare svg{width:min(80vw,420px);height:auto;filter:drop-shadow(0 0 24px #ff3b3b);animation:scareShake .1s infinite}
+#jumpscare .boom{margin-top:8px;font-size:clamp(28px,8vw,48px);color:#ffe66d;text-shadow:0 0 18px #ff3b3b;font-weight:800}
+@keyframes scareIn{from{transform:scale(2.2);filter:brightness(3)}to{transform:scale(1);filter:brightness(1)}}
+@keyframes scareShake{0%{transform:translate(-8px,4px) rotate(-2deg)}50%{transform:translate(9px,-5px) rotate(3deg)}100%{transform:translate(-6px,-3px) rotate(-1deg)}}
+@keyframes flameFlicker{from{transform:translateX(-50%) scaleY(.85) scaleX(1.05);opacity:.85}to{transform:translateX(-50%) scaleY(1.15) scaleX(.95);opacity:1}}
 
-.quiz-card{
-  position:relative;z-index:20;width:min(560px,100%);
-  background:rgba(16,22,40,.92);border:2px solid rgba(124,240,255,.25);
-  border-radius:22px;padding:18px 14px 14px;box-shadow:0 16px 40px rgba(0,0,0,.45);
-}
-.prompt{font-size:clamp(20px,5.5vw,28px);font-weight:600;line-height:1.3;margin:4px 0 14px;min-height:2.6em}
-.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.choice{
-  min-height:64px;border-radius:16px;font-size:clamp(20px,5vw,26px);font-weight:700;
-  background:linear-gradient(180deg,#2a3558,#1b243d);border:2px solid rgba(180,200,255,.28);
-  color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.35);
-}
-.choice:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
-.choice.good{background:linear-gradient(180deg,#5dffb0,#2bbb78);border-color:#9dffd0;color:#062016}
-.choice.bad{background:linear-gradient(180deg,#ff8a8a,#d94c4c);border-color:#ffc0c0}
-.speech{
-  position:absolute;left:12px;right:12px;bottom:calc(38% + min(42vw,180px) + 8px);
-  z-index:25;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s;
-}
-.speech.show{opacity:1}
-.speech span{
-  display:inline-block;background:rgba(255,255,255,.92);color:#1a2040;
-  border-radius:16px;padding:10px 14px;font-size:clamp(15px,4vw,18px);font-weight:600;
-  box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:90%;
-}
-
-/* Shake / vignette */
-#fx{position:absolute;inset:0;z-index:40;pointer-events:none}
-#app.shake{animation:shake .45s ease-in-out}
-@keyframes shake{
-  0%,100%{transform:translate(0)}
-  20%{transform:translate(-10px,4px)}
-  40%{transform:translate(10px,-4px)}
-  60%{transform:translate(-8px,-2px)}
-  80%{transform:translate(8px,3px)}
-}
-.vignette{
-  position:absolute;inset:0;pointer-events:none;z-index:5;
-  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.55) 100%);
-  opacity:0;transition:opacity .4s;
-}
-.vignette.lvl1{opacity:.35}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:8;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.55) 100%);opacity:0;transition:opacity .4s}
+.vignette.lvl1{opacity:.32}
 .vignette.lvl2{opacity:.55}
-.vignette.lvl3{opacity:.75}
-.red-flash{position:absolute;inset:0;background:rgba(255,40,40,.18);opacity:0;z-index:6;pointer-events:none}
-.red-flash.on{animation:flash .35s ease-out}
-@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.vignette.lvl3{opacity:.78}
+#app.shake{animation:shake .45s ease-in-out}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-10px,4px)}40%{transform:translate(10px,-4px)}60%{transform:translate(-8px,-2px)}80%{transform:translate(8px,3px)}}
 
-.emoji-row{font-size:42px;letter-spacing:6px;margin:8px 0 12px}
-.ending-label{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#a78bfa;margin-bottom:6px;min-height:1em}
-.ending-label.secret{color:#ffe66d;text-shadow:0 0 12px rgba(255,230,109,.55)}
-.ending-title{font-size:clamp(14px,3.8vw,17px);color:#9ef3ff;opacity:.9;margin-bottom:6px;letter-spacing:.04em}
-.secret-art{margin:4px auto 10px;filter:drop-shadow(0 0 16px rgba(255,230,109,.35))}
-#winPanel.secret-mode{border-color:rgba(255,230,109,.45);box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 40px rgba(255,230,109,.18)}
-.tiny{font-size:13px;color:#9aa8d8;margin-top:10px;line-height:1.4}
+.flame{transform-origin:50% 0%;animation:flameFlicker2 .18s infinite alternate}
+@keyframes flameFlicker2{from{transform:scaleY(.85) scaleX(1.05);opacity:.85}to{transform:scaleY(1.15) scaleX(.95);opacity:1}}
 </style>
 </head>
 <body>
 <div id="app">
-  <button type="button" id="btnMute" aria-label="Mute sound" title="Mute">♪</button>
-  <div class="hall-bg"></div>
   <div class="stars" id="stars"></div>
-  <div class="vignette" id="vignette"></div>
-  <div class="red-flash" id="redFlash"></div>
-
-  <div id="hud">
-    <div class="hud-pill">Rocco · Q <strong id="qNum">1</strong>/<span id="qTotal">12</span></div>
-    <div class="hud-pill meter-wrap">
-      <div style="font-size:12px;color:#b8c4ef">Mission meter</div>
-      <div class="meter"><i id="meterFill"></i></div>
-    </div>
-    <div class="hud-pill">
-      <div style="font-size:12px;color:#b8c4ef;margin-bottom:4px">Chaos</div>
-      <div class="wrong-dots" id="wrongDots">
-        <span class="wrong-dot" data-i="0"></span>
-        <span class="wrong-dot" data-i="1"></span>
-        <span class="wrong-dot" data-i="2"></span>
-      </div>
-    </div>
-  </div>
-  <div id="timerPill" aria-live="polite"><div class="lab">Time</div><div id="timerVal">30</div></div>
+  <button type="button" id="btnMute" aria-label="Mute sound" title="Mute">♪</button>
 
   <div id="start" class="screen active">
     <div class="panel">
-      <div class="tag">Space School · Math Mission</div>
-      <h1>Principal’s Wrath</h1>
+      <div class="tag">Space School · Walk-Around Mission</div>
+      <h1>Principal's Wrath</h1>
       <p class="tagline">He grades forever</p>
-      <p class="sub">Help Rocco finish the school day on Station Zoom! Answer Captain Calc’s questions… but don’t let the chaos get too silly-spooky!</p>
+      <p class="sub">Help Rocco walk Station Zoom with the D-pad. Step on glowing notebooks in the hallway, classroom, cafeteria, gym, and rocket bay. Read each space story carefully — you have 30 seconds!</p>
       <button class="big-btn" id="btnPlay">Play, Rocco!</button>
-      <p class="tiny">3rd-grade space math · 30 seconds per problem · big touch buttons</p>
+      <p class="tiny">Collect 6 notebooks · 3 misses and Cap'n Calc jump-scares you for good · original space-school adventure</p>
     </div>
   </div>
 
-  <div id="play" class="screen">
-    <div class="stage">
-      <div class="teacher-wrap lurk" id="teacher">
-        <svg class="teacher-svg" viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!-- rocket backpack -->
-          <g id="backpack">
-            <rect x="108" y="78" width="34" height="58" rx="10" fill="#5b6b8c"/>
-            <rect x="114" y="84" width="22" height="34" rx="6" fill="#8fa3c7"/>
-            <ellipse class="flame" cx="125" cy="148" rx="10" ry="18" fill="#ffb347"/>
-            <ellipse class="flame" cx="125" cy="152" rx="6" ry="12" fill="#ff6b3d"/>
-            <ellipse class="flame" cx="125" cy="156" rx="3" ry="7" fill="#ffe66d"/>
-          </g>
-          <!-- body -->
-          <ellipse cx="78" cy="150" rx="42" ry="48" fill="#3d7cff"/>
-          <ellipse cx="78" cy="150" rx="28" ry="32" fill="#6aa0ff"/>
-          <!-- arms -->
-          <ellipse cx="38" cy="140" rx="14" ry="22" fill="#f6c39a" transform="rotate(-18 38 140)"/>
-          <ellipse cx="118" cy="138" rx="14" ry="20" fill="#f6c39a" transform="rotate(22 118 138)"/>
-          <!-- head -->
-          <circle id="face" cx="78" cy="78" r="42" fill="#f7c8a0"/>
-          <!-- brows / eyes change via JS fill on mad -->
-          <ellipse id="browL" cx="62" cy="62" rx="10" ry="4" fill="#3a2a1a"/>
-          <ellipse id="browR" cx="94" cy="62" rx="10" ry="4" fill="#3a2a1a"/>
-          <circle cx="62" cy="78" r="7" fill="#1a1a2e"/>
-          <circle cx="94" cy="78" r="7" fill="#1a1a2e"/>
-          <circle cx="64" cy="76" r="2.2" fill="#fff"/>
-          <circle cx="96" cy="76" r="2.2" fill="#fff"/>
-          <path id="mouth" d="M62 96 Q78 108 94 96" stroke="#c45c5c" stroke-width="4" fill="none" stroke-linecap="round"/>
-          <!-- headset / calc badge -->
-          <rect x="48" y="48" width="60" height="10" rx="4" fill="#2dd4bf"/>
-          <circle cx="42" cy="70" r="10" fill="#222b44"/>
-          <text x="78" y="168" text-anchor="middle" font-size="14" font-family="Fredoka,sans-serif" fill="#fff" font-weight="700">CALC</text>
-          <!-- clipboard -->
-          <rect x="22" y="118" width="28" height="36" rx="4" fill="#fff6d6" stroke="#c9b27a" stroke-width="2"/>
-          <line x1="28" y1="128" x2="44" y2="128" stroke="#8a7a4a" stroke-width="2"/>
-          <line x1="28" y1="136" x2="44" y2="136" stroke="#8a7a4a" stroke-width="2"/>
-          <line x1="28" y1="144" x2="40" y2="144" stroke="#8a7a4a" stroke-width="2"/>
-        </svg>
+  <div id="explore">
+    <div id="viewport">
+      <div id="room"></div>
+    </div>
+    <div class="vignette" id="vignette"></div>
+    <div id="hud">
+      <div class="hud-pill">Rocco · 📓 <strong id="nbNum">0</strong>/<span id="nbTotal">6</span></div>
+      <div class="hud-pill" id="hudRoom">Hallway</div>
+      <div class="hud-pill">
+        <div style="font-size:12px;color:#b8c4ef;margin-bottom:4px">Chaos</div>
+        <div class="wrong-dots">
+          <span class="wrong-dot" data-i="0"></span>
+          <span class="wrong-dot" data-i="1"></span>
+          <span class="wrong-dot" data-i="2"></span>
+        </div>
       </div>
     </div>
-    <div class="speech" id="speech"><span id="speechText">Ready, Rocco?</span></div>
+    <div id="roomLabel">Hallway</div>
+    <div id="speech"><span id="speechText">Walk, Rocco!</span></div>
+    <div id="dpad" aria-label="D-pad walk controls">
+      <button type="button" class="dir-btn" data-dir="up" aria-label="Walk up">▲</button>
+      <button type="button" class="dir-btn" data-dir="left" aria-label="Walk left">◀</button>
+      <button type="button" class="dir-btn" data-dir="right" aria-label="Walk right">▶</button>
+      <button type="button" class="dir-btn" data-dir="down" aria-label="Walk down">▼</button>
+      <div class="hint">D-pad<br>walk</div>
+    </div>
+    <div id="hintFloat">Walk into glowing notebooks. Doors lead to other rooms.</div>
+  </div>
+
+  <div id="quiz">
     <div class="quiz-card">
+      <div id="timerPill" aria-live="polite"><div class="lab">Time</div><div id="timerVal">30</div></div>
       <div class="prompt" id="prompt">Loading…</div>
       <div class="choices" id="choices"></div>
     </div>
+  </div>
+
+  <div id="jumpscare" aria-hidden="true">
+    <svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g>
+        <rect x="108" y="78" width="34" height="58" rx="10" fill="#5b6b8c"/>
+        <rect x="114" y="84" width="22" height="34" rx="6" fill="#8fa3c7"/>
+        <ellipse class="flame" cx="125" cy="148" rx="10" ry="18" fill="#ffb347"/>
+        <ellipse class="flame" cx="125" cy="152" rx="6" ry="12" fill="#ff6b3d"/>
+        <ellipse class="flame" cx="125" cy="156" rx="3" ry="7" fill="#ffe66d"/>
+      </g>
+      <ellipse cx="78" cy="150" rx="42" ry="48" fill="#3d7cff"/>
+      <ellipse cx="78" cy="150" rx="28" ry="32" fill="#6aa0ff"/>
+      <ellipse cx="38" cy="140" rx="14" ry="22" fill="#f6c39a" transform="rotate(-18 38 140)"/>
+      <ellipse cx="118" cy="138" rx="14" ry="20" fill="#f6c39a" transform="rotate(22 118 138)"/>
+      <circle cx="78" cy="78" r="42" fill="#e87070"/>
+      <ellipse cx="62" cy="56" rx="10" ry="4" fill="#3a2a1a"/>
+      <ellipse cx="94" cy="56" rx="10" ry="4" fill="#3a2a1a"/>
+      <circle cx="62" cy="78" r="9" fill="#1a1a2e"/>
+      <circle cx="94" cy="78" r="9" fill="#1a1a2e"/>
+      <circle cx="64" cy="76" r="2.4" fill="#fff"/>
+      <circle cx="96" cy="76" r="2.4" fill="#fff"/>
+      <path d="M62 102 Q78 88 94 102" stroke="#7a2020" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <rect x="48" y="48" width="60" height="10" rx="4" fill="#2dd4bf"/>
+      <text x="78" y="168" text-anchor="middle" font-size="14" font-family="Fredoka,sans-serif" fill="#fff" font-weight="700">CALC</text>
+    </svg>
+    <div class="boom" id="scareText">GOTCHA, ROCCO!</div>
   </div>
 
   <div id="caught" class="screen">
     <div class="panel">
       <div class="emoji-row">🚀😅⭐</div>
       <h1>Caught in the hallway!</h1>
-      <p class="sub">Captain Calc hopped out with his rocket backpack — silly-spooky chaos got too high, Rocco! Take a breath and try the mission again.</p>
+      <p class="sub">Three strikes, Rocco! Cap'n Calc blasted in with his rocket backpack and a wild pop-quiz scare. Take a breath and walk Station Zoom again.</p>
       <button class="big-btn" id="btnRetry">Try again, Rocco!</button>
     </div>
   </div>
@@ -289,18 +283,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       <div class="emoji-row" id="winEmoji">🌟🎉🚀</div>
       <p class="ending-title" id="endingTitle">Mission Clear</p>
       <h1 id="winHeadline">You did it, Rocco!</h1>
-      <p class="sub" id="winBlurb">School day’s clear on Station Zoom. Captain Calc is doing a happy rocket hop — you crushed the space math!</p>
-      <div class="secret-art" id="secretArt" hidden>
-        <svg viewBox="0 0 220 120" width="220" height="120" aria-hidden="true">
-          <rect x="70" y="20" width="80" height="70" rx="14" fill="#3d7cff"/>
-          <circle cx="110" cy="40" r="22" fill="#f7c8a0"/>
-          <text x="110" y="105" text-anchor="middle" font-size="14" fill="#ffe66d" font-family="Fredoka,sans-serif" font-weight="700">ROCKET OUT 🔥</text>
-          <ellipse class="flame" cx="150" cy="85" rx="12" ry="20" fill="#ffb347"/>
-          <ellipse class="flame" cx="150" cy="90" rx="7" ry="12" fill="#ff6b3d"/>
-          <rect x="140" y="40" width="28" height="40" rx="8" fill="#5b6b8c"/>
-          <text x="110" y="48" text-anchor="middle" font-size="11" fill="#1a2040" font-family="Fredoka,sans-serif">A+</text>
-        </svg>
-      </div>
+      <p class="sub" id="winBlurb">School day's clear on Station Zoom.</p>
       <button class="big-btn" id="btnAgain">Play again</button>
       <p class="tiny" id="winTiny">Made for Rocco · original space-school adventure</p>
     </div>
@@ -309,80 +292,188 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
 
 <script>
 (function(){
-  const TOTAL = 12;
-  const MAX_WRONG = 3;
   const TIME_PER_Q = 30;
-  let questions = [];
-  let qi = 0;
+  const MAX_WRONG = 3;
+  const NEED_BOOKS = 6;
+  const PW = 6.6, PH = 11.2;
+  const SPEED = 34;
+
+  const CALC_SVG = '<svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g><rect x="108" y="78" width="34" height="58" rx="10" fill="#5b6b8c"/><rect x="114" y="84" width="22" height="34" rx="6" fill="#8fa3c7"/><ellipse class="flame" cx="125" cy="148" rx="10" ry="18" fill="#ffb347"/><ellipse class="flame" cx="125" cy="152" rx="6" ry="12" fill="#ff6b3d"/><ellipse class="flame" cx="125" cy="156" rx="3" ry="7" fill="#ffe66d"/></g><ellipse cx="78" cy="150" rx="42" ry="48" fill="#3d7cff"/><ellipse cx="78" cy="150" rx="28" ry="32" fill="#6aa0ff"/><circle cx="78" cy="78" r="42" fill="#f7c8a0"/><ellipse cx="62" cy="62" rx="10" ry="4" fill="#3a2a1a"/><ellipse cx="94" cy="62" rx="10" ry="4" fill="#3a2a1a"/><circle cx="62" cy="78" r="7" fill="#1a1a2e"/><circle cx="94" cy="78" r="7" fill="#1a1a2e"/><circle cx="64" cy="76" r="2.2" fill="#fff"/><circle cx="96" cy="76" r="2.2" fill="#fff"/><path d="M62 96 Q78 108 94 96" stroke="#c45c5c" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="48" y="48" width="60" height="10" rx="4" fill="#2dd4bf"/><text x="78" y="168" text-anchor="middle" font-size="16" font-family="Fredoka,sans-serif" fill="#fff" font-weight="700">CALC</text></svg>';
+
+  const ROOMS = {
+    hallway: {
+      name: 'Hallway',
+      theme: 'room-hallway',
+      props: [
+        {kind:'lockers', x:5, y:16, w:11, h:28, solid:true},
+        {kind:'lockers', x:84, y:16, w:11, h:28, solid:true},
+        {kind:'desk', x:39, y:40, w:22, h:13, solid:true},
+        {kind:'banner', x:28, y:18, w:44, h:9, solid:false, label:'STATION ZOOM'},
+        {kind:'trophy', x:22, y:72, w:8, h:11, solid:true},
+        {kind:'fountain', x:70, y:72, w:8, h:11, solid:true}
+      ],
+      doors: [
+        {x:41, y:0, w:18, h:7, to:'classroom', sx:46.7, sy:78, label:'Classroom'},
+        {x:41, y:93, w:18, h:7, to:'rocketbay', sx:46.7, sy:12, label:'Rocket Bay'},
+        {x:0, y:42, w:7, h:18, to:'cafeteria', sx:82, sy:45, label:'Cafeteria'},
+        {x:93, y:42, w:7, h:18, to:'gym', sx:10, sy:45, label:'Gym'}
+      ],
+      books: [{id:'hall-desk', x:46, y:32}]
+    },
+    classroom: {
+      name: 'Classroom',
+      theme: 'room-classroom',
+      props: [
+        {kind:'chalkboard', x:18, y:6, w:64, h:12, solid:true},
+        {kind:'bookshelf', x:3, y:26, w:9, h:32, solid:true},
+        {kind:'desk', x:18, y:42, w:18, h:13, solid:true},
+        {kind:'desk', x:50, y:58, w:18, h:13, solid:true},
+        {kind:'console', x:70, y:30, w:16, h:14, solid:true}
+      ],
+      doors: [
+        {x:41, y:93, w:18, h:7, to:'hallway', sx:46.7, sy:10, label:'Hallway'}
+      ],
+      books: [{id:'class-desk', x:22, y:34}, {id:'class-term', x:74, y:22}]
+    },
+    cafeteria: {
+      name: 'Cafeteria',
+      theme: 'room-cafeteria',
+      props: [
+        {kind:'counter', x:8, y:6, w:84, h:11, solid:true},
+        {kind:'table', x:16, y:30, w:24, h:16, solid:true},
+        {kind:'table', x:58, y:30, w:24, h:16, solid:true},
+        {kind:'table', x:37, y:60, w:24, h:16, solid:true},
+        {kind:'plant', x:8, y:78, w:8, h:10, solid:true}
+      ],
+      doors: [
+        {x:93, y:42, w:7, h:18, to:'hallway', sx:10, sy:45, label:'Hallway'}
+      ],
+      books: [{id:'cafe-tray', x:22, y:22}]
+    },
+    gym: {
+      name: 'Gym',
+      theme: 'room-gym',
+      props: [
+        {kind:'bleacher', x:8, y:6, w:84, h:12, solid:true},
+        {kind:'hoop', x:44, y:22, w:12, h:10, solid:false},
+        {kind:'bench', x:70, y:52, w:18, h:12, solid:true}
+      ],
+      doors: [
+        {x:0, y:42, w:7, h:18, to:'hallway', sx:82, sy:45, label:'Hallway'}
+      ],
+      books: [{id:'gym-score', x:74, y:44}]
+    },
+    rocketbay: {
+      name: 'Rocket Bay',
+      theme: 'room-rocketbay',
+      props: [
+        {kind:'rocket', x:12, y:22, w:26, h:52, solid:true},
+        {kind:'console', x:56, y:38, w:20, h:16, solid:true},
+        {kind:'crate', x:78, y:64, w:14, h:14, solid:true}
+      ],
+      doors: [
+        {x:41, y:0, w:18, h:7, to:'hallway', sx:46.7, sy:80, label:'Hallway'}
+      ],
+      books: [{id:'bay-console', x:62, y:30}]
+    }
+  };
+
+  const QUESTIONS = [
+    {q:'Rocco counts 5 starships on the launch pad. Each starship has 3 windows. How many windows are there in all?', a:15},
+    {q:'The cafeteria cooked 48 moon muffins. The astronauts ate 19 of them. How many muffins are left for Rocco?', a:29},
+    {q:'A space bus holds 8 kids. Rocco sees 4 full buses line up. How many kids are on the buses?', a:32},
+    {q:'Rocco packed 27 glow sticks. He gave 9 to his team and 6 to Cap\'n Calc. How many glow sticks does Rocco have now?', a:12},
+    {q:'There are 6 rows of lockers. Each row has 5 lockers. Then the school adds 4 more lockers. How many lockers in all?', a:34},
+    {q:'Rocco collected 36 space stamps. He puts them into equal groups of 6. How many groups can he make?', a:6},
+    {q:'The gym has 14 red balls and 17 blue balls. How many balls are there altogether?', a:31},
+    {q:'A rocket used 45 fuel cells on Monday and 28 on Tuesday. How many more were used on Monday than Tuesday?', a:17},
+    {q:'Rocco plants 7 moon beans in each of 5 pots. How many moon beans did he plant?', a:35},
+    {q:'There were 60 stickers on a sheet. Rocco used 23, then found 8 more under a desk. How many stickers does he have now?', a:45},
+    {q:'Four teams each scored 9 points. Then Rocco\'s team scored 5 bonus points. What is the total of all those points?', a:41},
+    {q:'The classroom had 32 pencils. 8 kids each took 2 pencils. How many pencils are left for Rocco?', a:16}
+  ];
+
+  const GOOD_LINES = [
+    'Blast off, Rocco!',
+    'Star student, Rocco!',
+    'Calculations locked!',
+    'Nice one, Rocco!',
+    'Moon rocks approve, Rocco!',
+    'Zoom zoom, perfect!',
+    'Cap\'n Calc is impressed, Rocco!',
+    'That answer sparkles, Rocco!',
+    'Fuel tanks full of brains!',
+    'Orbit achieved, Rocco!',
+    'A plus plus, space cadet!',
+    'You cracked the code, Rocco!'
+  ];
+  const BAD_LINES = [
+    'The asteroid disagrees, Rocco!',
+    'Hmm, recalculating...',
+    'Whoopsie rocket, Rocco!',
+    'Not that star chart!',
+    'Cap\'n Calc is peeking closer!',
+    'Silly spooky vibes rising, Rocco...',
+    'That math went sideways!',
+    'Uh-oh, hallway hop incoming!',
+    'Recheck those moon numbers, Rocco!',
+    'Almost — but not quite, Rocco!',
+    'My rocket backpack just hiccuped!',
+    'Pop quiz panic, Rocco!'
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const keys = {up:false, down:false, left:false, right:false};
+  let state = 'title';
+  let roomId = 'hallway';
+  let player = {x:46.7, y:58};
+  let calc = {x:80, y:20, visible:false};
+  let books = [];
+  let collected = 0;
   let wrongs = 0;
-  let rights = 0;
   let mistakes = 0;
   let peakChaos = 0;
   let locked = false;
   let timeLeft = TIME_PER_Q;
   let timerId = null;
   let lastMissTimeout = false;
-  let audioCtx = null;
-  let humOsc = null, humGain = null;
+  let doorCD = 0;
+  let quizBook = null;
   let muted = false;
-  let masterGain = null;
-  let bgmNodes = null;
-  let bgmTimer = null;
-  const GOOD_LINES = [
-    "Blast off, Rocco!",
-    "Star student, Rocco!",
-    "Calculations locked!",
-    "Nice one, Rocco!",
-    "Moon rocks approve, Rocco!",
-    "Zoom zoom, perfect!",
-    "Captain Calc is impressed, Rocco!",
-    "That answer sparkles, Rocco!",
-    "Fuel tanks full of brains!",
-    "Orbit achieved, Rocco!",
-    "A plus plus, space cadet!",
-    "You cracked the code, Rocco!"
-  ];
-  const BAD_LINES = [
-    "Oops, Rocco...",
-    "The asteroid disagrees!",
-    "Hmm, recalculating...",
-    "Whoopsie rocket, Rocco!",
-    "Not that star chart...",
-    "Cap'n Calc is peeking closer!",
-    "Silly spooky vibes rising, Rocco...",
-    "Try again, space kid!",
-    "That math went sideways!",
-    "Uh-oh, hallway hop incoming!",
-    "Recheck those moon numbers, Rocco!",
-    "Almost — but not quite, Rocco!"
-  ];
+  let audioCtx = null, masterGain = null, humOsc = null, humGain = null, bgmNodes = null, bgmTimer = null;
+  let lastTs = 0;
+  let whooshCD = 0;
 
-  const $ = (id) => document.getElementById(id);
-  const app = $('app');
-  const teacher = $('teacher');
-  const vignette = $('vignette');
-  const redFlash = $('redFlash');
-  const speech = $('speech');
-  const speechText = $('speechText');
-
-  function showScreen(id){
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    $(id).classList.add('active');
-    $('hud').classList.toggle('show', id === 'play');
-    const tp = $('timerPill');
-    if(tp) tp.classList.toggle('show', id === 'play');
-    if(id !== 'play') stopTimer();
+  function rand(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function overlap(a,b){
+    return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+  }
+  function playerBox(x,y){ return {x:x, y:y, w:PW, h:PH}; }
+  function choicesFor(ans){
+    const set = new Set([ans]);
+    while(set.size < 4){
+      let n = ans + rand(-10,10);
+      if(n === ans || n < 0) n = ans + rand(1,9);
+      set.add(n);
+    }
+    return shuffle([...set]);
   }
 
   function makeStars(){
     const box = $('stars');
-    for(let i=0;i<40;i++){
+    for(let i=0;i<36;i++){
       const s = document.createElement('div');
       s.className = 'star';
       s.style.left = Math.random()*100 + '%';
-      s.style.top = Math.random()*70 + '%';
+      s.style.top = Math.random()*100 + '%';
       s.style.setProperty('--d', (1.6+Math.random()*2.4)+'s');
-      s.style.animationDelay = (Math.random()*2)+'s';
       box.appendChild(s);
     }
   }
@@ -399,15 +490,16 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     masterGain.gain.value = muted ? 0.0001 : 1;
     masterGain.connect(audioCtx.destination);
   }
-
+  function outNode(){
+    ensureAudio();
+    return masterGain || (audioCtx && audioCtx.destination);
+  }
   function setMuted(m){
     muted = !!m;
     const btn = $('btnMute');
-    if(btn){
-      btn.classList.toggle('muted', muted);
-      btn.textContent = muted ? '🔇' : '♪';
-      btn.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
-    }
+    btn.classList.toggle('muted', muted);
+    btn.textContent = muted ? '🔇' : '♪';
+    btn.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
     if(masterGain && audioCtx){
       masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
       masterGain.gain.linearRampToValueAtTime(muted ? 0.0001 : 1, audioCtx.currentTime + 0.08);
@@ -416,12 +508,6 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       try { speechSynthesis.cancel(); } catch(e){}
     }
   }
-
-  function outNode(){
-    ensureAudio();
-    return masterGain || (audioCtx && audioCtx.destination);
-  }
-
   function tone(freq, dur, type, vol, when){
     ensureAudio();
     if(!audioCtx || muted) return;
@@ -438,7 +524,23 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     o.connect(g); g.connect(dest);
     o.start(t0); o.stop(t0+dur+0.03);
   }
-
+  function toneSlide(f1, f2, dur, type, vol, when){
+    ensureAudio();
+    if(!audioCtx || muted) return;
+    const dest = outNode();
+    if(!dest) return;
+    const t0 = audioCtx.currentTime + (when||0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sawtooth';
+    o.frequency.setValueAtTime(f1, t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t0+dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol||0.12), t0+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(dest);
+    o.start(t0); o.stop(t0+dur+0.03);
+  }
   function noiseBurst(dur, vol, when, bandFreq){
     ensureAudio();
     if(!audioCtx || muted) return;
@@ -461,40 +563,37 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     src.connect(f); f.connect(g); g.connect(dest);
     src.start(t0); src.stop(t0+dur+0.02);
   }
-
   function sfxGood(){
-    tone(523, .11, 'triangle', .11);
-    tone(659, .13, 'triangle', .11, .09);
-    tone(784, .16, 'triangle', .12, .18);
-    tone(1046, .2, 'sine', .08, .28);
+    tone(523,.11,'triangle',.11);
+    tone(659,.13,'triangle',.11,.09);
+    tone(784,.16,'triangle',.12,.18);
+    tone(1046,.2,'sine',.08,.28);
   }
   function sfxBad(){
-    tone(196, .16, 'sawtooth', .07);
-    tone(147, .22, 'square', .055, .1);
-    tone(110, .28, 'triangle', .05, .2);
-  }
-  function sfxCreep(){
-    tone(70, .12, 'square', .06);
-    tone(55, .25, 'sawtooth', .045, .08);
-    noiseBurst(.18, .05, .05, 400);
+    tone(196,.16,'sawtooth',.07);
+    tone(147,.22,'square',.055,.1);
   }
   function sfxRocket(){
-    noiseBurst(.28, .07, 0, 600);
-    tone(180, .2, 'sawtooth', .05, 0);
-    tone(320, .15, 'triangle', .04, .08);
-    tone(90, .25, 'sine', .05, .12);
+    noiseBurst(.32,.09,0,620);
+    toneSlide(220,90,.28,'sawtooth',.07,0);
+    tone(320,.15,'triangle',.04,.08);
+    tone(90,.25,'sine',.05,.12);
   }
-  function sfxPop(){ sfxRocket(); tone(240, .1, 'triangle', .07, .05); }
-  function sfxWin(){
-    [523,659,784,988,1175].forEach((f,i)=>tone(f,.18,'triangle',.1,i*.11));
-    tone(1568, .35, 'sine', .07, .55);
+  function sfxJumpScare(){
+    ensureAudio();
+    if(!audioCtx || muted) return;
+    [55,58,82,117,156,233,311,466,659,988].forEach((f,i)=>{
+      toneSlide(f, f*(i%2?1.37:0.68), .62, i%2?'sawtooth':'square', 0.16, i*0.018);
+    });
+    noiseBurst(.62, .32, 0, 900);
+    noiseBurst(.48, .22, .06, 1900);
+    toneSlide(1480, 220, .75, 'square', .18, .02);
+    toneSlide(90, 40, .85, 'sawtooth', .2, 0);
+    sfxRocket();
   }
-  function sfxCaught(){
-    tone(150,.18,'sawtooth',.07);
-    tone(110,.25,'square',.055,.14);
-    noiseBurst(.35, .08, .2, 200);
-    tone(70,.4,'triangle',.05,.35);
-  }
+  function sfxWin(){ [523,659,784,988,1175].forEach((f,i)=>tone(f,.18,'triangle',.1,i*.11)); }
+  function sfxCaught(){ tone(150,.18,'sawtooth',.08); noiseBurst(.4,.12,.15,220); }
+  function sfxStep(){ tone(180+rand(0,40),.04,'triangle',.03); }
 
   function setHum(level){
     ensureAudio();
@@ -513,7 +612,6 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     humGain.gain.cancelScheduledValues(audioCtx.currentTime);
     humGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 0.35);
   }
-
   function scheduleBgmBar(){
     if(!audioCtx || muted || !bgmNodes) return;
     const t0 = audioCtx.currentTime + 0.02;
@@ -526,7 +624,7 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       o.frequency.value = f;
       const start = t0 + i*1.0;
       g.gain.setValueAtTime(0.0001, start);
-      g.gain.linearRampToValueAtTime(0.028, start+0.15);
+      g.gain.linearRampToValueAtTime(0.024, start+0.15);
       g.gain.linearRampToValueAtTime(0.0001, start+0.95);
       o.connect(g); g.connect(bgmNodes.gain);
       o.start(start); o.stop(start+1.0);
@@ -538,13 +636,12 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       o.frequency.value = f;
       const start = t0 + i*0.5;
       g.gain.setValueAtTime(0.0001, start);
-      g.gain.linearRampToValueAtTime(0.016, start+0.05);
+      g.gain.linearRampToValueAtTime(0.014, start+0.05);
       g.gain.linearRampToValueAtTime(0.0001, start+0.4);
       o.connect(g); g.connect(bgmNodes.gain);
       o.start(start); o.stop(start+0.45);
     });
   }
-
   function startBgm(){
     ensureAudio();
     if(!audioCtx) return;
@@ -553,20 +650,18 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
       const gain = audioCtx.createGain();
       gain.gain.value = 0.9;
       gain.connect(outNode());
-      bgmNodes = { gain };
+      bgmNodes = {gain};
     }
     if(bgmTimer) clearInterval(bgmTimer);
     scheduleBgmBar();
     bgmTimer = setInterval(scheduleBgmBar, 4000);
   }
-
   function pickVoice(){
     if(!window.speechSynthesis) return null;
     const voices = speechSynthesis.getVoices() || [];
     const en = voices.filter(v => /en[-_]?/i.test(v.lang) || /English/i.test(v.name));
     return en.find(v => /child|kids|Samantha|Google US|Female|female/i.test(v.name)) || en[0] || voices[0] || null;
   }
-
   function speak(text, opts){
     if(muted || !window.speechSynthesis || !text) return;
     try { speechSynthesis.cancel(); } catch(e){}
@@ -579,117 +674,191 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     speechSynthesis.speak(u);
   }
 
-  function speakGood(){ speak(GOOD_LINES[rand(0, GOOD_LINES.length-1)], {rate:1.12, pitch:1.3}); }
-  function speakBad(){ speak(BAD_LINES[rand(0, BAD_LINES.length-1)], {rate:1.0, pitch:0.95}); }
-
-  function rand(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
-  function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [arr[i],arr[j]] = [arr[j],arr[i]];
-    }
-    return arr;
-  }
-  function choicesFor(ans){
-    const set = new Set([ans]);
-    while(set.size < 4){
-      let n = ans + rand(-8,8);
-      if(n === ans || n < 0) n = ans + rand(1,9);
-      set.add(n);
-    }
-    return shuffle([...set]);
-  }
-
-  function buildQuestions(){
-    const pool = [];
-    // add within 100
-    for(let i=0;i<4;i++){
-      const a=rand(12,60), b=rand(8,40);
-      const ans=a+b;
-      pool.push({q:`Rocco packs ${a} star snacks and finds ${b} more. How many snacks now?`, a:ans, c:choicesFor(ans)});
-    }
-    // sub within 100
-    for(let i=0;i<3;i++){
-      const a=rand(40,99), b=rand(10,Math.min(39,a-1));
-      const ans=a-b;
-      pool.push({q:`The rocket had ${a} fuel cans. Captain Calc used ${b}. How many left for Rocco?`, a:ans, c:choicesFor(ans)});
-    }
-    // mult facts 2-9
-    for(let i=0;i<4;i++){
-      const a=rand(2,9), b=rand(2,9);
-      const ans=a*b;
-      pool.push({q:`Rocco lines up ${a} rows of ${b} moon rocks. How many rocks?`, a:ans, c:choicesFor(ans)});
-    }
-    // easy word mix
-    const a=rand(3,8), b=rand(4,9), ans=a*b+rand(2,10);
-    const extra = ans - a*b;
-    pool.push({q:`${a} space buses hold ${b} kids each. Then ${extra} more kids hop on with Rocco. How many kids total?`, a:ans, c:choicesFor(ans)});
-
-    return shuffle(pool).slice(0, TOTAL);
-  }
-
   function say(msg, ms){
-    speechText.textContent = msg;
-    speech.classList.add('show');
+    $('speechText').textContent = msg;
+    $('speech').classList.add('show');
     clearTimeout(say._t);
-    say._t = setTimeout(()=>speech.classList.remove('show'), ms||1800);
+    say._t = setTimeout(()=>$('speech').classList.remove('show'), ms||1800);
   }
 
-  function setTeacherMood(){
-    teacher.className = 'teacher-wrap';
-    const face = $('face');
-    const mouth = $('mouth');
-    const browL = $('browL');
-    const browR = $('browR');
-    face.setAttribute('fill', wrongs===0 ? '#f7c8a0' : wrongs===1 ? '#f5b090' : wrongs===2 ? '#f09080' : '#e87070');
-    if(wrongs===0){
-      teacher.classList.add('lurk');
-      mouth.setAttribute('d','M62 96 Q78 108 94 96');
-      browL.setAttribute('cy','62'); browR.setAttribute('cy','62');
-    } else if(wrongs===1){
-      teacher.classList.add('mad1');
-      mouth.setAttribute('d','M64 98 Q78 94 92 98');
-      browL.setAttribute('cy','60'); browR.setAttribute('cy','60');
-    } else if(wrongs===2){
-      teacher.classList.add('mad2');
-      mouth.setAttribute('d','M64 100 Q78 90 92 100');
-      browL.setAttribute('cy','58'); browR.setAttribute('cy','58');
-    } else {
-      teacher.classList.add('mad3');
-      mouth.setAttribute('d','M62 102 Q78 88 94 102');
-      browL.setAttribute('cy','56'); browR.setAttribute('cy','56');
+  function currentRoom(){ return ROOMS[roomId]; }
+  function solids(){ return currentRoom().props.filter(p => p.solid); }
+
+  function blocked(x,y){
+    const box = playerBox(x,y);
+    const doors = currentRoom().doors;
+    const inDoor = doors.some(d => overlap(box, d));
+    if(x < 1.2 || y < 1.2 || x+PW > 98.8 || y+PH > 98.8){
+      if(!inDoor) return true;
+      if(x < -3 || y < -3 || x+PW > 103 || y+PH > 103) return true;
     }
-    vignette.className = 'vignette' + (wrongs ? ' lvl'+Math.min(wrongs,3) : '');
-    setHum(wrongs);
-    document.querySelectorAll('.wrong-dot').forEach((d,i)=>{
-      d.classList.toggle('on', i < wrongs);
+    return solids().some(s => overlap(box, s));
+  }
+
+  function placeEl(el, x, y, w, h){
+    el.style.left = x + '%';
+    el.style.top = y + '%';
+    if(w != null) el.style.width = w + '%';
+    if(h != null) el.style.height = h + '%';
+  }
+
+  function buildRoom(){
+    const r = currentRoom();
+    const room = $('room');
+    room.className = r.theme + (wrongs ? ' chaos'+Math.min(wrongs,3) : '');
+    room.innerHTML = '';
+    r.props.forEach(p => {
+      const d = document.createElement('div');
+      d.className = 'prop ' + p.kind;
+      placeEl(d, p.x, p.y, p.w, p.h);
+      if(p.label && p.kind === 'banner') d.textContent = p.label;
+      room.appendChild(d);
     });
+    r.doors.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'door';
+      el.textContent = d.label;
+      placeEl(el, d.x, d.y, d.w, d.h);
+      room.appendChild(el);
+    });
+    books.filter(b => b.room === roomId).forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'notebook' + (b.got ? ' got' : '');
+      el.id = 'nb-'+b.id;
+      el.textContent = b.got ? '✅' : '📓';
+      placeEl(el, b.x, b.y, 8, 10);
+      room.appendChild(el);
+    });
+    const pl = document.createElement('div');
+    pl.id = 'player';
+    pl.innerHTML = '<div class="shadow"></div><div class="body"><div class="hair"></div><div class="head"></div><div class="eye l"></div><div class="eye r"></div><div class="smile"></div><div class="torso"></div><div class="leg l"></div><div class="leg r"></div></div>';
+    room.appendChild(pl);
+    const npc = document.createElement('div');
+    npc.id = 'calcNPC';
+    npc.innerHTML = CALC_SVG;
+    room.appendChild(npc);
+    $('hudRoom').textContent = r.name;
+    $('roomLabel').textContent = r.name;
+    renderActors();
   }
 
-  function shake(){
-    app.classList.remove('shake');
-    void app.offsetWidth;
-    app.classList.add('shake');
-    redFlash.classList.remove('on');
-    void redFlash.offsetWidth;
-    redFlash.classList.add('on');
+  function renderActors(){
+    const pl = $('player');
+    const npc = $('calcNPC');
+    if(pl) placeEl(pl, player.x, player.y);
+    if(npc){
+      placeEl(npc, calc.x, calc.y);
+      npc.classList.toggle('show', calc.visible && wrongs >= 1);
+      npc.classList.toggle('chase', wrongs >= 2);
+    }
   }
 
+  function enterRoom(id, sx, sy){
+    roomId = id;
+    player.x = sx;
+    player.y = sy;
+    doorCD = 0.45;
+    if(wrongs >= 1){
+      calc.x = rand(8, 82);
+      calc.y = rand(10, 72);
+      calc.visible = true;
+    } else {
+      calc.visible = false;
+    }
+    buildRoom();
+    if(id === 'rocketbay') sfxRocket();
+  }
+
+  function updatePlayer(dt){
+    let dx = 0, dy = 0;
+    if(keys.left) dx -= 1;
+    if(keys.right) dx += 1;
+    if(keys.up) dy -= 1;
+    if(keys.down) dy += 1;
+    const pl = $('player');
+    if(dx || dy){
+      const m = Math.hypot(dx, dy) || 1;
+      dx = (dx/m) * SPEED * dt;
+      dy = (dy/m) * SPEED * dt;
+      if(!blocked(player.x+dx, player.y)) player.x += dx;
+      if(!blocked(player.x, player.y+dy)) player.y += dy;
+      if(pl){
+        pl.classList.add('walk');
+        pl.classList.remove('face-left','face-right','face-up','face-down');
+        if(Math.abs(dx) > Math.abs(dy)) pl.classList.add(dx<0?'face-left':'face-right');
+        else pl.classList.add(dy<0?'face-up':'face-down');
+      }
+    } else if(pl){
+      pl.classList.remove('walk');
+    }
+  }
+
+  function updateCalc(dt){
+    if(wrongs < 1){ calc.visible = false; return; }
+    calc.visible = true;
+    const tx = player.x - 2, ty = player.y - 4;
+    const speed = wrongs >= 2 ? 16 : 7;
+    const vx = tx - calc.x, vy = ty - calc.y;
+    const m = Math.hypot(vx, vy);
+    if(m > 1.2){
+      calc.x += (vx/m) * speed * dt;
+      calc.y += (vy/m) * speed * dt;
+    }
+    whooshCD -= dt;
+    if(wrongs >= 2 && whooshCD <= 0 && m < 18){
+      whooshCD = 2.8;
+      sfxRocket();
+    }
+  }
+
+  function checkDoors(){
+    if(doorCD > 0) return;
+    const box = playerBox(player.x, player.y);
+    const door = currentRoom().doors.find(d => overlap(box, d));
+    if(door) enterRoom(door.to, door.sx, door.sy);
+  }
+
+  function checkNotebooks(){
+    if(doorCD > 0) return;
+    const box = playerBox(player.x, player.y);
+    const hit = books.find(b => !b.got && b.room === roomId && overlap(box, {x:b.x, y:b.y, w:8, h:10}));
+    if(hit) startQuiz(hit);
+  }
+
+  function updateHud(){
+    $('nbNum').textContent = String(collected);
+    $('nbTotal').textContent = String(NEED_BOOKS);
+    document.querySelectorAll('.wrong-dot').forEach((d,i)=> d.classList.toggle('on', i < wrongs));
+    $('vignette').className = 'vignette' + (wrongs ? ' lvl'+Math.min(wrongs,3) : '');
+    const room = $('room');
+    if(room) room.className = currentRoom().theme + (wrongs ? ' chaos'+Math.min(wrongs,3) : '');
+    setHum(wrongs);
+  }
+
+  function showExplore(on){
+    $('explore').classList.toggle('show', on);
+    $('hud').classList.toggle('show', on);
+    $('roomLabel').classList.toggle('show', on);
+    $('dpad').classList.toggle('show', on);
+    $('hintFloat').classList.toggle('show', on);
+  }
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    if(id) $(id).classList.add('active');
+    showExplore(id === null);
+  }
 
   function stopTimer(){
     if(timerId){ clearInterval(timerId); timerId = null; }
   }
-
   function updateTimerHud(){
     const el = $('timerVal');
     const pill = $('timerPill');
-    if(!el || !pill) return;
     el.textContent = String(Math.max(0, timeLeft));
     pill.classList.remove('warn','danger');
     if(timeLeft <= 5) pill.classList.add('danger');
     else if(timeLeft <= 10) pill.classList.add('warn');
   }
-
   function startQuestionTimer(){
     stopTimer();
     timeLeft = TIME_PER_Q;
@@ -709,182 +878,148 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     }, 1000);
   }
 
-  function onTimeout(){
-    if(locked) return;
-    locked = true;
-    lastMissTimeout = true;
-    document.querySelectorAll('.choice').forEach(c => c.disabled = true);
-    applyMiss('Time\'s up, Rocco!');
-  }
-
-  function advanceAfterMiss(){
-    if(wrongs >= MAX_WRONG){
-      endCaught();
-    } else {
-      qi++;
-      updateHud();
-      if(qi >= TOTAL){
-        endWin();
-      } else {
-        renderQ();
-      }
-    }
-  }
-
-  function applyMiss(forcedLine){
-    wrongs++;
-    mistakes++;
-    peakChaos = Math.max(peakChaos, wrongs);
-    sfxBad();
-    sfxCreep();
-    sfxPop();
-    shake();
-    teacher.className = 'teacher-wrap';
-    teacher.classList.add(wrongs>=3?'mad3':wrongs===2?'mad2':wrongs===1?'mad1':'pop');
-    setTeacherMood();
-    const bLine = forcedLine || BAD_LINES[rand(0, BAD_LINES.length-1)];
-    say(bLine, 1800);
-    if(forcedLine){
-      speak(forcedLine, {rate:1.0, pitch:0.95});
-    } else {
-      speakBad();
-    }
-    setTimeout(advanceAfterMiss, 1000);
-  }
-
-  function updateHud(){
-    $('qNum').textContent = Math.min(qi+1, TOTAL);
-    $('qTotal').textContent = TOTAL;
-    $('meterFill').style.width = Math.round((rights/TOTAL)*100) + '%';
-  }
-
-  function renderQ(){
+  function startQuiz(book){
+    state = 'quiz';
+    quizBook = book;
     locked = false;
     lastMissTimeout = false;
-    updateHud();
-    setTeacherMood();
-    const item = questions[qi];
-    $('prompt').textContent = item.q;
+    $('prompt').textContent = book.q.q;
     const box = $('choices');
     box.innerHTML = '';
-    item.c.forEach(n => {
+    book.q.c.forEach(n => {
       const b = document.createElement('button');
       b.className = 'choice';
       b.textContent = String(n);
       b.addEventListener('click', () => onPick(n, b));
       box.appendChild(b);
     });
+    $('quiz').classList.add('show');
     startQuestionTimer();
   }
 
+  function closeQuiz(){
+    stopTimer();
+    $('quiz').classList.remove('show');
+    quizBook = null;
+  }
+
+  function collectBook(book){
+    if(book.got) return;
+    book.got = true;
+    collected++;
+    const el = $('nb-'+book.id);
+    if(el){ el.classList.add('got'); el.textContent = '✅'; }
+    updateHud();
+  }
+
+  function afterAnswer(){
+    if(wrongs >= MAX_WRONG){
+      endCaught();
+    } else if(collected >= NEED_BOOKS){
+      endWin();
+    } else {
+      state = 'explore';
+      doorCD = 0.35;
+    }
+  }
+
   function onPick(n, btn){
-    if(locked) return;
+    if(locked || state !== 'quiz') return;
     locked = true;
     stopTimer();
-    const item = questions[qi];
+    const item = quizBook.q;
     const ok = n === item.a;
     document.querySelectorAll('.choice').forEach(c => c.disabled = true);
     if(ok){
       btn.classList.add('good');
-      rights++;
+      collectBook(quizBook);
       sfxGood();
-      teacher.className = 'teacher-wrap dance';
-      $('face').setAttribute('fill','#f7c8a0');
-      const gLine = GOOD_LINES[rand(0, GOOD_LINES.length-1)];
-      say(gLine, 1600);
-      speakGood();
-      if(wrongs>0){ wrongs = Math.max(0, wrongs-1); }
-      setTimeout(()=>{
-        setTeacherMood();
-        qi++;
-        updateHud();
-        if(qi >= TOTAL){
-          endWin();
-        } else {
-          renderQ();
-        }
-      }, 900);
+      const line = GOOD_LINES[rand(0, GOOD_LINES.length-1)];
+      say(line, 1600);
+      speak(line, {rate:1.12, pitch:1.3});
+      setTimeout(() => { closeQuiz(); afterAnswer(); }, 850);
     } else {
       btn.classList.add('bad');
       lastMissTimeout = false;
-      applyMiss(null);
+      collectBook(quizBook);
+      setTimeout(() => { closeQuiz(); applyMiss(null); }, 450);
     }
   }
 
+  function onTimeout(){
+    if(locked) return;
+    locked = true;
+    lastMissTimeout = true;
+    document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+    if(quizBook) collectBook(quizBook);
+    closeQuiz();
+    applyMiss("Time's up, Rocco!");
+  }
+
+  function applyMiss(forcedLine){
+    wrongs++;
+    mistakes++;
+    peakChaos = Math.max(peakChaos, wrongs);
+    updateHud();
+    jumpScare(forcedLine || BAD_LINES[rand(0, BAD_LINES.length-1)]);
+  }
+
+  function jumpScare(line){
+    state = 'scare';
+    const app = $('app');
+    app.classList.remove('shake');
+    void app.offsetWidth;
+    app.classList.add('shake');
+    const scare = $('jumpscare');
+    $('scareText').textContent = wrongs >= MAX_WRONG ? 'GOTCHA, ROCCO!' : 'POP QUIZ, ROCCO!';
+    scare.classList.add('show');
+    sfxJumpScare();
+    say(line, 1600);
+    speak(line, {rate:0.95, pitch:0.82});
+    calc.visible = true;
+    calc.x = Math.max(8, player.x - 8);
+    calc.y = Math.max(6, player.y - 10);
+    renderActors();
+    setTimeout(() => {
+      scare.classList.remove('show');
+      afterAnswer();
+    }, 1600);
+  }
+
+  function pickEnding(){
+    if(mistakes === 0){
+      return {key:'secret', label:'★ Secret Ending Unlocked', title:'Beat the Principal', emoji:'👑🚀⭐', headline:'Rocco grades the Principal!', blurb:'Zero mistakes, Rocco! You walked every room, snatched every notebook, and Cap\'n Calc\'s rocket backpack sputtered out. Station Zoom crowns you Math Principal for a day.', tiny:'Secret clear · 0 mistakes · Made for Rocco', secret:true};
+    }
+    if(peakChaos >= 2){
+      return {key:'barely', label:'Ending · High Tension', title:'Barely Escaped', emoji:'😅💨⭐', headline:'Whew — you made it, Rocco!', blurb:'Cap\'n Calc was hopping the halls right behind you. You still grabbed the last notebook and slipped past his rocket trail.', tiny:'Peak chaos · almost caught · Made for Rocco', secret:false};
+    }
+    if(mistakes === 1){
+      return {key:'close', label:'Ending · Close Call', title:'Close Call Clear', emoji:'🌟😅🚀', headline:'Close one, Rocco!', blurb:'Only one oops all day. Cap\'n Calc jump-scared once, then backed off when your next answer sparkled. School day\'s yours.', tiny:'1 mistake · Made for Rocco', secret:false};
+    }
+    return {key:'messy', label:'Ending · Messy Escape', title:'Messy Escape', emoji:'📚🌀🚀', headline:'Chaotic win, Rocco!', blurb:'Papers flying, moon muffins rolling — you still walked the whole school and finished the mission with a grin.', tiny: mistakes + ' mistakes · messy clear · Made for Rocco', secret:false};
+  }
+
   function endCaught(){
+    state = 'end';
     stopTimer();
     setHum(0);
     sfxCaught();
+    showExplore(false);
     if(lastMissTimeout){
       speak("Time's up! Gotcha, Rocco!", {rate:0.95, pitch:0.85});
-      const sub = document.querySelector('#caught .sub');
-      if(sub) sub.textContent = "Time's up, Rocco! Cap'n Calc rocket-hopped in before you finished. Silly spooky catch — try again!";
     } else {
       speak('Gotcha, Rocco!', {rate:0.95, pitch:0.85});
     }
     showScreen('caught');
   }
-  function pickEnding(){
-    // Priority: perfect secret → barely escaped (high tension) → by mistake count
-    if(mistakes === 0){
-      return {
-        key:'secret',
-        label:'★ Secret Ending Unlocked',
-        title:'Beat the Principal',
-        emoji:'👑🚀⭐',
-        headline:'Rocco grades the Principal!',
-        blurb:'Zero mistakes, Rocco! Captain Calc’s rocket backpack flames sputter out — you flipped the grade book. Station Zoom crowns you Math Principal for a day.',
-        tiny:'Secret clear · 0 mistakes · Made for Rocco',
-        secret:true
-      };
-    }
-    if(peakChaos >= 2){
-      return {
-        key:'barely',
-        label:'Ending · High Tension',
-        title:'Barely Escaped',
-        emoji:'😅💨⭐',
-        headline:'Whew — you made it, Rocco!',
-        blurb:'Chaos was one hop from catching you. The hallway went quiet just in time. Rocco slips past Captain Calc’s rocket trail and clocks out.',
-        tiny:'Peak chaos · almost caught · Made for Rocco',
-        secret:false
-      };
-    }
-    if(mistakes === 1){
-      return {
-        key:'close',
-        label:'Ending · Close Call',
-        title:'Close Call Clear',
-        emoji:'🌟😅🚀',
-        headline:'Close one, Rocco!',
-        blurb:'Only one oops all day. Captain Calc lurked, hopped once, then backed off when your next answer sparkled. School day’s yours.',
-        tiny:'1 mistake · Made for Rocco',
-        secret:false
-      };
-    }
-    // 2+ mistakes but never hit peakChaos 2 (recovered between oopses) → messy escape
-    return {
-      key:'messy',
-      label:'Ending · Messy Escape',
-      title:'Messy Escape',
-      emoji:'📚🌀🚀',
-      headline:'Chaotic win, Rocco!',
-      blurb:'Papers flying, moon rocks rolling — you still finished the mission. Captain Calc’s backpack sputters as you zip to recess with a grin.',
-      tiny: mistakes + ' mistakes · messy clear · Made for Rocco',
-      secret:false
-    };
-  }
-
   function endWin(){
+    state = 'end';
     stopTimer();
     setHum(0);
     sfxWin();
     const e = pickEnding();
-    if(e.secret){
-      speak('Incredible, Rocco! You beat the Principal! Secret ending unlocked!', {rate:1.05, pitch:1.35});
-    } else {
-      speak(e.headline, {rate:1.08, pitch:1.2});
-    }
+    if(e.secret) speak('Incredible, Rocco! You beat the Principal! Secret ending unlocked!', {rate:1.05, pitch:1.35});
+    else speak(e.headline, {rate:1.08, pitch:1.2});
     $('endingLabel').textContent = e.label;
     $('endingLabel').className = 'ending-label' + (e.secret ? ' secret' : '');
     $('endingTitle').textContent = e.title;
@@ -892,9 +1027,8 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     $('winHeadline').textContent = e.headline;
     $('winBlurb').textContent = e.blurb;
     $('winTiny').textContent = e.tiny;
-    const art = $('secretArt');
-    if(e.secret){ art.hidden = false; } else { art.hidden = true; }
     $('winPanel').classList.toggle('secret-mode', !!e.secret);
+    showExplore(false);
     showScreen('win');
   }
 
@@ -902,13 +1036,62 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
     ensureAudio();
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     startBgm();
-    questions = buildQuestions();
-    qi = 0; wrongs = 0; rights = 0; mistakes = 0; peakChaos = 0; locked = false; lastMissTimeout = false; stopTimer();
-    showScreen('play');
-    setTeacherMood();
+    const pool = shuffle(QUESTIONS.slice());
+    const spots = [];
+    Object.keys(ROOMS).forEach(id => {
+      ROOMS[id].books.forEach(b => spots.push({room:id, id:b.id, x:b.x, y:b.y}));
+    });
+    books = spots.map((s,i) => {
+      const q = pool[i % pool.length];
+      return {id:s.id, room:s.room, x:s.x, y:s.y, got:false, q:{q:q.q, a:q.a, c:choicesFor(q.a)}};
+    });
+    collected = 0; wrongs = 0; mistakes = 0; peakChaos = 0;
+    locked = false; lastMissTimeout = false; stopTimer();
+    roomId = 'hallway';
+    player = {x:46.7, y:58};
+    calc = {x:82, y:18, visible:false};
+    showScreen(null);
+    buildRoom();
+    updateHud();
+    state = 'explore';
     say('Welcome, Rocco... Cap\'n Calc is lurking...', 2200);
-    speak('Welcome, Rocco. Cap\'n Calc is lurking in the hallway. Answer carefully!', {rate:1.05, pitch:1.15});
-    renderQ();
+    speak('Welcome, Rocco. Walk the school and find the notebooks. Cap\'n Calc is lurking in the hallway!', {rate:1.05, pitch:1.15});
+  }
+
+  function tick(ts){
+    const dt = lastTs ? Math.min(0.05, (ts-lastTs)/1000) : 0.016;
+    lastTs = ts;
+    if(doorCD > 0) doorCD -= dt;
+    if(state === 'explore'){
+      updatePlayer(dt);
+      updateCalc(dt);
+      renderActors();
+      checkDoors();
+      checkNotebooks();
+    } else if(state === 'quiz' || state === 'scare'){
+      renderActors();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function bindPad(){
+    document.querySelectorAll('.dir-btn').forEach(btn => {
+      const dir = btn.getAttribute('data-dir');
+      const on = (e) => { e.preventDefault(); keys[dir] = true; btn.classList.add('held'); };
+      const off = () => { keys[dir] = false; btn.classList.remove('held'); };
+      btn.addEventListener('pointerdown', (e) => { try{ btn.setPointerCapture(e.pointerId); }catch(err){} on(e); });
+      btn.addEventListener('pointerup', off);
+      btn.addEventListener('pointercancel', off);
+      btn.addEventListener('lostpointercapture', off);
+    });
+    window.addEventListener('keydown', (e) => {
+      const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
+      if(map[e.key]){ keys[map[e.key]] = true; e.preventDefault(); }
+    });
+    window.addEventListener('keyup', (e) => {
+      const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
+      if(map[e.key]) keys[map[e.key]] = false;
+    });
   }
 
   $('btnPlay').addEventListener('click', startGame);
@@ -923,8 +1106,9 @@ h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
   if(window.speechSynthesis){
     try { speechSynthesis.getVoices(); } catch(e){}
   }
-
   makeStars();
+  bindPad();
+  requestAnimationFrame(tick);
 })();
 </script>
 </body>
