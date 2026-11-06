@@ -7,681 +7,980 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Note Party!" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>Note Party! — Beat Buddy Dance</title>
+  <title>Note Party! — Troll Village Concert</title>
   <!--
-    Note Party! — Educational reading & math game for ~6–7 year olds
-    Theme: Original troll-blob + K-pop dance party (no copyrighted assets)
-    How to open: Open this file in Safari on iPad (or any browser). Works offline after first load.
-    Add to Home Screen: Safari Share → Add to Home Screen
+    Note Party! — Reading & math mini-world for ~6–7 year olds
+    Original troll-village + K-pop concert stage (no copyrighted assets)
+    Safari Share → Add to Home Screen for iPad icon
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --pink: #ff4da6;
-      --hot: #ff2d95;
-      --purple: #9b5cff;
-      --blue: #4ecbff;
-      --yellow: #ffe566;
-      --lime: #7dff9a;
-      --orange: #ff9f43;
-      --cream: #fff7fb;
-      --ink: #2b1a4a;
-      --soft: #f3e8ff;
-      --shadow: rgba(43, 26, 74, 0.18);
+      --pink:#ff4da6; --hot:#ff2d95; --purple:#9b5cff; --blue:#4ecbff;
+      --yellow:#ffe566; --lime:#7dff9a; --orange:#ff9f43; --cream:#fff7fb;
+      --ink:#2b1a4a; --soft:#f3e8ff; --shadow:rgba(43,26,74,.2);
+      --sky1:#87e8ff; --sky2:#c9a0ff; --sky3:#ff9ad5;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{
+      margin:0;padding:0;height:100%;width:100%;
+      font-family:"Fredoka",system-ui,-apple-system,sans-serif;
+      color:var(--ink);overflow:hidden;touch-action:manipulation;
+      user-select:none;-webkit-user-select:none;background:#1a0a2e;
+    }
+    #app{position:relative;height:100%;width:100%;overflow:hidden}
+
+    .screen{
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;transform:translateY(12px) scale(.98);
+      transition:opacity .4s ease, transform .4s ease;
+      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      z-index:2;
+    }
+    .screen.active{opacity:1;pointer-events:auto;transform:none;z-index:3}
+
+    .sky{
+      position:absolute;inset:0;z-index:0;overflow:hidden;
+      background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 45%,var(--sky3) 100%);
+    }
+    .sky-cloud{
+      position:absolute;border-radius:50%;background:rgba(255,255,255,.55);
+      filter:blur(1px);animation:drift linear infinite;
+    }
+    .sky-star{
+      position:absolute;width:6px;height:6px;border-radius:50%;
+      background:#fff;box-shadow:0 0 8px #fff;animation:twinkle 2.4s ease-in-out infinite;
+    }
+    .float-note{
+      position:absolute;font-size:1.4rem;opacity:.5;
+      animation:floatNote 6s ease-in-out infinite;pointer-events:none;z-index:1;
+    }
+    @keyframes drift{from{transform:translateX(-20vw)}to{transform:translateX(120vw)}}
+    @keyframes twinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+    @keyframes floatNote{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-28px) rotate(8deg)}}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    @keyframes dance{
+      0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}
+      25%{transform:translateY(-16px) rotate(6deg) scale(1.06)}
+      50%{transform:translateY(0) rotate(-3deg)}
+      75%{transform:translateY(-12px) rotate(8deg) scale(1.04)}
+    }
+    @keyframes hairWave{0%,100%{transform:translateX(-50%) rotate(-3deg)}50%{transform:translateX(-50%) rotate(3deg)}}
+    @keyframes pulseGlow{
+      0%,100%{box-shadow:0 0 0 0 rgba(255,229,102,.55),0 8px 0 rgba(0,0,0,.12)}
+      50%{box-shadow:0 0 22px 8px rgba(255,229,102,.85),0 8px 0 rgba(0,0,0,.12)}
+    }
+    @keyframes stagePulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+    @keyframes confettiFall{
+      0%{transform:translateY(-8vh) rotate(0) scale(1);opacity:1}
+      100%{transform:translateY(110vh) rotate(720deg) scale(.7);opacity:.8}
+    }
+    @keyframes burstOut{
+      0%{transform:translate(0,0) scale(1);opacity:1}
+      100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes wiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+    @keyframes popIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+    @keyframes pathShimmer{0%,100%{opacity:.55}50%{opacity:.9}}
+    @keyframes lightBeam{
+      0%,100%{opacity:.35;transform:scaleY(1)}
+      50%{opacity:.85;transform:scaleY(1.08)}
+    }
+    @keyframes slotPop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+
+    /* Mascot */
+    .mascot{width:100px;height:120px;position:relative;animation:bounce 2.2s ease-in-out infinite;flex-shrink:0}
+    .mascot.sm{width:64px;height:78px}
+    .mascot.xs{width:48px;height:58px}
+    .mascot.lg{width:130px;height:155px}
+    .mascot.dancing{animation:dance .65s ease-in-out infinite}
+    .mascot .hair{
+      position:absolute;top:-14px;left:50%;width:78%;height:42%;transform:translateX(-50%);
+      background:linear-gradient(180deg,#ff4da6,#ff9f43,#ffe566,#7dff9a,#4ecbff,#9b5cff);
+      border-radius:60% 60% 40% 40%;box-shadow:inset 0 -8px 0 rgba(255,255,255,.28);
+      animation:hairWave 2.8s ease-in-out infinite;
+    }
+    .mascot .hair::before,.mascot .hair::after{
+      content:"";position:absolute;top:6px;width:24%;height:70%;border-radius:50% 50% 40% 40%;
+    }
+    .mascot .hair::before{left:-6%;transform:rotate(-28deg);background:#9b5cff}
+    .mascot .hair::after{right:-6%;transform:rotate(28deg);background:#4ecbff}
+    .mascot .body{
+      position:absolute;bottom:6%;left:50%;transform:translateX(-50%);width:72%;height:62%;
+      background:radial-gradient(circle at 35% 30%,#ffe0f2,#ff7ec8);border-radius:50%;
+      box-shadow:inset -6px -8px 0 rgba(0,0,0,.06),0 6px 0 rgba(0,0,0,.1);
+    }
+    .mascot.teal .body{background:radial-gradient(circle at 35% 30%,#d6fff5,#4fd6c2)}
+    .mascot.lilac .body{background:radial-gradient(circle at 35% 30%,#f0e6ff,#b388ff)}
+    .mascot.sunny .body{background:radial-gradient(circle at 35% 30%,#fff6d0,#ffc14d)}
+    .mascot .eye{position:absolute;top:34%;width:16%;height:20%;background:#2b1a4a;border-radius:50%}
+    .mascot .eye.left{left:26%}.mascot .eye.right{right:26%}
+    .mascot .eye::after{content:"";position:absolute;top:15%;left:22%;width:35%;height:30%;background:#fff;border-radius:50%}
+    .mascot .smile{
+      position:absolute;bottom:26%;left:50%;width:32%;height:14%;
+      border:3px solid #2b1a4a;border-top:none;border-radius:0 0 16px 16px;transform:translateX(-50%);
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      font-family: "Fredoka", system-ui, -apple-system, sans-serif;
-      background: linear-gradient(160deg, #ff9ad5 0%, #c9a0ff 40%, #7ad7ff 100%);
-      color: var(--ink);
-      overflow: hidden;
-      touch-action: manipulation;
-      user-select: none;
-      -webkit-user-select: none;
+    .btn{
+      appearance:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;
+      font-size:clamp(1.2rem,4.2vw,1.55rem);min-height:64px;min-width:64px;
+      padding:.8rem 1.5rem;border-radius:999px;background:var(--cream);color:var(--ink);
+      box-shadow:0 6px 0 var(--shadow),0 10px 22px var(--shadow);
+      transition:transform .12s ease,box-shadow .12s ease;touch-action:manipulation;
+    }
+    .btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--shadow)}
+    .btn-primary{
+      background:linear-gradient(180deg,#ff6eb8,var(--hot));color:#fff;
+      text-shadow:0 1px 0 rgba(0,0,0,.15);
+      font-size:clamp(1.45rem,5.2vw,1.95rem);padding:1rem 2.3rem;min-height:78px;
+    }
+    .btn-choice{
+      min-width:min(42vw,150px);min-height:72px;height:auto;
+      padding:.65rem 1.1rem;border-radius:22px;
+      font-size:clamp(1.45rem,5.5vw,2.1rem);background:#fff;margin:.3rem;
+      line-height:1.15;
+    }
+    .btn-choice.num{
+      min-width:min(26vw,110px);width:min(26vw,110px);height:min(26vw,110px);
+      font-size:clamp(1.9rem,8.5vw,3rem);border-radius:26px;padding:0;
+    }
+    .btn-choice.correct-flash{background:var(--lime);transform:scale(1.08)}
+    .btn-choice.wrong-flash{background:#ffd0e4;animation:wiggle .35s ease}
+    .ghost-btn{
+      background:rgba(255,255,255,.7);border:none;border-radius:999px;
+      padding:.5rem .95rem;min-height:46px;font-family:inherit;font-weight:600;
+      font-size:1rem;color:var(--ink);cursor:pointer;touch-action:manipulation;
+      box-shadow:0 3px 0 rgba(0,0,0,.08);
     }
 
-    #app {
-      height: 100%;
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    h1{font-size:clamp(2.1rem,7.5vw,3.2rem);margin:.15rem 0 .35rem;line-height:1.1;text-shadow:0 3px 0 rgba(255,255,255,.45)}
+    .subtitle{font-size:clamp(1rem,3.6vw,1.3rem);opacity:.92;margin:0 0 .9rem;max-width:22rem}
+
+    /* START */
+    #screen-start{background:transparent;z-index:4}
+    .start-card{
+      position:relative;z-index:2;text-align:center;
+      background:rgba(255,255,255,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-radius:32px;padding:1.4rem 1.2rem 1.6rem;box-shadow:0 16px 40px var(--shadow);
+      max-width:420px;width:min(92%,420px);animation:popIn .5s ease;
+    }
+    .start-crew{display:flex;justify-content:center;align-items:flex-end;gap:.35rem;margin-bottom:.4rem}
+
+    /* WORLD */
+    #screen-world{align-items:stretch;justify-content:flex-start;padding:0}
+    .world-hud{
+      position:absolute;top:0;left:0;right:0;z-index:10;
+      display:flex;justify-content:space-between;align-items:center;
+      padding:calc(env(safe-area-inset-top) + .5rem) .75rem .5rem;pointer-events:none;
+    }
+    .world-hud > *{pointer-events:auto}
+    .hud-notes{
+      display:flex;gap:.3rem;flex-wrap:wrap;align-items:center;
+      background:rgba(255,255,255,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      border-radius:999px;padding:.35rem .65rem;box-shadow:0 4px 12px var(--shadow);
+    }
+    .note-pip{
+      width:26px;height:26px;border-radius:50%;
+      background:rgba(43,26,74,.12);border:2px dashed rgba(43,26,74,.25);
+      display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;
+      transition:transform .25s,background .25s;
+    }
+    .note-pip.filled{background:var(--yellow);border-style:solid;border-color:#ffb800;transform:scale(1.12);box-shadow:0 2px 0 rgba(0,0,0,.1)}
+    .hint-chip{
+      margin:.35rem auto 0;background:rgba(255,255,255,.88);border-radius:999px;
+      padding:.45rem 1rem;font-weight:600;font-size:clamp(.95rem,3.2vw,1.1rem);
+      box-shadow:0 3px 10px var(--shadow);animation:pulseGlow 2.5s ease-in-out infinite;
+      position:relative;z-index:10;max-width:92%;text-align:center;
+    }
+    .world-scroller{
+      flex:1;width:100%;overflow:auto;-webkit-overflow-scrolling:touch;
+      touch-action:pan-x pan-y;position:relative;z-index:1;
+    }
+    .village{
+      position:relative;width:max(100%,780px);height:max(100%,720px);
+      min-height:720px;margin:0 auto;
     }
 
-    .screen {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 1.25rem;
-      text-align: center;
-      animation: fadeIn 0.35s ease;
+    .layer{position:absolute;left:0;right:0;pointer-events:none}
+    .hills-far{
+      bottom:30%;height:36%;
+      background:
+        radial-gradient(ellipse 40% 80% at 15% 100%,#a8e6a0 0%,transparent 70%),
+        radial-gradient(ellipse 45% 90% at 55% 100%,#8fd98a 0%,transparent 70%),
+        radial-gradient(ellipse 40% 75% at 90% 100%,#b5f0b0 0%,transparent 70%);
+      opacity:.85;
     }
-    .screen.active { display: flex; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .hills-near{
+      bottom:14%;height:40%;
+      background:
+        radial-gradient(ellipse 50% 100% at 0% 100%,#5ecf6a 0%,transparent 65%),
+        radial-gradient(ellipse 55% 110% at 50% 100%,#4cbc5c 0%,transparent 68%),
+        radial-gradient(ellipse 48% 95% at 100% 100%,#6ad976 0%,transparent 65%);
     }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    @keyframes wiggle {
-      0%, 100% { transform: rotate(-3deg); }
-      50% { transform: rotate(3deg); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.06); }
-    }
-    @keyframes confettiFall {
-      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.85; }
-    }
-    @keyframes dance {
-      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
-      25% { transform: translateY(-14px) rotate(4deg) scale(1.05); }
-      50% { transform: translateY(0) rotate(-2deg) scale(1); }
-      75% { transform: translateY(-10px) rotate(6deg) scale(1.04); }
+    .ground{
+      bottom:0;height:24%;
+      background:linear-gradient(180deg,#7adf6a 0%,#4aaa4a 55%,#3d8f3d 100%);
+      border-radius:50% 50% 0 0 / 40px 40px 0 0;
+      box-shadow:inset 0 12px 0 rgba(255,255,255,.15);
     }
 
-    h1 {
-      font-size: clamp(2.2rem, 8vw, 3.4rem);
-      margin: 0.2rem 0 0.4rem;
-      line-height: 1.1;
-      text-shadow: 0 3px 0 rgba(255,255,255,0.5);
+    /* Village path → stage */
+    .path{
+      position:absolute;z-index:3;pointer-events:none;
+      left:42%;width:16%;bottom:8%;height:42%;
+      background:linear-gradient(180deg,
+        rgba(255,214,140,.95) 0%,
+        rgba(232,180,100,.9) 40%,
+        rgba(210,150,70,.85) 100%);
+      border-radius:40% 40% 20% 20% / 12% 12% 8% 8%;
+      box-shadow:inset 0 0 0 4px rgba(255,255,255,.25),0 0 16px rgba(255,200,100,.35);
+      animation:pathShimmer 3s ease-in-out infinite;
+      clip-path:ellipse(70% 50% at 50% 50%);
     }
-    h2 {
-      font-size: clamp(1.5rem, 5.5vw, 2.2rem);
-      margin: 0.3rem 0;
+    .path-curve-l,.path-curve-r{
+      position:absolute;z-index:3;pointer-events:none;height:10%;width:28%;
+      background:rgba(232,180,100,.75);border-radius:50%;
+      box-shadow:inset 0 0 0 3px rgba(255,255,255,.2);
     }
-    .subtitle {
-      font-size: clamp(1.05rem, 3.8vw, 1.35rem);
-      opacity: 0.9;
-      margin: 0 0 1rem;
-      max-width: 22rem;
+    .path-curve-l{left:18%;bottom:28%}
+    .path-curve-r{right:16%;bottom:30%}
+
+    /* —— CONCERT STAGE (central) —— */
+    .concert{
+      position:absolute;z-index:5;left:50%;transform:translateX(-50%);
+      bottom:38%;width:min(78%,340px);height:210px;pointer-events:none;
+    }
+    .concert-backdrop{
+      position:absolute;left:8%;right:8%;top:0;height:58%;
+      background:linear-gradient(180deg,#5a2d8a,#2b1450);
+      border-radius:18px 18px 8px 8px;
+      box-shadow:0 8px 24px rgba(0,0,0,.25),inset 0 0 30px rgba(155,92,255,.3);
+      transition:box-shadow .4s,filter .4s;
+    }
+    .concert.lit .concert-backdrop{
+      box-shadow:0 8px 32px rgba(255,77,166,.45),inset 0 0 40px rgba(255,229,102,.35);
+      filter:brightness(1.15);
+    }
+    .concert.full .concert-backdrop{
+      animation:stagePulse 1.4s ease-in-out infinite;
+      box-shadow:0 0 40px rgba(255,77,166,.7),0 0 60px rgba(155,92,255,.5),inset 0 0 50px rgba(255,229,102,.45);
+    }
+    .concert-arch{
+      position:absolute;left:4%;right:4%;top:-18px;height:36px;
+      background:linear-gradient(90deg,#ff4da6,#ffe566,#4ecbff,#9b5cff,#ff4da6);
+      border-radius:20px 20px 6px 6px;
+      box-shadow:0 4px 12px rgba(0,0,0,.2);
+    }
+    .concert-arch::after{
+      content:"♪ CONCERT ♪";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      font-size:.72rem;font-weight:700;color:#fff;letter-spacing:.08em;text-shadow:0 1px 2px rgba(0,0,0,.35);
+    }
+    .beam{
+      position:absolute;top:8%;width:14px;height:70%;
+      background:linear-gradient(180deg,rgba(255,255,255,.7),transparent);
+      border-radius:40%;opacity:0;transform-origin:top center;
+      transition:opacity .4s;
+    }
+    .beam.b1{left:18%;background:linear-gradient(180deg,rgba(255,77,166,.85),transparent);transform:rotate(-12deg)}
+    .beam.b2{left:46%;background:linear-gradient(180deg,rgba(255,229,102,.9),transparent)}
+    .beam.b3{right:18%;background:linear-gradient(180deg,rgba(78,203,255,.85),transparent);transform:rotate(12deg)}
+    .concert.lit .beam{opacity:.55;animation:lightBeam 2s ease-in-out infinite}
+    .concert.full .beam{opacity:.9}
+
+    .concert-platform{
+      position:absolute;left:0;right:0;bottom:18px;height:48px;
+      background:linear-gradient(180deg,#ff6eb8,#9b5cff 55%,#6a3db8);
+      border-radius:16px;box-shadow:0 8px 0 #4a2580,0 12px 20px rgba(0,0,0,.25);
+    }
+    .concert-platform::before{
+      content:"";position:absolute;left:8%;right:8%;top:6px;height:10px;border-radius:8px;
+      background:linear-gradient(90deg,#ffe566,#fff,#4ecbff,#ff4da6,#ffe566);
+      opacity:.7;
+    }
+    .concert-steps{
+      position:absolute;left:50%;transform:translateX(-50%);bottom:0;
+      width:70px;height:22px;background:#7a4ec4;border-radius:6px;
+      box-shadow:0 4px 0 #4a2580;
     }
 
-    .btn {
-      appearance: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: clamp(1.25rem, 4.5vw, 1.6rem);
-      min-height: 68px;
-      min-width: 68px;
-      padding: 0.85rem 1.6rem;
-      border-radius: 999px;
-      background: var(--cream);
-      color: var(--ink);
-      box-shadow: 0 6px 0 var(--shadow), 0 10px 24px var(--shadow);
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
-      touch-action: manipulation;
+    /* Song slots under arch */
+    .song-slots{
+      position:absolute;left:12%;right:12%;top:28%;display:flex;gap:5px;justify-content:center;
+      z-index:2;
     }
-    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--shadow); }
-    .btn-primary {
-      background: linear-gradient(180deg, #ff6eb8, var(--hot));
-      color: white;
-      text-shadow: 0 1px 0 rgba(0,0,0,0.15);
-      font-size: clamp(1.5rem, 5.5vw, 2rem);
-      padding: 1rem 2.4rem;
-      min-height: 80px;
+    .song-slot{
+      width:28px;height:28px;border-radius:8px;
+      background:rgba(255,255,255,.15);border:2px dashed rgba(255,255,255,.35);
+      display:flex;align-items:center;justify-content:center;font-size:.85rem;
+      transition:background .3s,transform .3s,border-color .3s;
     }
-    .btn-choice {
-      width: min(28vw, 120px);
-      height: min(28vw, 120px);
-      min-width: 72px;
-      min-height: 72px;
-      border-radius: 28px;
-      font-size: clamp(2rem, 9vw, 3.2rem);
-      background: white;
-      margin: 0.35rem;
-    }
-    .btn-choice.correct-flash {
-      background: var(--lime);
-      transform: scale(1.08);
-    }
-    .btn-choice.wrong-flash {
-      background: #ffd0e4;
-      animation: wiggle 0.35s ease;
+    .song-slot.unlocked{
+      background:linear-gradient(180deg,#ffe566,#ffb800);border-style:solid;border-color:#fff;
+      transform:scale(1.08);box-shadow:0 0 10px rgba(255,229,102,.8);
+      animation:slotPop .35s ease;
     }
 
-    /* Original troll-blob mascot (CSS shapes only) */
-    .mascot {
-      width: 140px;
-      height: 160px;
-      position: relative;
-      margin: 0.5rem auto 1rem;
-      animation: bounce 2.2s ease-in-out infinite;
+    /* Stage dancers appear as songs unlock */
+    .stage-crew{
+      position:absolute;left:0;right:0;bottom:52px;height:70px;
+      display:flex;justify-content:center;align-items:flex-end;gap:2px;z-index:3;
     }
-    .mascot.dancing { animation: dance 0.7s ease-in-out infinite; }
-    .mascot .hair {
-      position: absolute;
-      top: -18px; left: 50%;
-      width: 110px; height: 70px;
-      transform: translateX(-50%);
-      background: linear-gradient(180deg, #ff4da6, #ff9f43, #ffe566, #7dff9a, #4ecbff, #9b5cff);
-      border-radius: 60% 60% 40% 40%;
-      box-shadow: inset 0 -10px 0 rgba(255,255,255,0.25);
+    .stage-crew .mascot{opacity:0;transform:scale(.5) translateY(10px);transition:opacity .4s,transform .4s}
+    .stage-crew .mascot.on{opacity:1;transform:scale(1) translateY(0)}
+
+    .stage-speakers{
+      position:absolute;bottom:28px;width:36px;height:44px;border-radius:8px;
+      background:linear-gradient(180deg,#3d2a55,#1a0a2e);box-shadow:0 4px 0 #0a0414;
     }
-    .mascot .hair::before,
-    .mascot .hair::after {
-      content: "";
-      position: absolute;
-      top: 8px;
-      width: 28px; height: 55px;
-      border-radius: 50% 50% 40% 40%;
-      background: #ff4da6;
+    .stage-speakers::before{
+      content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
+      width:18px;height:18px;border-radius:50%;border:3px solid #ff4da6;
+      box-shadow:0 0 10px #ff4da6;opacity:.4;transition:opacity .3s,box-shadow .3s;
     }
-    .mascot .hair::before { left: -8px; transform: rotate(-25deg); background: #9b5cff; }
-    .mascot .hair::after { right: -8px; transform: rotate(25deg); background: #4ecbff; }
-    .mascot .body {
-      position: absolute;
-      bottom: 10px; left: 50%;
-      transform: translateX(-50%);
-      width: 100px; height: 100px;
-      background: radial-gradient(circle at 35% 30%, #ffe0f2, #ff7ec8);
-      border-radius: 50%;
-      box-shadow: inset -8px -10px 0 rgba(0,0,0,0.06), 0 8px 0 rgba(0,0,0,0.08);
+    .concert.lit .stage-speakers::before{opacity:1;box-shadow:0 0 14px #ff4da6,0 0 24px #ff4da6}
+    .stage-speakers.left{left:-8px}
+    .stage-speakers.right{right:-8px}
+
+    /* Huts / homes */
+    .prop{position:absolute;pointer-events:none;z-index:4}
+    .hut{
+      width:70px;height:62px;
     }
-    .mascot .eye {
-      position: absolute;
-      top: 38px;
-      width: 18px; height: 22px;
-      background: #2b1a4a;
-      border-radius: 50%;
+    .hut .roof{
+      position:absolute;top:0;left:50%;transform:translateX(-50%);
+      width:78px;height:34px;border-radius:50% 50% 8% 8%;
+      box-shadow:0 4px 0 rgba(0,0,0,.1);
     }
-    .mascot .eye.left { left: 28px; }
-    .mascot .eye.right { right: 28px; }
-    .mascot .eye::after {
-      content: "";
-      position: absolute;
-      top: 3px; left: 4px;
-      width: 6px; height: 6px;
-      background: white;
-      border-radius: 50%;
+    .hut .wall{
+      position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+      width:54px;height:36px;border-radius:8px 8px 4px 4px;
+      box-shadow:inset 0 -4px 0 rgba(0,0,0,.08),0 4px 0 rgba(0,0,0,.1);
     }
-    .mascot .smile {
-      position: absolute;
-      bottom: 28px; left: 50%;
-      width: 36px; height: 18px;
-      border: 4px solid #2b1a4a;
-      border-top: none;
-      border-radius: 0 0 20px 20px;
-      transform: translateX(-50%);
+    .hut .door{
+      position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+      width:16px;height:20px;border-radius:8px 8px 0 0;background:rgba(43,26,74,.35);
+    }
+    .hut .window{
+      position:absolute;bottom:14px;width:10px;height:10px;border-radius:3px;
+      background:#ffe566;box-shadow:0 0 8px rgba(255,229,102,.6);
+    }
+    .hut .window.l{left:10px}.hut .window.r{right:10px}
+    .hut.pink .roof{background:linear-gradient(180deg,#ff8ec8,#ff4da6)}
+    .hut.pink .wall{background:linear-gradient(180deg,#ffe0f0,#ffb0d8)}
+    .hut.teal .roof{background:linear-gradient(180deg,#7dffd4,#2ec4a0)}
+    .hut.teal .wall{background:linear-gradient(180deg,#d6fff5,#9aead8)}
+    .hut.lilac .roof{background:linear-gradient(180deg,#d0b0ff,#9b5cff)}
+    .hut.lilac .wall{background:linear-gradient(180deg,#f0e6ff,#d4bfff)}
+    .hut.sunny .roof{background:linear-gradient(180deg,#ffe566,#ffb800)}
+    .hut.sunny .wall{background:linear-gradient(180deg,#fff6d0,#ffe0a0)}
+    .hut.blue .roof{background:linear-gradient(180deg,#8adaff,#4ecbff)}
+    .hut.blue .wall{background:linear-gradient(180deg,#e0f6ff,#b0e4ff)}
+
+    .tree{width:48px;height:70px}
+    .tree::before{
+      content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+      width:10px;height:22px;background:#8b5a2b;border-radius:4px;
+    }
+    .tree::after{
+      content:"";position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+      width:44px;height:44px;border-radius:50%;
+      background:radial-gradient(circle at 35% 35%,#9dff8a,#2e9b45);box-shadow:0 4px 0 rgba(0,0,0,.1);
+    }
+    .mushroom{
+      width:36px;height:36px;border-radius:50% 50% 45% 45%;
+      background:radial-gradient(circle at 40% 35%,#ff6eb8,#e02070);
+      box-shadow:inset 0 -8px 0 rgba(0,0,0,.08);
+    }
+    .mushroom::after{
+      content:"";position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+      width:10px;height:14px;background:#fff0e8;border-radius:4px;
+    }
+    .fence{
+      width:60px;height:18px;border-radius:4px;
+      background:repeating-linear-gradient(90deg,#c4894a 0 8px,transparent 8px 12px);
+      box-shadow:0 3px 0 rgba(0,0,0,.1);opacity:.85;
+    }
+    .village-dancer{position:absolute;z-index:4;pointer-events:none}
+
+    /* Note spots */
+    .note-spot{
+      position:absolute;z-index:6;width:68px;height:68px;
+      border:none;padding:0;cursor:pointer;touch-action:manipulation;
+      background:transparent;appearance:none;
+    }
+    .note-spot .orb{
+      width:100%;height:100%;border-radius:50%;
+      background:radial-gradient(circle at 35% 30%,#fff9c4,#ffe566 40%,#ffb800);
+      box-shadow:0 0 0 4px rgba(255,255,255,.55),0 8px 0 rgba(0,0,0,.12);
+      display:flex;align-items:center;justify-content:center;font-size:1.7rem;
+      animation:pulseGlow 2s ease-in-out infinite;transition:transform .2s,filter .2s;
+    }
+    .note-spot:active .orb{transform:scale(.92)}
+    .note-spot.collected .orb{
+      background:radial-gradient(circle at 35% 30%,#e8ffe8,#7dff9a);
+      box-shadow:0 0 0 4px rgba(255,255,255,.4),0 4px 0 rgba(0,0,0,.1);
+      animation:none;filter:saturate(.85);opacity:.85;
+    }
+    .note-spot .label{
+      position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+      white-space:nowrap;font-size:.75rem;font-weight:600;
+      background:rgba(255,255,255,.88);padding:.12rem .45rem;border-radius:999px;pointer-events:none;
+    }
+    .pad{
+      position:absolute;z-index:5;width:84px;height:32px;border-radius:50%;
+      background:rgba(255,255,255,.3);box-shadow:0 4px 0 rgba(0,0,0,.08);pointer-events:none;
     }
 
-    .progress {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.75rem;
-      min-height: 48px;
+    /* Challenge */
+    #screen-challenge{
+      background:rgba(43,26,74,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);justify-content:center;
     }
-    .note-slot {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.35);
-      border: 3px dashed rgba(43,26,74,0.25);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      transition: transform 0.25s ease, background 0.25s;
+    .challenge-card{
+      background:rgba(255,255,255,.94);border-radius:28px;padding:1.15rem 1rem 1.4rem;
+      width:min(94%,420px);box-shadow:0 16px 40px var(--shadow);animation:slideUp .35s ease;
+      text-align:center;max-height:92%;overflow:auto;
     }
-    .note-slot.filled {
-      background: var(--yellow);
-      border-style: solid;
-      border-color: #ffb800;
-      transform: scale(1.1);
-      box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+    .say-loud{
+      display:inline-flex;align-items:center;gap:.35rem;background:rgba(155,92,255,.15);
+      padding:.5rem .95rem;border-radius:999px;font-size:clamp(.95rem,3.3vw,1.15rem);
+      font-weight:600;margin:.4rem 0 .7rem;animation:bounce 1.8s ease-in-out infinite;
     }
-    .progress-label {
-      width: 100%;
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin-top: 0.25rem;
+    .prompt{font-size:clamp(1.2rem,4.3vw,1.55rem);font-weight:600;margin:.2rem 0 .65rem}
+    .word-big{
+      font-size:clamp(2.8rem,12vw,4.6rem);font-weight:700;line-height:1.1;
+      color:var(--purple);text-shadow:0 4px 0 rgba(155,92,255,.2);margin:.15rem 0 .5rem;
+      word-break:keep-all;letter-spacing:.02em;
     }
+    .add-equation{
+      display:flex;align-items:center;justify-content:center;gap:.45rem;flex-wrap:wrap;
+      margin:.35rem 0 .7rem;font-size:clamp(2rem,9vw,3.2rem);font-weight:700;color:var(--ink);
+    }
+    .add-equation .op{color:var(--pink);font-size:1.1em}
+    .add-pile{display:inline-flex;gap:.2rem;flex-wrap:wrap;justify-content:center;max-width:9rem}
+    .add-dot.dim{opacity:.32;filter:grayscale(.7)}
+    .add-dot{width:28px;height:28px;border-radius:50%;box-shadow:0 2px 0 rgba(0,0,0,.1)}
+    .count-stage{
+      display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;
+      min-height:90px;margin:.35rem 0 .8rem;padding:.4rem;
+    }
+    .count-item{
+      width:46px;height:46px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:1.5rem;box-shadow:0 3px 0 rgba(0,0,0,.08);
+      animation:bounce 1.5s ease-in-out infinite;
+    }
+    .count-item:nth-child(odd){animation-delay:.12s}
+    .count-item:nth-child(3n){animation-delay:.28s}
+    .choices{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem}
+    .feedback{min-height:1.5rem;font-size:1.15rem;font-weight:600;margin-top:.65rem;color:var(--purple)}
+    .chal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem}
 
-    .say-loud {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: rgba(255,255,255,0.75);
-      padding: 0.55rem 1rem;
-      border-radius: 999px;
-      font-size: clamp(1rem, 3.5vw, 1.2rem);
-      font-weight: 600;
-      margin: 0.5rem 0 0.85rem;
-      animation: pulse 1.8s ease-in-out infinite;
-    }
+    .burst-layer,.confetti-layer{pointer-events:none;position:absolute;inset:0;overflow:hidden;z-index:20}
+    .burst-bit{position:absolute;width:14px;height:14px;border-radius:50%;animation:burstOut .7s ease-out forwards}
+    .confetti{position:absolute;top:-20px;width:12px;height:18px;border-radius:3px;animation:confettiFall linear forwards}
 
-    .challenge-card {
-      background: rgba(255,255,255,0.88);
-      border-radius: 28px;
-      padding: 1.25rem 1rem 1.5rem;
-      width: min(100%, 420px);
-      box-shadow: 0 12px 32px var(--shadow);
+    #screen-cele{text-align:center;background:transparent}
+    .cele-inner{
+      position:relative;z-index:2;background:rgba(255,255,255,.78);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-radius:32px;padding:1.5rem 1.2rem;max-width:440px;width:min(92%,440px);
+      box-shadow:0 16px 40px var(--shadow);animation:popIn .5s ease;
     }
-    .prompt {
-      font-size: clamp(1.25rem, 4.5vw, 1.65rem);
-      font-weight: 600;
-      margin: 0.25rem 0 0.75rem;
-    }
-    .letter-big {
-      font-size: clamp(4rem, 18vw, 6rem);
-      font-weight: 700;
-      line-height: 1;
-      color: var(--purple);
-      text-shadow: 0 4px 0 rgba(155,92,255,0.2);
-      margin: 0.2rem 0 0.6rem;
-    }
-    .count-stage {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.55rem;
-      min-height: 100px;
-      margin: 0.4rem 0 0.9rem;
-      padding: 0.5rem;
-    }
-    .count-item {
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      box-shadow: 0 3px 0 rgba(0,0,0,0.08);
-      animation: bounce 1.6s ease-in-out infinite;
-    }
-    .count-item:nth-child(odd) { animation-delay: 0.15s; }
-    .count-item:nth-child(3n) { animation-delay: 0.3s; }
+    .cele-crew{display:flex;justify-content:center;align-items:flex-end;gap:.4rem;margin:.3rem 0 .6rem}
+    .cele-notes{font-size:2.2rem;letter-spacing:.12em;margin:.4rem 0 1rem}
 
-    .choices {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.4rem;
-    }
-
-    .feedback {
-      min-height: 1.6rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-top: 0.75rem;
-      color: var(--purple);
-    }
-
-    /* Celebration confetti */
-    .confetti-layer {
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      z-index: 5;
-    }
-    .confetti {
-      position: absolute;
-      top: -20px;
-      width: 12px; height: 18px;
-      border-radius: 3px;
-      animation: confettiFall linear forwards;
-    }
-
-    .cele-notes {
-      font-size: 2.5rem;
-      letter-spacing: 0.15em;
-      margin: 0.5rem 0 1rem;
-    }
-
-    .top-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.25rem 0.5rem;
-      font-weight: 600;
-      font-size: 1.05rem;
-    }
-    .ghost-btn {
-      background: rgba(255,255,255,0.55);
-      border: none;
-      border-radius: 999px;
-      padding: 0.55rem 1rem;
-      min-height: 48px;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--ink);
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    @media (max-height: 700px) {
-      .mascot { width: 110px; height: 130px; margin-bottom: 0.5rem; }
-      .mascot .body { width: 80px; height: 80px; }
-      .mascot .hair { width: 90px; height: 55px; }
-      h1 { font-size: 2rem; }
+    @media (max-height:700px){
+      .mascot.lg{width:100px;height:120px}
+      .start-card,.cele-inner{padding:1rem}
+      h1{font-size:1.9rem}
+      .village{min-height:640px}
+      .concert{height:180px;bottom:36%}
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <!-- START -->
+    <div class="sky" id="sky" aria-hidden="true"></div>
+    <div id="float-notes" aria-hidden="true"></div>
+
     <section id="screen-start" class="screen active" aria-label="Start">
-      <div class="mascot" aria-hidden="true">
-        <div class="hair"></div>
-        <div class="body">
-          <div class="eye left"></div>
-          <div class="eye right"></div>
-          <div class="smile"></div>
+      <div class="start-card">
+        <div class="start-crew" aria-hidden="true">
+          <div class="mascot sm teal"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+          <div class="mascot lg dancing"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+          <div class="mascot sm lilac"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
         </div>
+        <h1>Note Party!</h1>
+        <p class="subtitle">Explore the village • Sight words • Add &amp; subtract • Concert!</p>
+        <button type="button" class="btn btn-primary" id="btn-play">Let's Go!</button>
       </div>
-      <h1>Note Party!</h1>
-      <p class="subtitle">Collect notes • Read letters • Count beats • Dance!</p>
-      <button type="button" class="btn btn-primary" id="btn-play">Play!</button>
     </section>
 
-    <!-- GAME -->
-    <section id="screen-game" class="screen" aria-label="Game">
-      <div class="top-bar">
+    <section id="screen-world" class="screen" aria-label="Village">
+      <div class="world-hud">
         <button type="button" class="ghost-btn" id="btn-home">Home</button>
-        <span id="round-label">Note 1</span>
+        <div class="hud-notes" id="hud-notes" aria-live="polite"></div>
       </div>
-      <div class="progress" id="progress" aria-live="polite"></div>
+      <div class="hint-chip" id="world-hint">Tap glowing notes around the village! 🎵</div>
+      <div class="world-scroller" id="world-scroller">
+        <div class="village" id="island">
+          <div class="layer hills-far"></div>
+          <div class="layer hills-near"></div>
+          <div class="layer ground"></div>
+
+          <!-- Paths to stage -->
+          <div class="path" aria-hidden="true"></div>
+          <div class="path-curve-l" aria-hidden="true"></div>
+          <div class="path-curve-r" aria-hidden="true"></div>
+
+          <!-- Central concert stage -->
+          <div class="concert" id="concert" aria-label="Concert stage">
+            <div class="concert-arch"></div>
+            <div class="concert-backdrop">
+              <div class="beam b1"></div>
+              <div class="beam b2"></div>
+              <div class="beam b3"></div>
+              <div class="song-slots" id="song-slots"></div>
+            </div>
+            <div class="stage-crew" id="stage-crew">
+              <div class="mascot xs dancing teal" data-need="1"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+              <div class="mascot sm dancing" data-need="2"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+              <div class="mascot xs dancing lilac" data-need="3"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+              <div class="mascot xs dancing sunny" data-need="5"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+              <div class="mascot xs dancing teal" data-need="7"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+            </div>
+            <div class="stage-speakers left"></div>
+            <div class="stage-speakers right"></div>
+            <div class="concert-platform"></div>
+            <div class="concert-steps"></div>
+          </div>
+
+          <!-- Colorful village huts -->
+          <div class="prop hut pink" style="left:4%;bottom:22%"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
+          <div class="prop hut teal" style="left:16%;bottom:18%;transform:scale(.9)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
+          <div class="prop hut lilac" style="left:8%;bottom:36%;transform:scale(.85)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
+          <div class="prop hut sunny" style="right:6%;bottom:24%"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
+          <div class="prop hut blue" style="right:18%;bottom:17%;transform:scale(.9)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
+          <div class="prop hut pink" style="right:10%;bottom:38%;transform:scale(.8)"><div class="roof"></div><div class="wall"><div class="window l"></div><div class="window r"></div><div class="door"></div></div></div>
+
+          <!-- Trees, mushrooms, fences -->
+          <div class="prop tree" style="left:28%;bottom:16%"></div>
+          <div class="prop tree" style="left:2%;bottom:40%;transform:scale(.75)"></div>
+          <div class="prop tree" style="right:28%;bottom:14%;transform:scale(.85)"></div>
+          <div class="prop tree" style="right:2%;bottom:42%;transform:scale(.7)"></div>
+          <div class="prop tree" style="left:36%;bottom:48%;transform:scale(.65)"></div>
+          <div class="prop tree" style="right:38%;bottom:50%;transform:scale(.6)"></div>
+          <div class="prop mushroom" style="left:24%;bottom:20%"></div>
+          <div class="prop mushroom" style="right:26%;bottom:19%;transform:scale(.85);filter:hue-rotate(50deg)"></div>
+          <div class="prop fence" style="left:22%;bottom:14%"></div>
+          <div class="prop fence" style="right:22%;bottom:13%"></div>
+
+          <!-- Village wanderers -->
+          <div class="village-dancer mascot sm bouncing teal" style="left:20%;bottom:28%"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+          <div class="village-dancer mascot sm bouncing lilac" style="right:22%;bottom:30%;animation-delay:.3s"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+
+          <div id="spots"></div>
+        </div>
+      </div>
+      <div class="burst-layer" id="burst"></div>
+    </section>
+
+    <section id="screen-challenge" class="screen" aria-label="Challenge">
       <div class="challenge-card">
+        <div class="chal-top">
+          <button type="button" class="ghost-btn" id="btn-back-world">Back</button>
+          <span id="chal-label" style="font-weight:600">Note</span>
+        </div>
         <div class="say-loud" id="say-loud">🎤 Say it out loud!</div>
-        <p class="prompt" id="prompt">Find the letter</p>
+        <p class="prompt" id="prompt">Find the word</p>
         <div id="challenge-visual"></div>
         <div class="choices" id="choices"></div>
         <div class="feedback" id="feedback" aria-live="polite"></div>
       </div>
     </section>
 
-    <!-- CELEBRATION -->
     <section id="screen-cele" class="screen" aria-label="Celebration">
       <div class="confetti-layer" id="confetti"></div>
-      <div class="mascot dancing" aria-hidden="true">
-        <div class="hair"></div>
-        <div class="body">
-          <div class="eye left"></div>
-          <div class="eye right"></div>
-          <div class="smile"></div>
+      <div class="cele-inner">
+        <div class="cele-crew" aria-hidden="true">
+          <div class="mascot dancing teal"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+          <div class="mascot lg dancing"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+          <div class="mascot dancing lilac"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
+          <div class="mascot dancing sunny"><div class="hair"></div><div class="body"><div class="eye left"></div><div class="eye right"></div><div class="smile"></div></div></div>
         </div>
+        <h1>Concert Time!</h1>
+        <p class="subtitle">Every song unlocked — dance party!</p>
+        <div class="cele-notes" aria-hidden="true">🎵 🎶 🎵 🎶 🎵</div>
+        <button type="button" class="btn btn-primary" id="btn-again">Play again!</button>
       </div>
-      <h1>Dance Party!</h1>
-      <p class="subtitle">You collected all the notes!</p>
-      <div class="cele-notes" aria-hidden="true">🎵 🎶 🎵 🎶 🎵</div>
-      <button type="button" class="btn btn-primary" id="btn-again">Play again!</button>
     </section>
   </div>
 
   <script>
-    (function () {
-      "use strict";
+  (function () {
+    "use strict";
 
-      var TOTAL_NOTES = 8;
-      var collected = 0;
-      var challenges = [];
-      var currentIndex = 0;
-      var locked = false;
-      var audioCtx = null;
+    var TOTAL = 8;
+    var collected = 0;
+    var done = {};
+    var challenges = [];
+    var activeSpot = -1;
+    var locked = false;
+    var audioCtx = null;
 
-      var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-      var COUNT_EMOJIS = ["⭐", "🎵", "💖", "🌟", "🥁", "✨", "🎤", "💜"];
-      var COUNT_COLORS = ["#ff4da6", "#9b5cff", "#4ecbff", "#ffe566", "#7dff9a", "#ff9f43"];
+    var SIGHT_WORDS = ["the","and","is","you","that","was","for","are","with","his","they","I","at","be","this","have","from","or","one","had","by","word","but","not","what","all","were","we","when","your","can","said","there","use","an","each","which","she","do","how","their","if","will","up","other","about","out","many","then","them","these","so","some","her","would","make","like","him","into","time","has","look","two","more","write","go","see","number","no","way","could","people","my","than","first","water","been","call","who","oil","its","now","find","long","down","day","did","get","come","made","may","part"];
+    var COUNT_EMOJIS = ["⭐","🎵","💖","🌟","🥁","✨","🎤","💜"];
+    var COUNT_COLORS = ["#ff4da6","#9b5cff","#4ecbff","#ffe566","#7dff9a","#ff9f43"];
+    var SONG_GLYPHS = ["🎵","🎶","🎤","🥁","🎸","🎹","🎺","🎧"];
 
-      function $(id) { return document.getElementById(id); }
+    /* Note spots around the village (paths & homes), stage is center */
+    var SPOTS = [
+      {x:12,y:62,name:"Pink Hut"},
+      {x:28,y:55,name:"Beat Path"},
+      {x:18,y:42,name:"Lilac Lane"},
+      {x:78,y:58,name:"Sunny Hut"},
+      {x:88,y:44,name:"Blue Roof"},
+      {x:70,y:70,name:"Lime Yard"},
+      {x:35,y:78,name:"Front Gate"},
+      {x:62,y:80,name:"Stage Path"}
+    ];
 
-      function showScreen(id) {
-        document.querySelectorAll(".screen").forEach(function (el) {
-          el.classList.remove("active");
-        });
-        $(id).classList.add("active");
+    function $(id){return document.getElementById(id)}
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(function(el){el.classList.remove("active")});
+      $(id).classList.add("active");
+    }
+
+    function buildSky(){
+      var sky=$("sky"), html="";
+      for(var i=0;i<5;i++){
+        var w=60+Math.random()*80,h=w*0.45;
+        html+='<div class="sky-cloud" style="width:'+w+'px;height:'+h+'px;top:'+(8+i*12)+'%;animation-duration:'+(28+i*6)+'s;animation-delay:'+(-i*5)+'s;opacity:'+(0.4+Math.random()*0.35)+'"></div>';
       }
-
-      function ensureAudio() {
-        if (!audioCtx) {
-          var AC = window.AudioContext || window.webkitAudioContext;
-          if (AC) audioCtx = new AC();
-        }
-        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-        return audioCtx;
+      for(var s=0;s<12;s++){
+        html+='<div class="sky-star" style="left:'+(5+Math.random()*90)+'%;top:'+(3+Math.random()*35)+'%;animation-delay:'+(Math.random()*2)+'s"></div>';
       }
-
-      function tone(freq, dur, type, gainVal) {
-        var ctx = ensureAudio();
-        if (!ctx) return;
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = type || "sine";
-        osc.frequency.value = freq;
-        gain.gain.value = gainVal || 0.12;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        var now = ctx.currentTime;
-        gain.gain.setValueAtTime(gain.gain.value, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-        osc.start(now);
-        osc.stop(now + dur + 0.02);
+      sky.innerHTML=html;
+      var notes=["♪","♫","♩","♬","🎵","🎶"], fhtml="";
+      for(var n=0;n<8;n++){
+        fhtml+='<div class="float-note" style="left:'+(8+n*11)+'%;top:'+(12+((n*17)%50))+'%;animation-delay:'+(n*0.4)+'s;font-size:'+(1.1+Math.random()*0.6)+'rem">'+(notes[n%notes.length])+'</div>';
       }
+      $("float-notes").innerHTML=fhtml;
+    }
 
-      function playCorrect() {
-        tone(523.25, 0.12, "triangle", 0.14);
-        setTimeout(function () { tone(659.25, 0.12, "triangle", 0.14); }, 90);
-        setTimeout(function () { tone(783.99, 0.22, "triangle", 0.16); }, 180);
-      }
-
-      function playWrong() {
-        tone(220, 0.18, "sine", 0.08);
-      }
-
-      function playCelebrate() {
-        var notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
-        notes.forEach(function (f, i) {
-          setTimeout(function () { tone(f, 0.18, "triangle", 0.13); }, i * 110);
-        });
-      }
-
-      function playNoteCollect() {
-        tone(880, 0.1, "sine", 0.1);
-        setTimeout(function () { tone(1174.66, 0.2, "sine", 0.12); }, 80);
-      }
-
-      function shuffle(arr) {
-        var a = arr.slice();
-        for (var i = a.length - 1; i > 0; i--) {
-          var j = Math.floor(Math.random() * (i + 1));
-          var t = a[i]; a[i] = a[j]; a[j] = t;
-        }
-        return a;
-      }
-
-      function pickWrongLetters(correct, n) {
-        var pool = LETTERS.filter(function (L) { return L !== correct; });
-        return shuffle(pool).slice(0, n);
-      }
-
-      function buildChallenges() {
-        var list = [];
-        // Alternate letter / count — 8 total
-        var letterTargets = shuffle(LETTERS.slice(0, 16)).slice(0, 4);
-        var counts = shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 4);
-
-        for (var i = 0; i < TOTAL_NOTES; i++) {
-          if (i % 2 === 0) {
-            var letter = letterTargets[Math.floor(i / 2) % letterTargets.length];
-            var wrong = pickWrongLetters(letter, 2);
-            var choices = shuffle([letter].concat(wrong));
-            list.push({
-              type: "letter",
-              prompt: "Find the letter " + letter + "!",
-              target: letter,
-              choices: choices,
-              showBig: letter
-            });
-          } else {
-            var n = counts[Math.floor(i / 2) % counts.length];
-            var wrongNums = [];
-            while (wrongNums.length < 2) {
-              var w = 1 + Math.floor(Math.random() * 10);
-              if (w !== n && wrongNums.indexOf(w) === -1) wrongNums.push(w);
-            }
-            list.push({
-              type: "count",
-              prompt: "How many? Count them!",
-              target: String(n),
-              count: n,
-              choices: shuffle([String(n)].concat(wrongNums.map(String))),
-              emoji: COUNT_EMOJIS[i % COUNT_EMOJIS.length]
-            });
-          }
-        }
-        return list;
-      }
-
-      function renderProgress() {
-        var el = $("progress");
-        var html = "";
-        for (var i = 0; i < TOTAL_NOTES; i++) {
-          html += '<div class="note-slot' + (i < collected ? " filled" : "") + '" aria-hidden="true">' +
-            (i < collected ? "🎵" : "") + "</div>";
-        }
-        html += '<div class="progress-label">' + collected + " / " + TOTAL_NOTES + " notes</div>";
-        el.innerHTML = html;
-      }
-
-      function renderCountItems(n, emoji) {
-        var html = '<div class="count-stage" aria-hidden="true">';
-        for (var i = 0; i < n; i++) {
-          var bg = COUNT_COLORS[i % COUNT_COLORS.length];
-          html += '<div class="count-item" style="background:' + bg + '">' + emoji + "</div>";
-        }
-        html += "</div>";
-        return html;
-      }
-
-      function showChallenge() {
-        locked = false;
-        $("feedback").textContent = "";
-        var ch = challenges[currentIndex];
-        $("round-label").textContent = "Note " + (currentIndex + 1);
-        $("prompt").textContent = ch.prompt;
-        $("say-loud").textContent = ch.type === "letter"
-          ? "🎤 Say the letter out loud!"
-          : "🎤 Count out loud!";
-
-        var visual = $("challenge-visual");
-        if (ch.type === "letter") {
-          visual.innerHTML = '<div class="letter-big" aria-hidden="true">' + ch.showBig + "</div>";
-        } else {
-          visual.innerHTML = renderCountItems(ch.count, ch.emoji);
-        }
-
-        var choices = $("choices");
-        choices.innerHTML = "";
-        ch.choices.forEach(function (c) {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "btn btn-choice";
-          btn.textContent = c;
-          btn.setAttribute("aria-label", "Choose " + c);
-          btn.addEventListener("click", function () { onChoose(c, btn); });
-          choices.appendChild(btn);
-        });
-
-        renderProgress();
-      }
-
-      function onChoose(value, btn) {
-        if (locked) return;
-        ensureAudio();
-        var ch = challenges[currentIndex];
-        if (value === ch.target) {
-          locked = true;
-          btn.classList.add("correct-flash");
-          $("feedback").textContent = "Yes! You got it! ✨";
-          playCorrect();
-          setTimeout(function () {
-            collected++;
-            playNoteCollect();
-            renderProgress();
-            if (collected >= TOTAL_NOTES) {
-              setTimeout(goCelebrate, 400);
-            } else {
-              currentIndex++;
-              setTimeout(showChallenge, 450);
-            }
-          }, 500);
-        } else {
-          btn.classList.add("wrong-flash");
-          $("feedback").textContent = "Almost! Try again 💛";
-          playWrong();
-          setTimeout(function () {
-            btn.classList.remove("wrong-flash");
-            $("feedback").textContent = "";
-          }, 500);
-        }
-      }
-
-      function spawnConfetti() {
-        var layer = $("confetti");
-        layer.innerHTML = "";
-        var colors = ["#ff4da6", "#9b5cff", "#4ecbff", "#ffe566", "#7dff9a", "#ff9f43", "#fff"];
-        for (var i = 0; i < 48; i++) {
-          var piece = document.createElement("div");
-          piece.className = "confetti";
-          piece.style.left = Math.random() * 100 + "%";
-          piece.style.background = colors[i % colors.length];
-          piece.style.animationDuration = (2.2 + Math.random() * 2.5) + "s";
-          piece.style.animationDelay = (Math.random() * 1.2) + "s";
-          piece.style.width = (8 + Math.random() * 10) + "px";
-          piece.style.height = (12 + Math.random() * 14) + "px";
-          piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "3px";
-          layer.appendChild(piece);
-        }
-      }
-
-      function goCelebrate() {
-        showScreen("screen-cele");
-        spawnConfetti();
-        playCelebrate();
-      }
-
-      function startGame() {
-        ensureAudio();
-        collected = 0;
-        currentIndex = 0;
-        challenges = buildChallenges();
-        showScreen("screen-game");
-        showChallenge();
-      }
-
-      $("btn-play").addEventListener("click", startGame);
-      $("btn-again").addEventListener("click", startGame);
-      $("btn-home").addEventListener("click", function () {
-        showScreen("screen-start");
+    function ensureAudio(){
+      if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC()}
+      if(audioCtx && audioCtx.state==="suspended") audioCtx.resume();
+      return audioCtx;
+    }
+    function tone(freq,dur,type,gainVal){
+      var ctx=ensureAudio(); if(!ctx) return;
+      var osc=ctx.createOscillator(), gain=ctx.createGain();
+      osc.type=type||"sine"; osc.frequency.value=freq; gain.gain.value=gainVal||0.12;
+      osc.connect(gain); gain.connect(ctx.destination);
+      var now=ctx.currentTime;
+      gain.gain.setValueAtTime(gain.gain.value,now);
+      gain.gain.exponentialRampToValueAtTime(0.001,now+dur);
+      osc.start(now); osc.stop(now+dur+0.02);
+    }
+    function playCorrect(){
+      tone(523.25,0.12,"triangle",0.14);
+      setTimeout(function(){tone(659.25,0.12,"triangle",0.14)},90);
+      setTimeout(function(){tone(783.99,0.22,"triangle",0.16)},180);
+    }
+    function playWrong(){tone(220,0.18,"sine",0.08)}
+    function playCelebrate(){
+      [523.25,659.25,783.99,1046.5,783.99,1046.5].forEach(function(f,i){
+        setTimeout(function(){tone(f,0.18,"triangle",0.13)},i*110);
       });
+    }
+    function playNoteCollect(){
+      tone(880,0.1,"sine",0.1);
+      setTimeout(function(){tone(1174.66,0.2,"sine",0.12)},80);
+    }
+    function playTap(){tone(660,0.08,"sine",0.06)}
+    function playUnlock(){
+      tone(523.25,0.1,"triangle",0.1);
+      setTimeout(function(){tone(784,0.15,"triangle",0.12)},100);
+      setTimeout(function(){tone(1046.5,0.2,"triangle",0.14)},200);
+    }
 
-      // Unlock audio on first touch (iOS Safari)
-      document.body.addEventListener("touchstart", function once() {
-        ensureAudio();
-        document.body.removeEventListener("touchstart", once);
-      }, { passive: true });
-    })();
+    function shuffle(arr){
+      var a=arr.slice();
+      for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}
+      return a;
+    }
+    function pickWrongWords(correct,n){
+      return shuffle(SIGHT_WORDS.filter(function(w){return w.toLowerCase()!==correct.toLowerCase()})).slice(0,n);
+    }
+
+    function pickWrongNums(correct,n,minV,maxV){
+      var wrong=[];
+      while(wrong.length<n){
+        var w=minV+Math.floor(Math.random()*(maxV-minV+1));
+        if(w!==correct && wrong.indexOf(w)===-1) wrong.push(w);
+      }
+      return wrong;
+    }
+
+    function makeAddChallenge(){
+      var a=1+Math.floor(Math.random()*5);
+      var b=1+Math.floor(Math.random()*(10-a));
+      var sum=a+b;
+      var wrong=pickWrongNums(sum,2,1,10);
+      return {
+        type:"add",
+        prompt:"What is "+a+" + "+b+"?",
+        target:String(sum),
+        a:a, b:b, sum:sum,
+        choices:shuffle([String(sum)].concat(wrong.map(String)))
+      };
+    }
+
+    function makeSubChallenge(){
+      var a=3+Math.floor(Math.random()*7); /* 3-9 */
+      var b=1+Math.floor(Math.random()*(a-1)); /* keep difference >=1 */
+      var diff=a-b;
+      var wrong=pickWrongNums(diff,2,0,10);
+      var emoji=COUNT_EMOJIS[Math.floor(Math.random()*COUNT_EMOJIS.length)];
+      return {
+        type:"sub",
+        prompt:"What is "+a+" − "+b+"?",
+        target:String(diff),
+        a:a, b:b, diff:diff,
+        emoji:emoji,
+        choices:shuffle([String(diff)].concat(wrong.map(String)))
+      };
+    }
+
+    function makeWordChallenge(word){
+      return {
+        type:"word",
+        prompt:"Find the word!",
+        target:word,
+        choices:shuffle([word].concat(pickWrongWords(word,2))),
+        showBig:word
+      };
+    }
+
+    function buildChallenges(){
+      var list=[];
+      var words=shuffle(SIGHT_WORDS).slice(0,4); /* 4 sight-word rounds */
+      var mathKinds=shuffle(["add","sub","add","sub"]); /* 4 math: add + subtract within 10 */
+      /* Interleave: word, math, word, math... for 8 notes */
+      for(var i=0;i<TOTAL;i++){
+        if(i%2===0){
+          list.push(makeWordChallenge(words[Math.floor(i/2)%words.length]));
+        } else {
+          var kind=mathKinds[Math.floor(i/2)%mathKinds.length];
+          if(kind==="add") list.push(makeAddChallenge());
+          else list.push(makeSubChallenge());
+        }
+      }
+      return list;
+    }
+
+    function updateStage(){
+      var concert=$("concert");
+      concert.classList.toggle("lit", collected>=1);
+      concert.classList.toggle("full", collected>=TOTAL);
+
+      var slots=$("song-slots");
+      var html="";
+      for(var i=0;i<TOTAL;i++){
+        html+='<div class="song-slot'+(i<collected?" unlocked":"")+'" title="Song '+(i+1)+'">'+(i<collected?SONG_GLYPHS[i]:"")+'</div>';
+      }
+      slots.innerHTML=html;
+
+      $("stage-crew").querySelectorAll(".mascot").forEach(function(m){
+        var need=parseInt(m.getAttribute("data-need"),10);
+        m.classList.toggle("on", collected>=need);
+        if(collected>=need) m.classList.add("dancing");
+      });
+    }
+
+    function renderHud(){
+      var html="";
+      for(var i=0;i<TOTAL;i++){
+        html+='<div class="note-pip'+(done[i]?" filled":"")+'">'+(done[i]?"🎵":"")+'</div>';
+      }
+      $("hud-notes").innerHTML=html;
+      var left=TOTAL-collected;
+      if(left===0) $("world-hint").textContent="Concert unlocked — dance party! 🎉";
+      else if(collected===0) $("world-hint").textContent="Tap glowing notes around the village! 🎵";
+      else $("world-hint").textContent=collected+" song"+(collected>1?"s":"")+" on stage • "+left+" notes left!";
+      updateStage();
+    }
+
+    function buildSpots(){
+      var wrap=$("spots"), html="";
+      SPOTS.forEach(function(s,i){
+        html+='<div class="pad" style="left:calc('+s.x+'% - 42px);top:calc('+s.y+'% + 26px)"></div>';
+        html+='<button type="button" class="note-spot'+(done[i]?" collected":"")+'" data-i="'+i+'" style="left:calc('+s.x+'% - 34px);top:calc('+s.y+'% - 34px)" aria-label="'+(done[i]?"Collected ":"")+'Note at '+s.name+'">';
+        html+='<div class="orb">'+(done[i]?"✓":"🎵")+'</div>';
+        html+='<span class="label">'+s.name+'</span></button>';
+      });
+      wrap.innerHTML=html;
+      wrap.querySelectorAll(".note-spot").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          var i=+btn.getAttribute("data-i");
+          if(done[i]){playTap();return}
+          openChallenge(i);
+        });
+      });
+    }
+
+    function openChallenge(i){
+      ensureAudio(); playTap();
+      activeSpot=i; locked=false;
+      $("feedback").textContent="";
+      var ch=challenges[i];
+      $("chal-label").textContent=SPOTS[i].name;
+      $("prompt").textContent=ch.prompt;
+      if(ch.type==="word") $("say-loud").textContent="🎤 Say the word out loud!";
+      else $("say-loud").textContent="🎤 Say the answer out loud!";
+      var visual=$("challenge-visual");
+      if(ch.type==="word"){
+        visual.innerHTML='<div class="word-big" aria-hidden="true">'+ch.showBig+"</div>";
+      } else if(ch.type==="add"){
+        var dotsA="", dotsB="", ci;
+        for(ci=0;ci<ch.a;ci++) dotsA+='<span class="add-dot" style="background:'+COUNT_COLORS[ci%COUNT_COLORS.length]+'">★</span>';
+        for(ci=0;ci<ch.b;ci++) dotsB+='<span class="add-dot" style="background:'+COUNT_COLORS[(ci+3)%COUNT_COLORS.length]+'">★</span>';
+        visual.innerHTML='<div class="add-equation" aria-hidden="true">'+
+          '<span class="add-pile">'+dotsA+'</span><span class="op">+</span><span class="add-pile">'+dotsB+'</span>'+
+          '<span class="op">=</span><span>?</span></div>'+
+          '<div style="font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;margin-bottom:.4rem">'+ch.a+' + '+ch.b+' = ?</div>';
+      } else if(ch.type==="sub"){
+        var objs="", ci;
+        for(ci=0;ci<ch.a;ci++){
+          var gone=ci>=(ch.a-ch.b);
+          objs+='<span class="add-dot'+(gone?" dim":"")+'" style="background:'+(gone?"#cbb8e0":COUNT_COLORS[ci%COUNT_COLORS.length])+'">'+ch.emoji+'</span>';
+        }
+        visual.innerHTML='<div class="add-equation" aria-hidden="true"><span class="add-pile">'+objs+'</span></div>'+
+          '<div style="font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;margin-bottom:.4rem">'+ch.a+' − '+ch.b+' = ?</div>';
+      } else {
+        visual.innerHTML='';
+      }
+      var choices=$("choices"); choices.innerHTML="";
+      ch.choices.forEach(function(c){
+        var btn=document.createElement("button");
+        btn.type="button";
+        btn.className="btn btn-choice"+(ch.type!=="word"?" num":"");
+        btn.textContent=c; btn.setAttribute("aria-label","Choose "+c);
+        btn.addEventListener("click",function(){onChoose(c,btn)});
+        choices.appendChild(btn);
+      });
+      showScreen("screen-challenge");
+    }
+
+    function burstAt(cx,cy){
+      var layer=$("burst");
+      var colors=["#ff4da6","#9b5cff","#4ecbff","#ffe566","#7dff9a","#ff9f43","#fff"];
+      var glyphs=["★","✦","♪","•"];
+      for(var i=0;i<22;i++){
+        var bit=document.createElement("div");
+        bit.className="burst-bit";
+        var ang=(Math.PI*2*i)/22, dist=40+Math.random()*90;
+        bit.style.left=cx+"px"; bit.style.top=cy+"px";
+        bit.style.setProperty("--dx",(Math.cos(ang)*dist)+"px");
+        bit.style.setProperty("--dy",(Math.sin(ang)*dist)+"px");
+        bit.style.background=colors[i%colors.length];
+        if(i%3===0){bit.textContent=glyphs[i%glyphs.length];bit.style.background="transparent";bit.style.fontSize="14px";bit.style.width="auto";bit.style.height="auto"}
+        bit.style.borderRadius=Math.random()>0.5?"50%":"3px";
+        layer.appendChild(bit);
+        setTimeout(function(el){return function(){el.remove()}}(bit),800);
+      }
+    }
+
+    function onChoose(value,btn){
+      if(locked) return;
+      ensureAudio();
+      var ch=challenges[activeSpot];
+      if(value===ch.target){
+        locked=true;
+        btn.classList.add("correct-flash");
+        $("feedback").textContent="Yes! Song unlocked! ✨";
+        playCorrect();
+        var rect=btn.getBoundingClientRect();
+        burstAt(rect.left+rect.width/2, rect.top+rect.height/2);
+        setTimeout(function(){
+          done[activeSpot]=true;
+          collected++;
+          playNoteCollect();
+          setTimeout(playUnlock,120);
+          buildSpots();
+          renderHud();
+          if(collected>=TOTAL){
+            setTimeout(goCelebrate,600);
+          } else {
+            showScreen("screen-world");
+          }
+        },550);
+      } else {
+        btn.classList.add("wrong-flash");
+        $("feedback").textContent="Almost! Try again 💛";
+        playWrong();
+        setTimeout(function(){
+          btn.classList.remove("wrong-flash");
+          $("feedback").textContent="";
+        },500);
+      }
+    }
+
+    function spawnConfetti(){
+      var layer=$("confetti"); layer.innerHTML="";
+      var colors=["#ff4da6","#9b5cff","#4ecbff","#ffe566","#7dff9a","#ff9f43","#fff"];
+      for(var i=0;i<56;i++){
+        var p=document.createElement("div");
+        p.className="confetti";
+        p.style.left=(Math.random()*100)+"%";
+        p.style.background=colors[i%colors.length];
+        p.style.animationDuration=(2+Math.random()*2.8)+"s";
+        p.style.animationDelay=(Math.random()*1.3)+"s";
+        p.style.width=(8+Math.random()*10)+"px";
+        p.style.height=(12+Math.random()*14)+"px";
+        p.style.borderRadius=Math.random()>0.5?"50%":"3px";
+        layer.appendChild(p);
+      }
+    }
+
+    function goCelebrate(){
+      showScreen("screen-cele");
+      spawnConfetti();
+      playCelebrate();
+    }
+
+    function startGame(){
+      ensureAudio();
+      collected=0; done={}; activeSpot=-1;
+      challenges=buildChallenges();
+      buildSpots(); renderHud();
+      showScreen("screen-world");
+      setTimeout(function(){
+        var sc=$("world-scroller"), isl=$("island");
+        if(sc && isl){
+          sc.scrollLeft=Math.max(0,(isl.scrollWidth-sc.clientWidth)/2);
+          sc.scrollTop=Math.max(0,(isl.scrollHeight-sc.clientHeight)*0.2);
+        }
+      },50);
+    }
+
+    $("btn-play").addEventListener("click",startGame);
+    $("btn-again").addEventListener("click",startGame);
+    $("btn-home").addEventListener("click",function(){showScreen("screen-start")});
+    $("btn-back-world").addEventListener("click",function(){showScreen("screen-world")});
+
+    document.body.addEventListener("touchstart",function once(){
+      ensureAudio();
+      document.body.removeEventListener("touchstart",once);
+    },{passive:true});
+
+    buildSky();
+  })();
   </script>
 </body>
 </html>
