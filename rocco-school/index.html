@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rocco School">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b1020">
+<title>Rocco's Space Math Mission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka',system-ui,sans-serif;background:#0b1020;color:#f5f7ff;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;border:none;cursor:pointer;color:inherit}
+#app{position:fixed;inset:0;overflow:hidden}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));z-index:10}
+.screen.active{display:flex}
+
+/* Hall / ambient */
+.hall-bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(90,40,120,.35), transparent 55%),
+    radial-gradient(ellipse at 20% 10%, rgba(40,80,160,.25), transparent 40%),
+    linear-gradient(180deg,#12182c 0%,#0b1020 55%,#080b16 100%);
+}
+.hall-bg::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(90deg,transparent 0 46%,rgba(255,255,255,.03) 46% 54%,transparent 54%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 48px);
+  opacity:.55;
+}
+.hall-bg::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:28%;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.55));
+}
+.stars{position:absolute;inset:0;overflow:hidden;opacity:.7}
+.star{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.5;animation:twinkle var(--d,2.4s) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.3)}}
+
+.panel{
+  position:relative;z-index:2;width:min(520px,100%);
+  background:rgba(18,24,44,.88);border:2px solid rgba(160,190,255,.22);
+  border-radius:24px;padding:22px 18px;box-shadow:0 18px 50px rgba(0,0,0,.45);
+  backdrop-filter:blur(8px);text-align:center;
+}
+h1{font-size:clamp(28px,8vw,40px);line-height:1.15;margin-bottom:8px}
+.sub{color:#b8c4ef;font-size:clamp(15px,4vw,18px);margin-bottom:16px;line-height:1.35}
+.big-btn{
+  min-height:64px;width:100%;max-width:320px;margin:10px auto;display:block;
+  border-radius:18px;font-size:22px;font-weight:700;padding:14px 18px;
+  background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;
+  box-shadow:0 8px 0 #1d5fad,0 12px 24px rgba(58,160,255,.35);
+  transition:transform .08s,box-shadow .08s;
+}
+.big-btn:active{transform:translateY(4px);box-shadow:0 4px 0 #1d5fad,0 6px 12px rgba(58,160,255,.25)}
+.ghost-btn{
+  min-height:52px;margin-top:10px;background:transparent;color:#c9d4ff;
+  font-size:16px;text-decoration:underline;padding:8px 12px;
+}
+.tag{display:inline-block;background:rgba(124,240,255,.15);color:#9ef3ff;border-radius:999px;padding:6px 12px;font-size:13px;margin-bottom:12px}
+
+/* HUD */
+#hud{
+  position:absolute;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;z-index:30;
+  display:none;gap:8px;align-items:stretch;justify-content:space-between;pointer-events:none;
+}
+#hud.show{display:flex}
+.hud-pill{
+  background:rgba(10,14,28,.85);border:1px solid rgba(180,200,255,.25);
+  border-radius:14px;padding:8px 12px;font-size:14px;min-width:0;
+}
+.hud-pill strong{color:#7cf0ff}
+.meter-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:90px}
+.meter{height:12px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden}
+.meter>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#7CFFB2,#7cf0ff);border-radius:inherit;transition:width .25s}
+.wrong-dots{display:flex;gap:6px;align-items:center}
+.wrong-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,140,140,.4)}
+.wrong-dot.on{background:#ff6b6b;border-color:#ff9a9a;box-shadow:0 0 10px #ff6b6b}
+
+/* Play layout */
+#play{justify-content:flex-end;padding-bottom:max(20px,env(safe-area-inset-bottom));}
+.stage{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.teacher-wrap{
+  position:absolute;bottom:38%;right:6%;
+  transform-origin:center bottom;transition:transform .35s,filter .35s,right .35s,bottom .35s,opacity .2s;
+  opacity:0;pointer-events:none;
+}
+.teacher-wrap.lurk{opacity:.35;right:-8%;bottom:42%;transform:scale(.72) rotate(-4deg);filter:brightness(.55) saturate(.7)}
+.teacher-wrap.pop{opacity:1;right:4%;bottom:34%;transform:scale(1.05);filter:brightness(1) saturate(1.1);animation:popIn .28s ease-out}
+.teacher-wrap.mad1{opacity:1;right:10%;bottom:32%;transform:scale(1.12);filter:hue-rotate(-8deg) saturate(1.2) brightness(1.05)}
+.teacher-wrap.mad2{opacity:1;right:18%;bottom:28%;transform:scale(1.28);filter:hue-rotate(-18deg) saturate(1.35) brightness(1.08);animation:twitch .18s infinite}
+.teacher-wrap.mad3{opacity:1;right:28%;bottom:24%;transform:scale(1.45);filter:hue-rotate(-28deg) saturate(1.5) brightness(1.1);animation:twitch .12s infinite}
+.teacher-wrap.dance{opacity:1;right:12%;bottom:36%;transform:scale(1);animation:happyBob .4s ease-in-out 3}
+@keyframes popIn{0%{transform:scale(.4) translateY(40px);opacity:0}100%{transform:scale(1.05) translateY(0);opacity:1}}
+@keyframes twitch{0%,100%{transform:scale(1.28) rotate(-2deg)}50%{transform:scale(1.32) rotate(3deg)}}
+@keyframes happyBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(6deg)}}
+
+.teacher-svg{width:min(42vw,180px);height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.5))}
+.flame{transform-origin:50% 0%;animation:flameFlicker .18s infinite alternate}
+@keyframes flameFlicker{from{transform:scaleY(.85) scaleX(1.05);opacity:.85}to{transform:scaleY(1.15) scaleX(.95);opacity:1}}
+
+.quiz-card{
+  position:relative;z-index:20;width:min(560px,100%);
+  background:rgba(16,22,40,.92);border:2px solid rgba(124,240,255,.25);
+  border-radius:22px;padding:18px 14px 14px;box-shadow:0 16px 40px rgba(0,0,0,.45);
+}
+.prompt{font-size:clamp(20px,5.5vw,28px);font-weight:600;line-height:1.3;margin:4px 0 14px;min-height:2.6em}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{
+  min-height:64px;border-radius:16px;font-size:clamp(20px,5vw,26px);font-weight:700;
+  background:linear-gradient(180deg,#2a3558,#1b243d);border:2px solid rgba(180,200,255,.28);
+  color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.35);
+}
+.choice:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.choice.good{background:linear-gradient(180deg,#5dffb0,#2bbb78);border-color:#9dffd0;color:#062016}
+.choice.bad{background:linear-gradient(180deg,#ff8a8a,#d94c4c);border-color:#ffc0c0}
+.speech{
+  position:absolute;left:12px;right:12px;bottom:calc(38% + min(42vw,180px) + 8px);
+  z-index:25;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s;
+}
+.speech.show{opacity:1}
+.speech span{
+  display:inline-block;background:rgba(255,255,255,.92);color:#1a2040;
+  border-radius:16px;padding:10px 14px;font-size:clamp(15px,4vw,18px);font-weight:600;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:90%;
+}
+
+/* Shake / vignette */
+#fx{position:absolute;inset:0;z-index:40;pointer-events:none}
+#app.shake{animation:shake .45s ease-in-out}
+@keyframes shake{
+  0%,100%{transform:translate(0)}
+  20%{transform:translate(-10px,4px)}
+  40%{transform:translate(10px,-4px)}
+  60%{transform:translate(-8px,-2px)}
+  80%{transform:translate(8px,3px)}
+}
+.vignette{
+  position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.55) 100%);
+  opacity:0;transition:opacity .4s;
+}
+.vignette.lvl1{opacity:.35}
+.vignette.lvl2{opacity:.55}
+.vignette.lvl3{opacity:.75}
+.red-flash{position:absolute;inset:0;background:rgba(255,40,40,.18);opacity:0;z-index:6;pointer-events:none}
+.red-flash.on{animation:flash .35s ease-out}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+
+.emoji-row{font-size:42px;letter-spacing:6px;margin:8px 0 12px}
+.tiny{font-size:13px;color:#9aa8d8;margin-top:10px;line-height:1.4}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hall-bg"></div>
+  <div class="stars" id="stars"></div>
+  <div class="vignette" id="vignette"></div>
+  <div class="red-flash" id="redFlash"></div>
+
+  <div id="hud">
+    <div class="hud-pill">Rocco · Q <strong id="qNum">1</strong>/<span id="qTotal">12</span></div>
+    <div class="hud-pill meter-wrap">
+      <div style="font-size:12px;color:#b8c4ef">Mission meter</div>
+      <div class="meter"><i id="meterFill"></i></div>
+    </div>
+    <div class="hud-pill">
+      <div style="font-size:12px;color:#b8c4ef;margin-bottom:4px">Chaos</div>
+      <div class="wrong-dots" id="wrongDots">
+        <span class="wrong-dot" data-i="0"></span>
+        <span class="wrong-dot" data-i="1"></span>
+        <span class="wrong-dot" data-i="2"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="start" class="screen active">
+    <div class="panel">
+      <div class="tag">Space School · Math Mission</div>
+      <h1>Rocco’s Space Math Mission</h1>
+      <p class="sub">Help Rocco finish the school day on Station Zoom! Answer Captain Calc’s questions… but don’t let the chaos get too silly-spooky!</p>
+      <button class="big-btn" id="btnPlay">Play, Rocco!</button>
+      <p class="tiny">3rd-grade space math · big touch buttons · fun spooky vibes (not scary)</p>
+    </div>
+  </div>
+
+  <div id="play" class="screen">
+    <div class="stage">
+      <div class="teacher-wrap lurk" id="teacher">
+        <svg class="teacher-svg" viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- rocket backpack -->
+          <g id="backpack">
+            <rect x="108" y="78" width="34" height="58" rx="10" fill="#5b6b8c"/>
+            <rect x="114" y="84" width="22" height="34" rx="6" fill="#8fa3c7"/>
+            <ellipse class="flame" cx="125" cy="148" rx="10" ry="18" fill="#ffb347"/>
+            <ellipse class="flame" cx="125" cy="152" rx="6" ry="12" fill="#ff6b3d"/>
+            <ellipse class="flame" cx="125" cy="156" rx="3" ry="7" fill="#ffe66d"/>
+          </g>
+          <!-- body -->
+          <ellipse cx="78" cy="150" rx="42" ry="48" fill="#3d7cff"/>
+          <ellipse cx="78" cy="150" rx="28" ry="32" fill="#6aa0ff"/>
+          <!-- arms -->
+          <ellipse cx="38" cy="140" rx="14" ry="22" fill="#f6c39a" transform="rotate(-18 38 140)"/>
+          <ellipse cx="118" cy="138" rx="14" ry="20" fill="#f6c39a" transform="rotate(22 118 138)"/>
+          <!-- head -->
+          <circle id="face" cx="78" cy="78" r="42" fill="#f7c8a0"/>
+          <!-- brows / eyes change via JS fill on mad -->
+          <ellipse id="browL" cx="62" cy="62" rx="10" ry="4" fill="#3a2a1a"/>
+          <ellipse id="browR" cx="94" cy="62" rx="10" ry="4" fill="#3a2a1a"/>
+          <circle cx="62" cy="78" r="7" fill="#1a1a2e"/>
+          <circle cx="94" cy="78" r="7" fill="#1a1a2e"/>
+          <circle cx="64" cy="76" r="2.2" fill="#fff"/>
+          <circle cx="96" cy="76" r="2.2" fill="#fff"/>
+          <path id="mouth" d="M62 96 Q78 108 94 96" stroke="#c45c5c" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <!-- headset / calc badge -->
+          <rect x="48" y="48" width="60" height="10" rx="4" fill="#2dd4bf"/>
+          <circle cx="42" cy="70" r="10" fill="#222b44"/>
+          <text x="78" y="168" text-anchor="middle" font-size="14" font-family="Fredoka,sans-serif" fill="#fff" font-weight="700">CALC</text>
+          <!-- clipboard -->
+          <rect x="22" y="118" width="28" height="36" rx="4" fill="#fff6d6" stroke="#c9b27a" stroke-width="2"/>
+          <line x1="28" y1="128" x2="44" y2="128" stroke="#8a7a4a" stroke-width="2"/>
+          <line x1="28" y1="136" x2="44" y2="136" stroke="#8a7a4a" stroke-width="2"/>
+          <line x1="28" y1="144" x2="40" y2="144" stroke="#8a7a4a" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="speech" id="speech"><span id="speechText">Ready, Rocco?</span></div>
+    <div class="quiz-card">
+      <div class="prompt" id="prompt">Loading…</div>
+      <div class="choices" id="choices"></div>
+    </div>
+  </div>
+
+  <div id="caught" class="screen">
+    <div class="panel">
+      <div class="emoji-row">🚀😅⭐</div>
+      <h1>Caught in the hallway!</h1>
+      <p class="sub">Captain Calc hopped out with his rocket backpack — silly-spooky chaos got too high, Rocco! Take a breath and try the mission again.</p>
+      <button class="big-btn" id="btnRetry">Try again, Rocco!</button>
+    </div>
+  </div>
+
+  <div id="win" class="screen">
+    <div class="panel">
+      <div class="emoji-row">🌟🎉🚀</div>
+      <h1>You did it, Rocco!</h1>
+      <p class="sub">School day’s clear on Station Zoom. Captain Calc is doing a happy rocket hop — you crushed the space math!</p>
+      <button class="big-btn" id="btnAgain">Play again</button>
+      <p class="tiny">Made for Rocco · original space-school adventure</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const TOTAL = 12;
+  const MAX_WRONG = 3;
+  let questions = [];
+  let qi = 0;
+  let wrongs = 0;
+  let rights = 0;
+  let locked = false;
+  let audioCtx = null;
+  let humOsc = null, humGain = null;
+
+  const $ = (id) => document.getElementById(id);
+  const app = $('app');
+  const teacher = $('teacher');
+  const vignette = $('vignette');
+  const redFlash = $('redFlash');
+  const speech = $('speech');
+  const speechText = $('speechText');
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+    $('hud').classList.toggle('show', id === 'play');
+  }
+
+  function makeStars(){
+    const box = $('stars');
+    for(let i=0;i<40;i++){
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = Math.random()*100 + '%';
+      s.style.top = Math.random()*70 + '%';
+      s.style.setProperty('--d', (1.6+Math.random()*2.4)+'s');
+      s.style.animationDelay = (Math.random()*2)+'s';
+      box.appendChild(s);
+    }
+  }
+
+  function ensureAudio(){
+    if(audioCtx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    audioCtx = new AC();
+  }
+
+  function tone(freq, dur, type, vol, when){
+    if(!audioCtx) return;
+    const t0 = audioCtx.currentTime + (when||0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol||0.12, t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+
+  function sfxGood(){
+    ensureAudio();
+    tone(523, .12, 'triangle', .1);
+    tone(659, .14, 'triangle', .1, .1);
+    tone(784, .18, 'triangle', .11, .2);
+  }
+  function sfxBad(){
+    ensureAudio();
+    tone(180, .18, 'sawtooth', .08);
+    tone(120, .28, 'square', .06, .12);
+  }
+  function sfxPop(){
+    ensureAudio();
+    tone(90, .08, 'square', .07);
+    tone(220, .12, 'triangle', .08, .05);
+  }
+  function sfxWin(){
+    ensureAudio();
+    [523,659,784,1046].forEach((f,i)=>tone(f,.2,'triangle',.1,i*.12));
+  }
+  function sfxCaught(){
+    ensureAudio();
+    tone(150,.2,'sawtooth',.07);
+    tone(110,.3,'square',.06,.15);
+    tone(90,.4,'triangle',.05,.3);
+  }
+
+  function setHum(level){
+    ensureAudio();
+    if(!audioCtx) return;
+    if(!humOsc){
+      humOsc = audioCtx.createOscillator();
+      humGain = audioCtx.createGain();
+      humOsc.type = 'sine';
+      humOsc.frequency.value = 55;
+      humGain.gain.value = 0.0001;
+      humOsc.connect(humGain); humGain.connect(audioCtx.destination);
+      humOsc.start();
+    }
+    const target = level<=0 ? 0.0001 : Math.min(0.035, 0.008 + level*0.01);
+    humGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    humGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 0.4);
+  }
+
+  function rand(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function choicesFor(ans){
+    const set = new Set([ans]);
+    while(set.size < 4){
+      let n = ans + rand(-8,8);
+      if(n === ans || n < 0) n = ans + rand(1,9);
+      set.add(n);
+    }
+    return shuffle([...set]);
+  }
+
+  function buildQuestions(){
+    const pool = [];
+    // add within 100
+    for(let i=0;i<4;i++){
+      const a=rand(12,60), b=rand(8,40);
+      const ans=a+b;
+      pool.push({q:`Rocco packs ${a} star snacks and finds ${b} more. How many snacks now?`, a:ans, c:choicesFor(ans)});
+    }
+    // sub within 100
+    for(let i=0;i<3;i++){
+      const a=rand(40,99), b=rand(10,Math.min(39,a-1));
+      const ans=a-b;
+      pool.push({q:`The rocket had ${a} fuel cans. Captain Calc used ${b}. How many left for Rocco?`, a:ans, c:choicesFor(ans)});
+    }
+    // mult facts 2-9
+    for(let i=0;i<4;i++){
+      const a=rand(2,9), b=rand(2,9);
+      const ans=a*b;
+      pool.push({q:`Rocco lines up ${a} rows of ${b} moon rocks. How many rocks?`, a:ans, c:choicesFor(ans)});
+    }
+    // easy word mix
+    const a=rand(3,8), b=rand(4,9), ans=a*b+rand(2,10);
+    const extra = ans - a*b;
+    pool.push({q:`${a} space buses hold ${b} kids each. Then ${extra} more kids hop on with Rocco. How many kids total?`, a:ans, c:choicesFor(ans)});
+
+    return shuffle(pool).slice(0, TOTAL);
+  }
+
+  function say(msg, ms){
+    speechText.textContent = msg;
+    speech.classList.add('show');
+    clearTimeout(say._t);
+    say._t = setTimeout(()=>speech.classList.remove('show'), ms||1800);
+  }
+
+  function setTeacherMood(){
+    teacher.className = 'teacher-wrap';
+    const face = $('face');
+    const mouth = $('mouth');
+    const browL = $('browL');
+    const browR = $('browR');
+    face.setAttribute('fill', wrongs===0 ? '#f7c8a0' : wrongs===1 ? '#f5b090' : wrongs===2 ? '#f09080' : '#e87070');
+    if(wrongs===0){
+      teacher.classList.add('lurk');
+      mouth.setAttribute('d','M62 96 Q78 108 94 96');
+      browL.setAttribute('cy','62'); browR.setAttribute('cy','62');
+    } else if(wrongs===1){
+      teacher.classList.add('mad1');
+      mouth.setAttribute('d','M64 98 Q78 94 92 98');
+      browL.setAttribute('cy','60'); browR.setAttribute('cy','60');
+    } else if(wrongs===2){
+      teacher.classList.add('mad2');
+      mouth.setAttribute('d','M64 100 Q78 90 92 100');
+      browL.setAttribute('cy','58'); browR.setAttribute('cy','58');
+    } else {
+      teacher.classList.add('mad3');
+      mouth.setAttribute('d','M62 102 Q78 88 94 102');
+      browL.setAttribute('cy','56'); browR.setAttribute('cy','56');
+    }
+    vignette.className = 'vignette' + (wrongs ? ' lvl'+Math.min(wrongs,3) : '');
+    setHum(wrongs);
+    document.querySelectorAll('.wrong-dot').forEach((d,i)=>{
+      d.classList.toggle('on', i < wrongs);
+    });
+  }
+
+  function shake(){
+    app.classList.remove('shake');
+    void app.offsetWidth;
+    app.classList.add('shake');
+    redFlash.classList.remove('on');
+    void redFlash.offsetWidth;
+    redFlash.classList.add('on');
+  }
+
+  function updateHud(){
+    $('qNum').textContent = Math.min(qi+1, TOTAL);
+    $('qTotal').textContent = TOTAL;
+    $('meterFill').style.width = Math.round((rights/TOTAL)*100) + '%';
+  }
+
+  function renderQ(){
+    locked = false;
+    updateHud();
+    setTeacherMood();
+    const item = questions[qi];
+    $('prompt').textContent = item.q;
+    const box = $('choices');
+    box.innerHTML = '';
+    item.c.forEach(n => {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.textContent = String(n);
+      b.addEventListener('click', () => onPick(n, b));
+      box.appendChild(b);
+    });
+  }
+
+  function onPick(n, btn){
+    if(locked) return;
+    locked = true;
+    const item = questions[qi];
+    const ok = n === item.a;
+    document.querySelectorAll('.choice').forEach(c => c.disabled = true);
+    if(ok){
+      btn.classList.add('good');
+      rights++;
+      sfxGood();
+      teacher.className = 'teacher-wrap dance';
+      $('face').setAttribute('fill','#f7c8a0');
+      say(['Nice one, Rocco!','Star move, Rocco!','Captain Calc is impressed, Rocco!','Zoom! Great math, Rocco!'][rand(0,3)], 1400);
+      if(wrongs>0){ wrongs = Math.max(0, wrongs-1); }
+      setTimeout(()=>{
+        setTeacherMood();
+        qi++;
+        updateHud();
+        if(qi >= TOTAL){
+          endWin();
+        } else {
+          renderQ();
+        }
+      }, 900);
+    } else {
+      btn.classList.add('bad');
+      wrongs++;
+      sfxBad();
+      sfxPop();
+      shake();
+      teacher.className = 'teacher-wrap';
+      teacher.classList.add(wrongs>=3?'mad3':wrongs===2?'mad2':wrongs===1?'mad1':'pop');
+      setTeacherMood();
+      say(['Oh no, Rocco… rocket hop incoming!','Whoops, Rocco — Calc peeked closer!','Careful, Rocco! Silly spooky mode rising…','Uh-oh Rocco, hallway chaos!'][rand(0,3)], 1600);
+      setTimeout(()=>{
+        if(wrongs >= MAX_WRONG){
+          endCaught();
+        } else {
+          qi++; // still advance so game progresses; wrongs are the threat
+          
+          if(qi >= TOTAL){
+            // finished questions despite wrongs under max
+            endWin();
+          } else {
+            renderQ();
+          }
+        }
+      }, 1000);
+    }
+  }
+
+  function endCaught(){
+    setHum(0);
+    sfxCaught();
+    showScreen('caught');
+  }
+  function endWin(){
+    setHum(0);
+    sfxWin();
+    showScreen('win');
+  }
+
+  function startGame(){
+    ensureAudio();
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    questions = buildQuestions();
+    qi = 0; wrongs = 0; rights = 0; locked = false;
+    showScreen('play');
+    setTeacherMood();
+    say('Ready, Rocco? Captain Calc is lurking…', 2000);
+    renderQ();
+  }
+
+  $('btnPlay').addEventListener('click', startGame);
+  $('btnRetry').addEventListener('click', startGame);
+  $('btnAgain').addEventListener('click', startGame);
+
+  makeStars();
+})();
+</script>
+</body>
+</html>
