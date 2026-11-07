@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-07-firstperson v1 -->
+<!-- build 2026-11-07-dualstick-scares v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -61,20 +61,17 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 #lookPrompt{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);z-index:12;display:none;background:rgba(8,14,28,.86);border:2px solid rgba(124,240,255,.55);color:#9ef3ff;border-radius:16px;padding:10px 14px;font-size:clamp(14px,3.6vw,18px);font-weight:600;text-align:center;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #lookPrompt.show{display:block}
 
-#dpad{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:35;width:210px;height:210px;display:none;touch-action:none}
-#dpad.show{display:grid;grid-template-areas:". up ." "left mid right" ". down .";grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:8px}
-#dpad .hint{grid-area:mid;display:flex;align-items:center;justify-content:center;font-size:11px;color:#c9d4ff;text-align:center;line-height:1.2;pointer-events:none}
-.dir-btn{border-radius:22px;background:rgba(16,24,48,.88);border:3px solid rgba(124,240,255,.4);color:#7cf0ff;font-size:32px;font-weight:700;box-shadow:0 6px 0 rgba(0,0,0,.35);touch-action:none}
-.dir-btn[data-dir="up"]{grid-area:up}
-.dir-btn[data-dir="down"]{grid-area:down}
-.dir-btn[data-dir="left"]{grid-area:left}
-.dir-btn[data-dir="right"]{grid-area:right}
-.dir-btn.held,.dir-btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.35);background:rgba(56,189,248,.35)}
-#btnInteract{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(28px,env(safe-area-inset-bottom));z-index:35;min-width:108px;height:78px;display:none;border-radius:20px;font-size:20px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;border:3px solid rgba(158,243,255,.55);box-shadow:0 7px 0 #1d5fad,0 12px 22px rgba(58,160,255,.3);touch-action:none}
+#stickMove,#stickLook{position:absolute;z-index:35;width:min(42vw,176px);height:min(42vw,176px);display:none;touch-action:none;border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(30,42,78,.55),rgba(10,14,28,.82));border:3px solid rgba(124,240,255,.38);box-shadow:inset 0 0 0 10px rgba(8,12,24,.25),0 8px 18px rgba(0,0,0,.35)}
+#stickMove{left:max(10px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom))}
+#stickLook{right:max(10px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom))}
+#stickMove.show,#stickLook.show{display:block}
+.stick-knob{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);border:3px solid rgba(255,255,255,.35);box-shadow:0 6px 0 rgba(29,95,173,.85),0 10px 16px rgba(0,0,0,.35);pointer-events:none}
+.stick-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9d4ff;opacity:.8;pointer-events:none;text-align:center;line-height:1.15}
+#btnInteract{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;border:3px solid rgba(158,243,255,.55);box-shadow:0 7px 0 #1d5fad,0 12px 22px rgba(58,160,255,.3);touch-action:none}
 #btnInteract.show{display:block}
-#btnInteract.held,#btnInteract:active{transform:translateY(4px);box-shadow:0 3px 0 #1d5fad}
+#btnInteract.held,#btnInteract:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #1d5fad}
 
-#hintFloat{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(118px,calc(env(safe-area-inset-bottom) + 112px));z-index:34;display:none;max-width:42vw;background:rgba(10,14,28,.8);border:1px solid rgba(180,200,255,.22);border-radius:16px;padding:10px 12px;font-size:13px;color:#c9d4ff;line-height:1.35;pointer-events:none}
+#hintFloat{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(96px,calc(env(safe-area-inset-bottom) + 86px));z-index:34;display:none;max-width:min(58vw,320px);background:rgba(10,14,28,.8);border:1px solid rgba(180,200,255,.22);border-radius:16px;padding:10px 12px;font-size:13px;color:#c9d4ff;line-height:1.35;pointer-events:none;text-align:center}
 #hintFloat.show{display:block}
 
 #quiz{position:absolute;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:16px 12px max(18px,env(safe-area-inset-bottom));background:rgba(4,8,18,.62);pointer-events:none}
@@ -101,12 +98,26 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 #jumpscare{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,#6a0a18,#080204 72%);flex-direction:column;pointer-events:none;overflow:hidden}
 #jumpscare.show{display:flex}
-#jumpscare.show .scare-slam{animation:scareSlam .28s cubic-bezier(.12,1.5,.28,.98) both}
-#jumpscare .scare-slam svg{width:min(96vw,580px);height:auto;filter:drop-shadow(0 0 34px #ff1a1a) drop-shadow(0 16px 12px rgba(0,0,0,.65));animation:scareShake .09s infinite}
+#jumpscare.show .scare-slam{animation:scareSlam .42s cubic-bezier(.12,1.35,.28,.98) both}
+#jumpscare .scare-slam svg{width:min(98vw,640px);height:auto;filter:drop-shadow(0 0 42px #ff1a1a) drop-shadow(0 18px 16px rgba(0,0,0,.7));animation:scareShake .16s ease-in-out infinite}
 #jumpscare .boom{margin-top:6px;font-size:clamp(30px,9vw,52px);color:#ffe66d;text-shadow:0 0 22px #ff2020,0 4px 0 #7a1020;font-weight:800}
-#jumpscare.show .boom{animation:boomPop .18s ease-out .05s both}
-@keyframes scareSlam{0%{transform:translateY(115vh) scale(.22);filter:brightness(4)}58%{transform:translateY(-6vh) scale(1.32);filter:brightness(1.35)}100%{transform:translateY(0) scale(1.14);filter:brightness(1)}}
-@keyframes scareShake{0%{transform:translate(-10px,6px) rotate(-3deg)}50%{transform:translate(12px,-7px) rotate(4deg)}100%{transform:translate(-8px,-4px) rotate(-2deg)}}
+#jumpscare.show .boom{animation:boomPop .22s ease-out .08s both}
+@keyframes scareSlam{0%{transform:translateY(20vh) scale(.18);filter:brightness(.35);opacity:.2}28%{transform:translateY(8vh) scale(.55);filter:brightness(.7);opacity:.85}62%{transform:translateY(-7vh) scale(1.42);filter:brightness(1.28)}100%{transform:translateY(0) scale(1.26);filter:brightness(1)}}
+@keyframes scareShake{0%{transform:translate(-8px,4px) rotate(-2.4deg)}50%{transform:translate(9px,-5px) rotate(2.8deg)}100%{transform:translate(-6px,-3px) rotate(-1.8deg)}}
+#popscare{position:absolute;inset:0;z-index:65;display:none;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(40,8,14,.0),rgba(4,2,8,.55));overflow:hidden}
+#popscare.show{display:flex}
+#popscare .pop-loom{width:min(72vw,420px);animation:popLoom .55s cubic-bezier(.12,1.25,.28,.98) both}
+#popscare .pop-loom svg{width:100%;height:auto;filter:drop-shadow(0 0 28px rgba(255,70,70,.55)) drop-shadow(0 14px 12px rgba(0,0,0,.55))}
+#popscare .pop-line{margin-top:8px;font-size:clamp(22px,6vw,36px);font-weight:800;color:#ffe66d;text-shadow:0 0 16px #c81e1e,0 3px 0 #5a1020}
+@keyframes popLoom{0%{transform:translateY(18vh) scale(.22);opacity:0;filter:brightness(.4)}40%{transform:translateY(4vh) scale(.7);opacity:1;filter:brightness(.85)}72%{transform:translateY(-4vh) scale(1.38);filter:brightness(1.18)}100%{transform:translateY(0) scale(1.12);opacity:1;filter:brightness(1)}}
+@keyframes popFade{0%{opacity:0;transform:scale(.92)}100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){
+  #jumpscare.show .scare-slam{animation:popFade .4s ease both}
+  #jumpscare .scare-slam svg{animation:none}
+  #jumpscare.show .boom{animation:none}
+  #popscare .pop-loom{animation:popFade .4s ease both}
+  #app.shake{animation:none}
+}
 @keyframes boomPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes flameFlicker{from{transform:translateX(-50%) scaleY(.85) scaleX(1.05);opacity:.85}to{transform:translateX(-50%) scaleY(1.15) scaleX(.95);opacity:1}}
 
@@ -133,7 +144,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       <p class="tagline">He grades forever</p>
       <p class="sub">Help Explorer walk Station Zoom in first person. Solid hallway walls, corners, lockers, and glowing classroom doors hide the notebooks. Open a door to collect one — read each space story carefully. You have 30 seconds!</p>
       <button class="big-btn" id="btnPlay">Play, Explorer!</button>
-      <p class="tiny">Collect 6 notebooks · If Cap'n Calc catches you, the level restarts with brand-new question types · original space-school adventure</p>
+      <p class="tiny">Collect 6 notebooks · If Cap'n Calc catches you, the level restarts with brand-new question types · original space-school adventure<br>Scares can get very loud — use the mute button if you want a quieter game.</p>
     </div>
   </div>
 
@@ -157,15 +168,18 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     </div>
     <div id="roomLabel">Hallway</div>
     <div id="speech"><span id="speechText">Walk, Explorer!</span></div>
-    <div id="dpad" aria-label="D-pad walk and turn controls">
-      <button type="button" class="dir-btn" data-dir="up" aria-label="Walk forward">▲</button>
-      <button type="button" class="dir-btn" data-dir="left" aria-label="Turn left">◀</button>
-      <button type="button" class="dir-btn" data-dir="right" aria-label="Turn right">▶</button>
-      <button type="button" class="dir-btn" data-dir="down" aria-label="Walk backward">▼</button>
-      <div class="hint">walk<br>turn</div>
+    <div id="dpad" class="dual-sticks" aria-label="Dual virtual joysticks for move and look">
+    <div id="stickMove" aria-label="Move stick: walk and strafe">
+      <div class="stick-knob" id="moveKnob"></div>
+      <div class="stick-label">move</div>
+    </div>
+    <div id="stickLook" aria-label="Look stick: turn and look up or down">
+      <div class="stick-knob" id="lookKnob"></div>
+      <div class="stick-label">look</div>
+    </div>
     </div>
     <button type="button" id="btnInteract" aria-label="Open door">OPEN</button>
-    <div id="hintFloat">Open glowing doors to find notebooks. Turn corners carefully!</div>
+    <div id="hintFloat">Left stick walks and strafes. Right stick looks around. Open glowing doors to find notebooks!</div>
   </div>
 
   <div id="quiz">
@@ -179,6 +193,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   <div id="jumpscare" aria-hidden="true">
     <div class="scare-slam" id="scareArt"></div>
     <div class="boom" id="scareText">GOTCHA, EXPLORER!</div>
+  </div>
+
+  <div id="popscare" aria-hidden="true">
+    <div class="pop-loom" id="popArt"></div>
+    <div class="pop-line" id="popText">PEEK-A-BOO!</div>
   </div>
 
   <div id="caught" class="screen">
@@ -220,7 +239,63 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const ROT_SPEED = 2.35;
   const FOV = Math.PI / 3;
   const INTERACT_DIST = 1.25;
-  const SPAWN = {x:16.5, y:10.5, dir: -Math.PI/2};
+  const SPAWN = {x:16.5, y:10.5, dir: -Math.PI/2, pitch: 0};
+  const STICK_DEADZONE = 0.18;
+  const PITCH_MAX = 0.52;
+  const LOOK_PITCH_SPEED = 1.7;
+  const SCARE_PEAK = 0.98;
+  const POP_SCARE_COOLDOWN = 5.5;
+
+  function clipToPeak(x, peak){
+    let cap = (peak == null) ? SCARE_PEAK : peak;
+    if(!(cap > 0)) cap = SCARE_PEAK;
+    if(cap > 0.979) cap = 0.979;
+    if(typeof x !== 'number' || !isFinite(x)) return 0;
+    if(x > cap) return cap;
+    if(x < -cap) return -cap;
+    return x;
+  }
+  function makeClipCurve(peak){
+    const cap = (peak == null) ? SCARE_PEAK : peak;
+    const n = 2048;
+    const curve = new Float32Array(n);
+    for(let i=0;i<n;i++){
+      const x = (i / (n - 1)) * 2 - 1;
+      curve[i] = clipToPeak(x, cap);
+    }
+    return curve;
+  }
+  function normalizeStick(dx, dy, radius, deadzone){
+    const r = radius || 1;
+    const dead = (deadzone == null) ? STICK_DEADZONE : deadzone;
+    const mag = Math.hypot(dx, dy);
+    if(r <= 0 || mag < dead * r) return {x:0, y:0, mag:0};
+    const ux = dx / mag, uy = dy / mag;
+    const clamped = Math.min(mag, r) / r;
+    const m = Math.min(1, (clamped - dead) / (1 - dead));
+    return {x: ux * m, y: uy * m, mag: m};
+  }
+  function moveFromFacing(dir, stickX, stickY){
+    const fwd = -stickY;
+    const strafe = stickX;
+    const fx = Math.cos(dir), fy = Math.sin(dir);
+    return {x: fx * fwd + (-fy) * strafe, y: fy * fwd + fx * strafe};
+  }
+  function lookFromStick(stickX, stickY){
+    return {yaw: stickX, pitch: -stickY};
+  }
+  function clampPitch(p){
+    if(p > PITCH_MAX) return PITCH_MAX;
+    if(p < -PITCH_MAX) return -PITCH_MAX;
+    return p || 0;
+  }
+  function canTriggerPopScare(fired, lastTs, id, now, cooldown, blocked){
+    if(blocked) return false;
+    if(!id) return false;
+    if(fired && fired.has && fired.has(id)) return false;
+    if(lastTs != null && (now - lastTs) < cooldown) return false;
+    return true;
+  }
 
   const MAP_ROWS = [
     "####################################",
@@ -439,12 +514,14 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   };
 
   const $ = (id) => document.getElementById(id);
-  const keys = {up:false, down:false, left:false, right:false};
+  const keys = {up:false, down:false, left:false, right:false, strafeL:false, strafeR:false, lookUp:false, lookDown:false};
+  const moveStick = {active:false, pointerId:null, x:0, y:0};
+  const lookStick = {active:false, pointerId:null, x:0, y:0};
   let state = 'title';
   let quizOpen = false;
   let paused = false;
   let choiceReadyAt = 0;
-  let player = {x:SPAWN.x, y:SPAWN.y, dir:SPAWN.dir};
+  let player = {x:SPAWN.x, y:SPAWN.y, dir:SPAWN.dir, pitch:SPAWN.pitch||0};
   let calc = {x:16.5, y:2.4, visible:false};
   let books = [];
   let collected = 0;
@@ -468,6 +545,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   let scareTimer = null;
   let calcImg = null;
   let viewCanvas = null, viewCtx = null;
+  let scareBus = null, scareComp = null, outLimiter = null, outClipper = null;
+  let playerMoving = false;
+  let popFired = new Set();
+  let popLastAt = -999;
+  let popUntil = 0;
+  let popWorld = null;
+  let lastDoorwayKey = '';
+  let reducedMotion = false;
+  try { reducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch(e){}
 
   function overlap(a,b){
     return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
@@ -517,10 +603,32 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     audioCtx = new AC();
     masterGain = audioCtx.createGain();
     masterGain.gain.value = muted ? 0.0001 : 1;
-    masterGain.connect(audioCtx.destination);
+    outLimiter = audioCtx.createDynamicsCompressor();
+    outLimiter.threshold.value = -1.2;
+    outLimiter.knee.value = 0;
+    outLimiter.ratio.value = 20;
+    outLimiter.attack.value = 0.001;
+    outLimiter.release.value = 0.06;
+    outClipper = audioCtx.createWaveShaper();
+    outClipper.curve = makeClipCurve(SCARE_PEAK);
+    outClipper.oversample = '2x';
+    scareComp = audioCtx.createDynamicsCompressor();
+    scareComp.threshold.value = -8;
+    scareComp.knee.value = 4;
+    scareComp.ratio.value = 12;
+    scareComp.attack.value = 0.002;
+    scareComp.release.value = 0.1;
+    scareBus = audioCtx.createGain();
+    scareBus.gain.value = 1;
+    masterGain.connect(outLimiter);
+    outLimiter.connect(outClipper);
+    outClipper.connect(audioCtx.destination);
+    scareBus.connect(scareComp);
+    scareComp.connect(masterGain);
   }
-  function outNode(){
+  function outNode(kind){
     ensureAudio();
+    if(kind === 'scare' && scareBus) return scareBus;
     return masterGain || (audioCtx && audioCtx.destination);
   }
   function setMuted(m){
@@ -612,31 +720,96 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     tone(320,.15,'triangle',.04,.08);
     tone(90,.25,'sine',.05,.12);
   }
-  function sfxJumpScare(){
+  function scareDest(){
     ensureAudio();
-    if(!audioCtx || muted) return;
+    if(!audioCtx || muted) return null;
     if(audioCtx.state === 'suspended') audioCtx.resume();
-    const dest = outNode();
+    return outNode('scare');
+  }
+  function scareTone(freq, dur, type, vol, when){
+    const dest = scareDest();
     if(!dest) return;
-    const t0 = audioCtx.currentTime;
+    const t0 = audioCtx.currentTime + (when||0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sawtooth';
+    o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol||0.4), t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(dest);
+    o.start(t0); o.stop(t0+dur+0.03);
+  }
+  function scareSlide(f1, f2, dur, type, vol, when){
+    const dest = scareDest();
+    if(!dest) return;
+    const t0 = audioCtx.currentTime + (when||0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sawtooth';
+    o.frequency.setValueAtTime(f1, t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t0+dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol||0.45), t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(dest);
+    o.start(t0); o.stop(t0+dur+0.03);
+  }
+  function scareNoise(dur, vol, when, bandFreq){
+    const dest = scareDest();
+    if(!dest) return;
+    const t0 = audioCtx.currentTime + (when||0);
+    const len = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+    const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<len;i++) data[i] = (Math.random()*2-1) * (1 - i/len);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const g = audioCtx.createGain();
+    const f = audioCtx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = bandFreq || 800;
+    f.Q.value = 0.85;
+    g.gain.setValueAtTime(vol||0.5, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    src.connect(f); f.connect(g); g.connect(dest);
+    src.start(t0); src.stop(t0+dur+0.02);
+  }
+  function sfxScareStinger(){
+    scareSlide(164, 62, 0.26, 'sawtooth', 0.72, 0);
+    scareTone(98, 0.28, 'sine', 0.55, 0.02);
+    scareNoise(0.22, 0.35, 0.04, 280);
+  }
+  function sfxJumpScare(){
+    const dest = scareDest();
+    if(!dest) return;
+    sfxScareStinger();
+    const t0 = audioCtx.currentTime + 0.2;
     const freqs = [49, 52, 73.4, 98, 104, 146.8, 185, 207.6, 277, 311, 370, 466];
     freqs.forEach((f,i)=>{
       const o = audioCtx.createOscillator();
       const g = audioCtx.createGain();
       o.type = i%3===0 ? 'square' : 'sawtooth';
       o.frequency.setValueAtTime(f, t0);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f*(i%2?1.41:0.61)), t0+0.58);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f*(i%2?1.41:0.61)), t0+0.62);
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.22, t0+0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.72);
+      g.gain.exponentialRampToValueAtTime(0.62, t0+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.78);
       o.connect(g); g.connect(dest);
-      o.start(t0); o.stop(t0+0.74);
+      o.start(t0); o.stop(t0+0.8);
     });
-    noiseBurst(.58, .58, 0, 680);
-    noiseBurst(.42, .48, .03, 2100);
-    toneSlide(1760, 130, .62, 'square', .38, 0);
-    toneSlide(90, 28, .7, 'sawtooth', .4, 0);
-    sfxRocket();
+    scareNoise(.64, .92, 0.2, 640);
+    scareNoise(.48, .8, 0.23, 1900);
+    scareSlide(1760, 110, .58, 'square', .88, 0.2);
+    scareSlide(90, 28, .72, 'sawtooth', .9, 0.2);
+    scareTone(42, 0.7, 'sine', 0.7, 0.22);
+  }
+  function sfxPopScare(){
+    if(muted) return;
+    sfxScareStinger();
+    scareNoise(.38, .78, 0.18, 880);
+    scareSlide(990, 150, .34, 'square', .8, 0.18);
+    scareTone(70, 0.4, 'sawtooth', 0.66, 0.18);
   }
   function sfxWin(){ [523,659,784,988,1175].forEach((f,i)=>tone(f,.18,'triangle',.1,i*.11)); }
   function sfxCaught(){ tone(150,.18,'sawtooth',.08); noiseBurst(.4,.12,.15,220); }
@@ -801,7 +974,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     return {dist:perp, side:side, tile:tile, wallX:wallX, mapX:mapX, mapY:mapY};
   }
 
-  function drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob){
+  function drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
     if(!calc.visible) return;
     const img = ensureCalcImg();
     if(!img.complete || !img.naturalWidth) return;
@@ -814,7 +987,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const spriteScreenX = (w / 2) * (1 + transformX / transformY);
     const spriteH = Math.abs(h / transformY) * 0.95;
     const spriteW = spriteH * 0.68;
-    const drawStartY = (h - spriteH) / 2 + bob + spriteH * 0.08;
+    const drawStartY = (h - spriteH) / 2 + bob + spriteH * 0.08 + (typeof pitchShift==='number'?pitchShift:0);
     const col = Math.floor(spriteScreenX);
     if(col < 0 || col >= w) return;
     if(transformY >= zbuf[col] - 0.02) return;
@@ -827,12 +1000,14 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const w = viewCanvas.width, h = viewCanvas.height;
     const room = roomNameAt(player.x, player.y);
     const pal = ROOM_PAL[room] || ROOM_PAL.Hallway;
-    const moving = !!(keys.up || keys.down);
+    const moving = playerMoving;
     const bob = moving ? Math.sin(walkPhase) * h * 0.012 : 0;
+    const pitchShift = Math.tan(clampPitch(player.pitch || 0)) * (h / (2 * Math.tan(FOV/2)));
+    const horizon = h/2 + bob + pitchShift;
     viewCtx.fillStyle = rgb(pal.ceil);
-    viewCtx.fillRect(0, 0, w, Math.ceil(h/2 + bob));
+    viewCtx.fillRect(0, 0, w, Math.ceil(horizon));
     viewCtx.fillStyle = rgb(pal.floor);
-    viewCtx.fillRect(0, Math.floor(h/2 + bob), w, h);
+    viewCtx.fillRect(0, Math.floor(horizon), w, h);
     const dirX = Math.cos(player.dir), dirY = Math.sin(player.dir);
     const planeX = -dirY * Math.tan(FOV/2);
     const planeY = dirX * Math.tan(FOV/2);
@@ -844,8 +1019,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       const hit = castColumn(rayDirX, rayDirY);
       zbuf[x] = hit.dist;
       const lineH = h / hit.dist;
-      let y0 = Math.floor(h/2 - lineH/2 + bob);
-      let y1 = Math.ceil(h/2 + lineH/2 + bob);
+      let y0 = Math.floor(horizon - lineH/2);
+      let y1 = Math.ceil(horizon + lineH/2);
       if(y0 < 0) y0 = 0;
       if(y1 > h) y1 = h;
       viewCtx.fillStyle = wallShadeColor(hit.tile, hit.side, hit.dist, hit.wallX, hit.mapX, hit.mapY);
@@ -858,7 +1033,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       viewCtx.fillStyle = 'rgba(10,8,16,'+(hit.side?0.38:0.22)+')';
       viewCtx.fillRect(x, y1 - Math.max(2, (y1-y0)*0.08), 1, Math.max(2, (y1-y0)*0.08));
     }
-    drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob);
+    drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
+    drawPopSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
     const prompt = $('lookPrompt');
     const looking = currentNotebookDoor();
     if(prompt){
@@ -874,6 +1050,137 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }
   }
 
+
+  const POP_LOCKER_SVG = '<svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="18" y="12" width="124" height="196" rx="10" fill="#3d5278" stroke="#1c2a44" stroke-width="6"/><rect x="28" y="24" width="48" height="172" rx="6" fill="#5b739c"/><rect x="84" y="24" width="48" height="172" rx="6" fill="#4a628a"/><circle cx="68" cy="110" r="7" fill="#f4d35e"/><circle cx="92" cy="110" r="7" fill="#f4d35e"/><ellipse cx="62" cy="92" rx="10" ry="12" fill="#1a1a2e"/><ellipse cx="98" cy="92" rx="10" ry="12" fill="#1a1a2e"/><circle cx="65" cy="88" r="3" fill="#fff"/><circle cx="101" cy="88" r="3" fill="#fff"/><path d="M70 132 Q80 144 90 132" stroke="#f2c6c6" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
+  const POP_NOTE_SVG = '<svg viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="28" y="18" width="104" height="164" rx="8" fill="#f3efe2" stroke="#7c6a3a" stroke-width="5"/><path d="M44 52h72M44 76h72M44 100h72M44 124h56" stroke="#8aa0c8" stroke-width="6" stroke-linecap="round"/><ellipse cx="64" cy="40" rx="10" ry="12" fill="#1a1a2e"/><ellipse cx="96" cy="40" rx="10" ry="12" fill="#1a1a2e"/><circle cx="67" cy="36" r="3" fill="#fff"/><circle cx="99" cy="36" r="3" fill="#fff"/><path d="M70 58 Q80 70 90 58" stroke="#c45c5c" stroke-width="4" fill="none"/></svg>';
+
+  function hidePopScare(){
+    const el = $('popscare');
+    if(el){
+      el.classList.remove('show');
+      el.setAttribute('aria-hidden', 'true');
+    }
+    popUntil = 0;
+    popWorld = null;
+  }
+  function resetPopScares(){
+    popFired = new Set();
+    popLastAt = -999;
+    lastDoorwayKey = '';
+    hidePopScare();
+  }
+  function firePopScare(id, kind, wx, wy, line){
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now()/1000 : Date.now()/1000;
+    const blocked = quizOpen || paused || state !== 'explore' || deathPending;
+    if(!canTriggerPopScare(popFired, popLastAt, id, now, POP_SCARE_COOLDOWN, blocked)) return false;
+    popFired.add(id);
+    popLastAt = now;
+    popUntil = now + (reducedMotion ? 0.55 : 0.85);
+    popWorld = {kind:kind, x:wx, y:wy, born:now};
+    const art = $('popArt');
+    const textEl = $('popText');
+    const box = $('popscare');
+    if(art){
+      if(kind === 'note') art.innerHTML = POP_NOTE_SVG;
+      else if(kind === 'calc') art.innerHTML = SCARE_SVG;
+      else art.innerHTML = POP_LOCKER_SVG;
+    }
+    if(textEl) textEl.textContent = line || 'PEEK-A-BOO!';
+    if(box){
+      box.classList.remove('show');
+      void box.offsetWidth;
+      box.classList.add('show');
+      box.setAttribute('aria-hidden', 'false');
+    }
+    sfxPopScare();
+    if(!reducedMotion){
+      const app = $('app');
+      if(app){
+        app.classList.remove('shake');
+        void app.offsetWidth;
+        app.classList.add('shake');
+      }
+    }
+    setTimeout(function(){
+      if($('popscare')) $('popscare').classList.remove('show');
+    }, reducedMotion ? 520 : 820);
+    return true;
+  }
+  function drawPopSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
+    if(!popWorld) return;
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now()/1000 : Date.now()/1000;
+    if(now > popUntil){ popWorld = null; return; }
+    if(!drawPopSprite.cache) drawPopSprite.cache = {};
+    const kind = popWorld.kind || 'locker';
+    let img = drawPopSprite.cache[kind];
+    if(!img){
+      img = new Image();
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(kind==='note' ? POP_NOTE_SVG : (kind==='calc' ? CALC_SVG : POP_LOCKER_SVG));
+      drawPopSprite.cache[kind] = img;
+    }
+    if(!img.complete || !img.naturalWidth) return;
+    const dx = popWorld.x - player.x;
+    const dy = popWorld.y - player.y;
+    const invDet = 1.0 / (planeX * dirY - dirX * planeY);
+    const transformX = invDet * (dirY * dx - dirX * dy);
+    const transformY = invDet * (-planeY * dx + planeX * dy);
+    if(transformY <= 0.12) return;
+    const age = Math.max(0, now - (popWorld.born||now));
+    const loom = 1 + Math.min(1.35, age * 2.4);
+    const spriteScreenX = (w / 2) * (1 + transformX / transformY);
+    const spriteH = Math.abs(h / transformY) * 0.85 * loom;
+    const spriteW = spriteH * 0.7;
+    const drawStartY = (h - spriteH) / 2 + bob + (pitchShift||0);
+    const col = Math.floor(spriteScreenX);
+    if(col < 0 || col >= w) return;
+    if(transformY >= zbuf[col] + 0.4) return;
+    viewCtx.drawImage(img, spriteScreenX - spriteW/2, drawStartY, spriteW, spriteH);
+  }
+  function checkPopScares(){
+    if(state !== 'explore' || quizOpen || paused || deathPending) return;
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now()/1000 : Date.now()/1000;
+    if(now > popUntil) hidePopScare();
+    const tx = Math.floor(player.x), ty = Math.floor(player.y);
+    const here = mapChar(tx, ty);
+    let doorway = null;
+    if(here === '+') doorway = {tx:tx, ty:ty};
+    else {
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+      for(let i=0;i<dirs.length;i++){
+        const nx = tx+dirs[i][0], ny = ty+dirs[i][1];
+        if(mapChar(nx,ny) === '+' && Math.hypot(player.x-(nx+0.5), player.y-(ny+0.5)) < 0.95){
+          doorway = {tx:nx, ty:ny}; break;
+        }
+      }
+    }
+    const doorKey = doorway ? (doorway.tx+','+doorway.ty) : '';
+    if(doorway && doorKey !== lastDoorwayKey){
+      firePopScare('door:'+doorKey, 'locker', doorway.tx+0.5, doorway.ty+0.5, 'WHOA, A DOORWAY!');
+    }
+    lastDoorwayKey = doorKey;
+
+    const nearBook = books.find(function(b){
+      if(b.got) return false;
+      return Math.hypot((b.tx+0.5)-player.x, (b.ty+0.5)-player.y) < 1.85;
+    });
+    if(nearBook){
+      firePopScare('note:'+nearBook.tx+','+nearBook.ty, 'note', nearBook.tx+0.5, nearBook.ty+0.5, 'A NOTEBOOK JUMPS OUT!');
+    }
+
+    if(calc.visible){
+      const d = Math.hypot(calc.x-player.x, calc.y-player.y);
+      if(d > 1.4 && d < 3.4){
+        firePopScare('calc-peek', 'calc', calc.x, calc.y, 'HE PEEKED CLOSER!');
+      }
+    }
+
+    if(tx >= 10 && tx <= 22 && ty >= 2 && ty <= 5){
+      firePopScare('hall-north', 'locker', player.x + Math.cos(player.dir)*1.15, player.y + Math.sin(player.dir)*1.15, 'HALLWAY SURPRISE!');
+    }
+    if(tx >= 14 && tx <= 19 && ty >= 14 && ty <= 16){
+      firePopScare('hall-south', 'note', player.x + Math.cos(player.dir)*1.15, player.y + Math.sin(player.dir)*1.15, 'SOMETHING DROPPED!');
+    }
+  }
   function spawnCalcAway(){
     const spots = [{x:16.5,y:2.3},{x:32.2,y:14.4},{x:3.4,y:8.5},{x:32.2,y:3.4},{x:3.4,y:14.5}];
     let best = spots[0], bestD = -1;
@@ -903,19 +1210,35 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
 
   function updatePlayer(dt){
-    if(keys.left) player.dir -= ROT_SPEED * dt;
-    if(keys.right) player.dir += ROT_SPEED * dt;
-    let walk = 0;
-    if(keys.up) walk += 1;
-    if(keys.down) walk -= 1;
+    let yaw = 0, pitchDelta = 0;
+    if(keys.left) yaw -= 1;
+    if(keys.right) yaw += 1;
+    if(keys.lookUp) pitchDelta += 1;
+    if(keys.lookDown) pitchDelta -= 1;
+    const look = lookFromStick(lookStick.x, lookStick.y);
+    yaw += look.yaw;
+    pitchDelta += look.pitch;
+    player.dir += yaw * ROT_SPEED * dt;
+    player.pitch = clampPitch((player.pitch || 0) + pitchDelta * LOOK_PITCH_SPEED * dt);
+
+    let fwd = 0, strafe = 0;
+    if(keys.up) fwd += 1;
+    if(keys.down) fwd -= 1;
+    if(keys.strafeL) strafe -= 1;
+    if(keys.strafeR) strafe += 1;
+    fwd += -moveStick.y;
+    strafe += moveStick.x;
+    const mag = Math.hypot(fwd, strafe);
+    if(mag > 1){ fwd /= mag; strafe /= mag; }
+    playerMoving = mag > 0.02;
     let blockedFwd = false;
-    if(walk){
-      const sp = MOVE_SPEED * walk * dt;
-      const nx = player.x + Math.cos(player.dir) * sp;
-      const ny = player.y + Math.sin(player.dir) * sp;
+    if(mag > 0.001){
+      const vec = moveFromFacing(player.dir, strafe, -fwd);
+      const nx = player.x + vec.x * MOVE_SPEED * dt;
+      const ny = player.y + vec.y * MOVE_SPEED * dt;
       const ox = player.x, oy = player.y;
       tryMoveEntity(player, nx, ny, PLAYER_RADIUS);
-      if(Math.hypot(player.x-ox, player.y-oy) < Math.abs(sp)*0.35) blockedFwd = walk > 0;
+      if(fwd > 0.25 && Math.hypot(player.x-ox, player.y-oy) < Math.abs(MOVE_SPEED * dt * fwd)*0.35) blockedFwd = true;
       walkPhase += dt * 12;
       stepCD -= dt;
       if(stepCD <= 0){ sfxStep(); stepCD = 0.34; }
@@ -967,7 +1290,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     $('explore').classList.toggle('show', on);
     $('hud').classList.toggle('show', on);
     $('roomLabel').classList.toggle('show', on);
-    $('dpad').classList.toggle('show', on);
+    if($('stickMove')) $('stickMove').classList.toggle('show', on);
+    if($('stickLook')) $('stickLook').classList.toggle('show', on);
     $('hintFloat').classList.toggle('show', on);
     $('btnInteract').classList.toggle('show', on);
     if(on) resizeView();
@@ -1008,10 +1332,26 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }, 1000);
   }
 
-  function releaseKeys(){
-    keys.up = keys.down = keys.left = keys.right = false;
-    document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('held'));
+  function resetStickVisual(el){
+    if(!el) return;
+    const knob = el.querySelector('.stick-knob');
+    if(knob) knob.style.transform = 'translate(0px, 0px)';
   }
+  function clearStick(st, el){
+    st.active = false;
+    st.pointerId = null;
+    st.x = 0;
+    st.y = 0;
+    resetStickVisual(el);
+  }
+  function resetControls(){
+    keys.up = keys.down = keys.left = keys.right = false;
+    keys.strafeL = keys.strafeR = keys.lookUp = keys.lookDown = false;
+    clearStick(moveStick, $('stickMove'));
+    clearStick(lookStick, $('stickLook'));
+    playerMoving = false;
+  }
+  function releaseKeys(){ resetControls(); }
 
   function startQuiz(book){
     if(quizOpen || paused) return;
@@ -1061,6 +1401,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       paused = false;
       quizOpen = false;
       doorCD = 0.45;
+      resetControls();
     }
   }
 
@@ -1116,6 +1457,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
 
   function jumpScare(line){
+    resetControls();
+    hidePopScare();
     state = 'scare';
     paused = true;
     quizOpen = false;
@@ -1132,7 +1475,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     say(line, 1600);
     speak(line, {rate:0.95, pitch:0.82});
     if(scareTimer) clearTimeout(scareTimer);
-    const wait = deathPending ? 1800 : 1600;
+    const wait = deathPending ? 2100 : 1900;
     scareTimer = setTimeout(() => {
       scare.classList.remove('show');
       if(deathPending){
@@ -1207,9 +1550,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     });
     collected = 0; wrongs = 0; mistakes = 0; peakChaos = 0;
     locked = false; lastMissTimeout = false; stopTimer();
-    player = {x:SPAWN.x, y:SPAWN.y, dir:SPAWN.dir};
+    player = {x:SPAWN.x, y:SPAWN.y, dir:SPAWN.dir, pitch:SPAWN.pitch||0};
     calc = {x:16.5, y:2.4, visible:false};
     doorCD = 0.3;
+    resetControls();
+    resetPopScares();
     showScreen(null);
     updateHud();
     resizeView();
@@ -1234,6 +1579,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       updatePlayer(dt);
       updateCalc(dt);
       checkCatch();
+      checkPopScares();
       updateHud();
       renderView();
     } else if(state === 'quiz' || state === 'scare'){
@@ -1242,16 +1588,47 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     requestAnimationFrame(tick);
   }
 
-  function bindPad(){
-    document.querySelectorAll('.dir-btn').forEach(btn => {
-      const dir = btn.getAttribute('data-dir');
-      const on = (e) => { e.preventDefault(); keys[dir] = true; btn.classList.add('held'); };
-      const off = () => { keys[dir] = false; btn.classList.remove('held'); };
-      btn.addEventListener('pointerdown', (e) => { try{ btn.setPointerCapture(e.pointerId); }catch(err){} on(e); });
-      btn.addEventListener('pointerup', off);
-      btn.addEventListener('pointercancel', off);
-      btn.addEventListener('lostpointercapture', off);
+  function bindStick(el, st){
+    if(!el) return;
+    function apply(e){
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const radius = Math.min(rect.width, rect.height) / 2;
+      const n = normalizeStick(e.clientX - cx, e.clientY - cy, radius, STICK_DEADZONE);
+      st.x = n.x; st.y = n.y; st.active = true;
+      const knob = el.querySelector('.stick-knob');
+      if(knob){
+        const reach = Math.max(12, radius * 0.55);
+        knob.style.transform = 'translate('+(n.x*reach)+'px,'+(n.y*reach)+'px)';
+      }
+    }
+    el.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(st.pointerId != null && st.pointerId !== e.pointerId) return;
+      st.pointerId = e.pointerId;
+      try { el.setPointerCapture(e.pointerId); } catch(err){}
+      apply(e);
     });
+    el.addEventListener('pointermove', function(e){
+      if(st.pointerId !== e.pointerId) return;
+      e.preventDefault();
+      apply(e);
+    });
+    function up(e){
+      if(st.pointerId != null && e && e.pointerId !== st.pointerId) return;
+      clearStick(st, el);
+    }
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('lostpointercapture', function(e){
+      if(st.pointerId === e.pointerId) clearStick(st, el);
+    });
+  }
+  function bindPad(){
+    bindStick($('stickMove'), moveStick);
+    bindStick($('stickLook'), lookStick);
     const act = $('btnInteract');
     const actOn = (e) => { e.preventDefault(); act.classList.add('held'); tryInteract(); };
     const actOff = () => act.classList.remove('held');
@@ -1260,7 +1637,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     act.addEventListener('pointercancel', actOff);
     window.addEventListener('keydown', (e) => {
       const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
+      const extra = {q:'strafeL', Q:'strafeL', c:'strafeR', C:'strafeR', r:'lookUp', R:'lookUp', f:'lookDown', F:'lookDown', PageUp:'lookUp', PageDown:'lookDown'};
       if(map[e.key]){ keys[map[e.key]] = true; e.preventDefault(); }
+      if(extra[e.key]){ keys[extra[e.key]] = true; e.preventDefault(); }
       if(e.key === 'e' || e.key === 'E' || e.key === ' ' || e.key === 'Enter'){
         e.preventDefault();
         tryInteract();
@@ -1268,8 +1647,12 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     });
     window.addEventListener('keyup', (e) => {
       const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
+      const extra = {q:'strafeL', Q:'strafeL', c:'strafeR', C:'strafeR', r:'lookUp', R:'lookUp', f:'lookDown', F:'lookDown', PageUp:'lookUp', PageDown:'lookDown'};
       if(map[e.key]) keys[map[e.key]] = false;
+      if(extra[e.key]) keys[extra[e.key]] = false;
     });
+    window.addEventListener('blur', resetControls);
+    document.addEventListener('visibilitychange', function(){ if(document.hidden) resetControls(); });
   }
 
   $('btnPlay').addEventListener('click', function(){ startGame(); });
