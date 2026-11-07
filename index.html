@@ -1077,37 +1077,166 @@ const HIT_WINDOW=320;
 const STAR_LYRICS=["Star","loves","to","sing","Star","shines","so","bright","Dance","with","me","Star!"];
 const MELODY=[523,587,659,698,784,880,784,698,659,698,784,1047];
 
+/* ::NOTE_PARTY_SONG_START:: */
+const LYRIC_PHRASES=[
+  {start:0,end:3,text:'Star loves to sing'},
+  {start:4,end:7,text:'Star shines so bright'},
+  {start:8,end:11,text:'Dance with me, Star!'}
+];
+const MELODY_BASS=[131,131,165,175,196,220,196,175,165,175,196,131];
+function phraseForNoteIndex(idx, phrases){
+  const list=phrases||LYRIC_PHRASES;
+  for(let i=0;i<list.length;i++){
+    if(idx>=list[i].start && idx<=list[i].end) return list[i];
+  }
+  return null;
+}
+function shouldSpeakPhraseAt(idx, phrases){
+  const p=phraseForNoteIndex(idx, phrases);
+  return !!(p && p.start===idx);
+}
+function melodyBassFreq(idx, bass){
+  const list=bass||MELODY_BASS;
+  if(!list.length) return 131;
+  return list[((idx%list.length)+list.length)%list.length];
+}
+function songNoteOnset(now, hitTargetMs){
+  const hit=(hitTargetMs==null)?HIT_TARGET_MS:hitTargetMs;
+  return now + hit/1000;
+}
+function shouldCancelSpeechFor(reason){
+  return reason==='restart' || reason==='close' || reason==='mute' || reason==='cleanup' || reason==='overlap';
+}
+function phrasesMatchLyrics(phrases, lyrics){
+  const spoken=(phrases||LYRIC_PHRASES).map(function(p){
+    return String(p.text).replace(/,/g,'').replace(/!/g,'');
+  }).join(' ');
+  const raw=(lyrics||STAR_LYRICS).join(' ').replace(/!/g,'');
+  return spoken===raw;
+}
+/* ::NOTE_PARTY_SONG_END:: */
+
 let singTimer=null, beatNotes=[], songSpawned=0, songResolved=0, songCombo=0, songActive=false, songEnded=false;
 let voiceOn=true, preferredVoice=null, missTimers=[];
+let speechToken=0, songGain=null, songNodes=[], songDuckOn=false;
 
 function pickEnglishVoice(){
   try{
     if(!window.speechSynthesis) return null;
     const voices=speechSynthesis.getVoices()||[];
-    const en=voices.filter(function(v){return /^en(-|_|$)/i.test(v.lang)});
-    preferredVoice = en.find(function(v){return /female|samantha|karen|moira|zira|google US/i.test(v.name)}) || en[0] || voices[0] || null;
+    if(!voices.length){ return preferredVoice; }
+    let best=null, bestScore=-999;
+    voices.forEach(function(v){
+      const n=((v&&v.name)||'')+' '+((v&&v.lang)||'');
+      let s=0;
+      if(/^en(-|_|$)/i.test(v.lang||'')) s+=6;
+      if(/en-US/i.test(v.lang||'')) s+=2;
+      if(/female|samantha|karen|moira|zira|siri|google US English|Samantha/i.test(n)) s+=5;
+      if(/compact|novelty|whisper|bad news|zarvox|boing/i.test(n)) s-=4;
+      if(s>bestScore){ bestScore=s; best=v; }
+    });
+    preferredVoice=best || voices[0] || null;
   }catch(e){ preferredVoice=null }
+  return preferredVoice;
 }
 if(typeof speechSynthesis!=='undefined'){
   pickEnglishVoice();
   speechSynthesis.addEventListener('voiceschanged', pickEnglishVoice);
 }
 
+function ensureSongBus(){
+  const ctx=ensureAudio();
+  if(!songGain || songGain.context!==ctx){
+    songGain=ctx.createGain();
+    songGain.gain.value=0.72;
+    songGain.connect(ctx.destination);
+    songDuckOn=false;
+  }
+  return songGain;
+}
+function setSongDuck(on){
+  try{
+    const g=ensureSongBus();
+    const ctx=g.context;
+    g.gain.cancelScheduledValues(ctx.currentTime);
+    g.gain.setTargetAtTime(on?0.22:0.72, ctx.currentTime, 0.07);
+    songDuckOn=!!on;
+  }catch(e){}
+}
+function stopScheduledSongNotes(){
+  songNodes.forEach(function(n){
+    try{ if(n.stop) n.stop(); }catch(e){}
+    try{ if(n.disconnect) n.disconnect(); }catch(e){}
+  });
+  songNodes=[];
+}
+function playSongPartial(freq, when, dur, type, vol){
+  if(!(freq>0) || !(dur>0)) return;
+  try{
+    const ctx=ensureAudio();
+    const dest=ensureSongBus();
+    const start=Math.max(when, ctx.currentTime);
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(freq, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(vol||0.1, start+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, start+dur);
+    o.connect(g); g.connect(dest);
+    o.start(start); o.stop(start+dur+0.03);
+    songNodes.push(o,g);
+  }catch(e){}
+}
+function scheduleSongNote(idx){
+  try{
+    const ctx=ensureAudio();
+    const when=songNoteOnset(ctx.currentTime, HIT_TARGET_MS);
+    const lead=MELODY[((idx%MELODY.length)+MELODY.length)%MELODY.length];
+    playSongPartial(lead, when, 0.42, 'sine', 0.11);
+    playSongPartial(melodyBassFreq(idx), when, 0.55, 'triangle', 0.05);
+  }catch(e){}
+}
+
 function stopSpeech(){
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  speechToken++;
+  try{
+    if(window.speechSynthesis){
+      speechSynthesis.cancel();
+      if(speechSynthesis.paused) speechSynthesis.resume();
+    }
+  }catch(e){}
+  setSongDuck(false);
 }
 
 function speakLyric(text, opts){
+  // Browser speech reads the words aloud. It cannot reliably sing musical pitch.
   if(!voiceOn || !window.speechSynthesis) return;
+  const go=function(){
+    if(!voiceOn) return;
+    try{
+      pickEnglishVoice();
+      const u=new SpeechSynthesisUtterance(String(text));
+      u.rate=(opts&&opts.rate)!=null?opts.rate:0.95;
+      u.pitch=(opts&&opts.pitch)!=null?opts.pitch:1.04;
+      u.volume=1;
+      if(preferredVoice) u.voice=preferredVoice;
+      u.lang=(preferredVoice&&preferredVoice.lang)||'en-US';
+      u.onend=function(){ setSongDuck(false); };
+      u.onerror=function(){ setSongDuck(false); };
+      setSongDuck(true);
+      speechSynthesis.speak(u);
+    }catch(e){ setSongDuck(false); }
+  };
   try{
-    stopSpeech();
-    const u=new SpeechSynthesisUtterance(String(text).replace(/!/g,''));
-    u.rate=(opts&&opts.rate)!=null?opts.rate:0.9;
-    u.pitch=(opts&&opts.pitch)!=null?opts.pitch:1.15;
-    u.volume=1;
-    if(preferredVoice) u.voice=preferredVoice;
-    u.lang=(preferredVoice&&preferredVoice.lang)||'en-US';
-    speechSynthesis.speak(u);
+    const busy=speechSynthesis.speaking || speechSynthesis.pending;
+    if(busy && opts && opts.synced){
+      stopSpeech();
+      const my=speechToken;
+      setTimeout(function(){ if(my===speechToken) go(); }, 70);
+      return;
+    }
+    go();
   }catch(e){}
 }
 
@@ -1154,6 +1283,7 @@ function closeSing(){
 function finishSongCleanup(){
   stopSongTimers();
   clearMissTimers();
+  stopScheduledSongNotes();
   stopSpeech();
   beatNotes.forEach(function(n){try{n.el.remove()}catch(e){}});
   beatNotes=[];
@@ -1174,7 +1304,7 @@ function startSong(){
   resetSingUI();
   const cd=document.getElementById('sing-countdown');
   // Intro once, then countdown
-  speakLyric('Sing with me, Star!', {rate:0.92, pitch:1.2});
+  speakLyric('Sing with me, Star!', {rate:0.96, pitch:1.04});
   const steps=['Ready…','3','2','1','Go! 🎵'];
   let step=0;
   function nextCount(){
@@ -1199,8 +1329,11 @@ function spawnNextNote(){
   songSpawned++;
   document.getElementById('sing-progress').textContent='Note '+songSpawned+' of 12';
   renderLyrics(idx);
-  // Speak the lyric word for this note so she can hear & sing along
-  speakLyric(STAR_LYRICS[idx], {rate:0.9, pitch:1.15});
+  if(shouldSpeakPhraseAt(idx)){
+    const phrase=phraseForNoteIndex(idx);
+    if(phrase) speakLyric(phrase.text, {rate:0.95, pitch:1.04, synced:true});
+  }
+  scheduleSongNote(idx);
 
   const lane=document.getElementById('beat-lane');
   const note=document.createElement('div');
@@ -1212,7 +1345,6 @@ function spawnNextNote(){
   const entry={el:note,born:Date.now(),hit:false,missed:false,idx:idx,resolved:false};
   beatNotes.push(entry);
   requestAnimationFrame(function(){note.style.top='140px'});
-  chimeClick();
 
   const missT=setTimeout(function(){
     if(entry.resolved) return;
@@ -1314,7 +1446,7 @@ document.getElementById('beat-hit').addEventListener('click',function(){
     songCombo++;
     songResolved++;
     const freq=MELODY[best.idx%MELODY.length];
-    tone(freq,.16,'sine',.14);
+    tone(freq*2,.07,'sine',.07);
     burst(document.getElementById('beat-hit'));
     updateSingScore();
     setTimeout(function(){try{best.el.remove()}catch(e){} beatNotes=beatNotes.filter(function(b){return b!==best})},200);
