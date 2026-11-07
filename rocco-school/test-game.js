@@ -16,7 +16,7 @@ try {
   throw new Error('FAIL: script syntax: ' + err.message);
 }
 
-const logicMatch = html.match(/\/\* ::ROCCO_LOGIC_START:: \*\/([\s\S]*?)\/\* ::ROCCO_LOGIC_END:: \*\//);
+const logicMatch = html.match(/\/\* ::EXPLORER_LOGIC_START:: \*\/([\s\S]*?)\/\* ::EXPLORER_LOGIC_END:: \*\//);
 assert(logicMatch, 'logic export markers present');
 const api = new Function(logicMatch[1] + '; return { TIME_PER_Q: typeof TIME_PER_Q==="undefined"?null:TIME_PER_Q, CATCH_DIST, PLAYER_RADIUS, NEED_BOOKS, MAP_ROWS, MAP_W, MAP_H, mapChar, isSolid, circleBlocked, tryMoveEntity, canCatch, roomNameAt, listNotebookDoors, doorInFront, movementPaused, rand, shuffle, choicesFor, QUESTION_TYPES, QUESTION_TYPE_IDS, pickLifeQuestions, SPAWN, INTERACT_DIST };')();
 
@@ -81,7 +81,7 @@ assert(lockerHit && lockerHit.tx === 3 && lockerHit.ty === 3, 'facing locker not
 const missHit = api.doorInFront(16.5, 10.5, -Math.PI/2, api.INTERACT_DIST);
 assert(!missHit, 'center hallway facing north is not immediately a notebook door');
 
-assert(api.canCatch(5, 5, 5.1, 5.1), 'close principal catches Rocco');
+assert(api.canCatch(5, 5, 5.1, 5.1), 'close principal catches Explorer');
 assert(!api.canCatch(5, 5, 8, 8), 'far principal does not catch');
 
 assert(api.movementPaused({quizOpen:true, paused:true}) === true, 'quiz pauses movement');

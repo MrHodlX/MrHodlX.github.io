@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Note Party">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#7b2cbf">
-<title>Note Party — For Luna</title>
+<title>Note Party — For Star</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -431,7 +431,7 @@ button{font-family:inherit;border:none;cursor:pointer}
   flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:hidden;
 }
 #celeb.show{display:flex}
-.luna-lights{
+.star-lights{
   font-size:clamp(48px,14vw,80px);font-weight:700;letter-spacing:8px;
   background:linear-gradient(90deg,#ffe66d,#ff9ecd,#67e8f9,#ffe66d);
   background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -465,7 +465,7 @@ button{font-family:inherit;border:none;cursor:pointer}
       <div class="logo">🎵 Note Party</div>
       <div class="subtitle">Troll Village Dance Adventure</div>
       <div class="dedication">
-        From Daddy. Love you, Luna. <span class="heart">💕</span> <span class="heart" style="animation-delay:.3s">✨</span>
+        From Daddy. Love you, Star. <span class="heart">💕</span> <span class="heart" style="animation-delay:.3s">✨</span>
       </div>
       <div class="mascot-row" id="start-mascots"></div>
       <button class="play-btn" id="play-btn" type="button">▶ Play!</button>
@@ -492,7 +492,7 @@ button{font-family:inherit;border:none;cursor:pointer}
   <!-- SING -->
   <div id="singalong">
     <div class="sing-title">🎤 Sing-Along!</div>
-    <div class="sing-hint" id="sing-hint">Hit all 12 notes! Tap when the note lands in the glowing ring. Listen and sing Luna’s words out loud!</div>
+    <div class="sing-hint" id="sing-hint">Hit all 12 notes! Tap when the note lands in the glowing ring. Listen and sing Star’s words out loud!</div>
     <button class="voice-toggle" id="voice-toggle" type="button" aria-pressed="true">🔊 Hear the song</button>
     <div class="sing-play-area" id="sing-play-area">
       <div class="countdown-banner" id="sing-countdown"></div>
@@ -508,7 +508,7 @@ button{font-family:inherit;border:none;cursor:pointer}
       <div class="sing-stars" id="sing-stars">⭐⭐⭐</div>
       <div class="sing-end-msg" id="sing-end-msg">Song done!</div>
       <div class="sing-end-sub" id="sing-end-sub"></div>
-      <div class="sing-dedication" id="sing-dedication">From Daddy. Love you, Luna. 💕✨</div>
+      <div class="sing-dedication" id="sing-dedication">From Daddy. Love you, Star. 💕✨</div>
       <button class="sing-again-btn" id="sing-again" type="button">Play song again</button>
     </div>
     <button class="sing-close" id="sing-close" type="button">Back to Village</button>
@@ -516,7 +516,7 @@ button{font-family:inherit;border:none;cursor:pointer}
 
   <!-- CELEBRATION -->
   <div id="celeb">
-    <div class="luna-lights">LUNA</div>
+    <div class="star-lights">STAR</div>
     <div class="trophy">🏆</div>
     <div class="celeb-msg">You collected all 10 notes!<br>Dance party forever! 🎉</div>
     <div class="celeb-prizes" id="celeb-prizes"></div>
@@ -568,7 +568,7 @@ const PRIZES=[
 ];
 
 const CHEERS=[
-  'You got this, Luna! 🌟','Sing it loud! 🎤','Dance break! 💃',
+  'You got this, Star! 🌟','Sing it loud! 🎤','Dance break! 💃',
   'Super star! ⭐','Try saying it out loud!','Trolls believe in you!',
   'Beat those notes! 🎵','Rainbow high-five! 🌈','Keep bouncing! 🎉'
 ];
@@ -993,7 +993,7 @@ function onAnswer(btn,choice,answer,idx,el){
   const correct=String(choice)===String(answer);
   if(correct){
     btn.classList.add('correct');
-    fb.textContent='Yes! Great job, Luna! 🌟';
+    fb.textContent='Yes! Great job, Star! 🌟';
     fb.className='chal-feedback good';
     chimeGood();
     burst(btn);
@@ -1049,7 +1049,7 @@ const SONG_GAP=820;
 const NOTE_FALL_MS=2000;
 const HIT_TARGET_MS=1600;
 const HIT_WINDOW=320;
-const LUNA_LYRICS=["Luna","loves","to","sing","Luna","shines","so","bright","Dance","with","me","Luna!"];
+const STAR_LYRICS=["Star","loves","to","sing","Star","shines","so","bright","Dance","with","me","Star!"];
 const MELODY=[523,587,659,698,784,880,784,698,659,698,784,1047];
 
 let singTimer=null, beatNotes=[], songSpawned=0, songResolved=0, songCombo=0, songActive=false, songEnded=false;
@@ -1103,7 +1103,7 @@ function resetSingUI(){
 
 function renderLyrics(activeIdx){
   const el=document.getElementById('lyric-line');
-  el.innerHTML=LUNA_LYRICS.map(function(w,i){
+  el.innerHTML=STAR_LYRICS.map(function(w,i){
     let cls='lw';
     if(i<activeIdx) cls+=' done';
     else if(i===activeIdx) cls+=' on';
@@ -1149,7 +1149,7 @@ function startSong(){
   resetSingUI();
   const cd=document.getElementById('sing-countdown');
   // Intro once, then countdown
-  speakLyric('Sing with me, Luna!', {rate:0.92, pitch:1.2});
+  speakLyric('Sing with me, Star!', {rate:0.92, pitch:1.2});
   const steps=['Ready…','3','2','1','Go! 🎵'];
   let step=0;
   function nextCount(){
@@ -1175,7 +1175,7 @@ function spawnNextNote(){
   document.getElementById('sing-progress').textContent='Note '+songSpawned+' of 12';
   renderLyrics(idx);
   // Speak the lyric word for this note so she can hear & sing along
-  speakLyric(LUNA_LYRICS[idx], {rate:0.9, pitch:1.15});
+  speakLyric(STAR_LYRICS[idx], {rate:0.9, pitch:1.15});
 
   const lane=document.getElementById('beat-lane');
   const note=document.createElement('div');
@@ -1245,25 +1245,25 @@ function showSingEnd(){
   const starStr=(stars?('⭐'.repeat(stars)):'')+('☆'.repeat(3-stars));
   document.getElementById('sing-stars').textContent=starStr||'☆☆☆';
   let msg='Song done! '+hits+'/12 hits';
-  if(hits>=10) msg='Luna rockstar! '+hits+'/12 hits 🎤';
+  if(hits>=10) msg='Star rockstar! '+hits+'/12 hits 🎤';
   else if(hits>=7) msg='Great singing! '+hits+'/12 hits';
   else if(hits>=4) msg='Nice try! '+hits+'/12 hits';
   else msg='Song done! '+hits+'/12 hits — play again!';
   document.getElementById('sing-end-msg').textContent=msg;
   document.getElementById('sing-end-sub').textContent=hits>=10
-    ? 'You sang: "'+LUNA_LYRICS.join(' ')+'"'
-    : 'Listen again and sing Luna\'s words out loud!';
+    ? 'You sang: "'+STAR_LYRICS.join(' ')+'"'
+    : 'Listen again and sing Star\'s words out loud!';
   // Exact dedication on the finish panel
-  document.getElementById('sing-dedication').innerHTML='From Daddy. Love you, Luna. <span class="heart">💕</span> <span class="heart" style="animation-delay:.3s">✨</span>';
+  document.getElementById('sing-dedication').innerHTML='From Daddy. Love you, Star. <span class="heart">💕</span> <span class="heart" style="animation-delay:.3s">✨</span>';
   document.getElementById('sing-play-area').classList.add('hidden');
   document.getElementById('sing-end').classList.remove('hidden');
   if(hits>=10){
     chimePrize();
     burst(document.getElementById('sing-end-msg'),true);
-    speakLyric('You did it, Luna! From Daddy. Love you!', {rate:0.9, pitch:1.15});
+    speakLyric('You did it, Star! From Daddy. Love you!', {rate:0.9, pitch:1.15});
   } else if(hits>=4){
     chimeGood();
-    speakLyric('Nice singing, Luna!', {rate:0.92, pitch:1.15});
+    speakLyric('Nice singing, Star!', {rate:0.92, pitch:1.15});
   } else {
     tone(280,.2,'triangle',.08);
   }
