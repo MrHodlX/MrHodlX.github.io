@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-06-walkaround v2 -->
+<!-- build 2026-11-07-firstperson v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -53,86 +53,13 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 #explore{position:absolute;inset:0;display:none;z-index:5}
 #explore.show{display:block}
-#viewport{position:absolute;inset:0;overflow:hidden}
-#room{position:absolute;inset:0;overflow:hidden}
-#room.chaos1{filter:saturate(1.05)}
-#room.chaos2{filter:saturate(1.15) hue-rotate(-8deg)}
-#room.chaos3{filter:saturate(1.3) hue-rotate(-16deg) contrast(1.08)}
-
-.room-hallway{background:
-  linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 48px),
-  linear-gradient(#1a2744,#141c33 70%,#101628);
-  background-size:48px 100%,auto}
-.room-classroom{background:
-  repeating-linear-gradient(90deg,rgba(90,60,30,.18) 0 28px,rgba(70,46,22,.12) 28px 56px),
-  linear-gradient(#3d5a32,#2a3d28 30%,#c4a574 30%,#b3915e)}
-.room-cafeteria{background:
-  repeating-conic-gradient(#f3e6c4 0% 25%,#d9b87a 0% 50%) 0 0/44px 44px;
-  background-color:#d9b87a}
-.room-gym{background:
-  linear-gradient(#c47a3a,#c47a3a) 0 46%/100% 8px no-repeat,
-  linear-gradient(90deg,#c47a3a,#c47a3a) 50% 0/8px 100% no-repeat,
-  repeating-linear-gradient(#c9a06a,#c9a06a 18px,#b88a52 18px 20px)}
-.room-rocketbay{background:
-  repeating-linear-gradient(90deg,transparent 0 36px,rgba(255,160,40,.12) 36px 38px),
-  linear-gradient(#2a3348,#161b28 55%,#3a2a16)}
-
-.prop{position:absolute;border-radius:10px;box-shadow:0 6px 0 rgba(0,0,0,.25);z-index:4}
-.prop.lockers{background:repeating-linear-gradient(90deg,#4b628c 0 28%,#3a4e72 28% 32%);border:3px solid #2a3a58}
-.prop.lockers::after{content:"LOCKERS";position:absolute;inset:auto 4px 6px;text-align:center;font-size:10px;letter-spacing:.08em;color:#c9d8ff;opacity:.8}
-.prop.desk{background:linear-gradient(180deg,#8b5a2b,#6b4220);border:3px solid #4a2c12}
-.prop.chalkboard{background:#2f6b3a;border:8px solid #5a3a1a;box-shadow:inset 0 0 0 2px #1e4a28}
-.prop.chalkboard::after{content:"SPACE MATH";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#d7ffe2;font-size:clamp(12px,2.4vw,18px);letter-spacing:.12em}
-.prop.table{background:#fff6e0;border:4px solid #c9a36a;border-radius:16px}
-.prop.counter{background:linear-gradient(180deg,#8a9bb8,#6a7a96);border:3px solid #3d4a62}
-.prop.counter::after{content:"LUNCH LINE";position:absolute;left:12px;top:8px;font-size:12px;color:#e8eefc;letter-spacing:.1em}
-.prop.bleacher{background:repeating-linear-gradient(#b04040,#b04040 28%,#8c2c2c 28% 32%);border:3px solid #6a2020}
-.prop.bench{background:#6b4220;border:3px solid #3d2410}
-.prop.bookshelf{background:repeating-linear-gradient(#6b2d2d,#6b2d2d 18%,#2d4a6b 18% 36%,#2d6b48 36% 54%,#6b5a2d 54% 72%,#4a2d6b 72% 90%,#333 90% 100%);border:3px solid #2a1a10}
-.prop.banner{background:linear-gradient(90deg,#5b21b6,#2563eb);border:2px solid #c4b5fd;box-shadow:0 0 18px rgba(124,240,255,.25);display:flex;align-items:center;justify-content:center;font-size:clamp(12px,2.6vw,18px);letter-spacing:.14em;color:#fff}
-.prop.trophy{background:radial-gradient(circle at 50% 30%,#ffe66d,#d4a017);border:3px solid #8a6a10;border-radius:50%}
-.prop.fountain{background:linear-gradient(#8ecae6,#219ebc);border:3px solid #115e75;border-radius:50%}
-.prop.hoop{background:transparent;border:6px solid #f97316;border-radius:50%;box-shadow:none}
-.prop.rocket{background:linear-gradient(180deg,#e8eefc,#7c8db0 70%,#ef4444);border:3px solid #cbd5e1;border-radius:40% 40% 12px 12px;overflow:visible}
-.prop.rocket::before{content:"";position:absolute;left:50%;bottom:-18%;width:36%;height:28%;transform:translateX(-50%);background:linear-gradient(#ffe66d,#ff6b3d);border-radius:50%;animation:flameFlicker .18s infinite alternate}
-.prop.rocket::after{content:"🚀";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(28px,8vw,64px)}
-.prop.console{background:linear-gradient(180deg,#1e293b,#0f172a);border:3px solid #22d3ee;box-shadow:0 0 16px rgba(34,211,238,.35)}
-.prop.console::after{content:"LAUNCH";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#7cf0ff;font-size:12px;letter-spacing:.12em}
-.prop.crate{background:repeating-linear-gradient(90deg,#b45309,#b45309 12px,#92400e 12px 16px);border:3px solid #78350f}
-.prop.plant{background:radial-gradient(circle at 50% 70%,#166534,#14532d);border-radius:50% 50% 40% 40%}
-
-.door{position:absolute;z-index:6;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.55);border:2px dashed rgba(124,240,255,.55);color:#9ef3ff;font-size:11px;letter-spacing:.06em;text-align:center;padding:2px;text-transform:uppercase}
-.notebook{position:absolute;z-index:15;width:auto;min-width:7%;min-height:9%;display:flex;align-items:center;justify-content:center;font-size:clamp(26px,6vw,40px);filter:drop-shadow(0 0 10px #7cf0ff);animation:pulseBook 1.1s ease-in-out infinite;pointer-events:none}
-.notebook.got{opacity:0;transform:scale(.4);transition:.3s}
-@keyframes pulseBook{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.08)}}
-
-#player{position:absolute;z-index:20;width:7.2%;height:12%;min-width:42px;min-height:56px;pointer-events:none;transition:none}
-#player .body{position:absolute;inset:0}
-#player .shadow{position:absolute;left:15%;right:15%;bottom:-4%;height:14%;background:rgba(0,0,0,.35);border-radius:50%;filter:blur(1px)}
-#player .head{position:absolute;left:22%;top:0;width:56%;height:38%;background:#f7c8a0;border-radius:50%;border:2px solid #e0a878}
-#player .hair{position:absolute;left:20%;top:-4%;width:60%;height:22%;background:#5b3a1c;border-radius:12px 12px 4px 4px}
-#player .eye{position:absolute;top:16%;width:8%;height:8%;background:#1a1a2e;border-radius:50%}
-#player .eye.l{left:32%}
-#player .eye.r{right:32%}
-#player .smile{position:absolute;left:38%;top:24%;width:24%;height:10%;border-bottom:3px solid #c45c5c;border-radius:50%;background:transparent}
-#player .torso{position:absolute;left:24%;top:38%;width:52%;height:34%;background:linear-gradient(#3b82f6,#1d4ed8);border-radius:10px}
-#player .leg{position:absolute;bottom:2%;width:16%;height:26%;background:#1e293b;border-radius:6px}
-#player .leg.l{left:30%}
-#player .leg.r{right:30%}
-#player.walk .leg.l{animation:step .28s infinite alternate}
-#player.walk .leg.r{animation:step .28s infinite alternate-reverse}
-#player.walk{animation:bob .28s infinite}
-@keyframes step{from{transform:translateY(0)}to{transform:translateY(-18%)}}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-#player.face-left .eye.l{left:24%}
-#player.face-left .eye.r{right:40%}
-#player.face-right .eye.l{left:40%}
-#player.face-right .eye.r{right:24%}
-
-#calcNPC{position:absolute;z-index:18;width:10%;height:18%;min-width:52px;min-height:78px;opacity:0;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.4));transition:opacity .35s}
-#calcNPC.show{opacity:.85}
-#calcNPC.chase{opacity:1;filter:drop-shadow(0 0 12px rgba(255,80,80,.45)) drop-shadow(0 8px 10px rgba(0,0,0,.4))}
-#calcNPC svg{width:100%;height:100%;display:block}
+#viewport{position:absolute;inset:0;overflow:hidden;background:#070a14}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block}
+#view.chaos1{filter:saturate(1.05)}
+#view.chaos2{filter:saturate(1.15) hue-rotate(-8deg)}
+#view.chaos3{filter:saturate(1.3) hue-rotate(-16deg) contrast(1.08)}
+#lookPrompt{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);z-index:12;display:none;background:rgba(8,14,28,.86);border:2px solid rgba(124,240,255,.55);color:#9ef3ff;border-radius:16px;padding:10px 14px;font-size:clamp(14px,3.6vw,18px);font-weight:600;text-align:center;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#lookPrompt.show{display:block}
 
 #dpad{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:35;width:210px;height:210px;display:none;touch-action:none}
 #dpad.show{display:grid;grid-template-areas:". up ." "left mid right" ". down .";grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:8px}
@@ -143,8 +70,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 .dir-btn[data-dir="left"]{grid-area:left}
 .dir-btn[data-dir="right"]{grid-area:right}
 .dir-btn.held,.dir-btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.35);background:rgba(56,189,248,.35)}
+#btnInteract{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(28px,env(safe-area-inset-bottom));z-index:35;min-width:108px;height:78px;display:none;border-radius:20px;font-size:20px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;border:3px solid rgba(158,243,255,.55);box-shadow:0 7px 0 #1d5fad,0 12px 22px rgba(58,160,255,.3);touch-action:none}
+#btnInteract.show{display:block}
+#btnInteract.held,#btnInteract:active{transform:translateY(4px);box-shadow:0 3px 0 #1d5fad}
 
-#hintFloat{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:34;display:none;max-width:46vw;background:rgba(10,14,28,.8);border:1px solid rgba(180,200,255,.22);border-radius:16px;padding:10px 12px;font-size:13px;color:#c9d4ff;line-height:1.35;pointer-events:none}
+#hintFloat{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(118px,calc(env(safe-area-inset-bottom) + 112px));z-index:34;display:none;max-width:42vw;background:rgba(10,14,28,.8);border:1px solid rgba(180,200,255,.22);border-radius:16px;padding:10px 12px;font-size:13px;color:#c9d4ff;line-height:1.35;pointer-events:none}
 #hintFloat.show{display:block}
 
 #quiz{position:absolute;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:16px 12px max(18px,env(safe-area-inset-bottom));background:rgba(4,8,18,.62);pointer-events:none}
@@ -198,20 +128,21 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   <div id="start" class="screen active">
     <div class="panel">
-      <div class="tag">Space School · Walk-Around Mission</div>
+      <div class="tag">Space School · First-Person Mission</div>
       <h1>Principal's Wrath</h1>
       <p class="tagline">He grades forever</p>
-      <p class="sub">Help Rocco walk Station Zoom with the D-pad. Step on glowing notebooks in the hallway, classroom, cafeteria, gym, and rocket bay. Read each space story carefully — you have 30 seconds!</p>
+      <p class="sub">Help Rocco walk Station Zoom in first person. Solid hallway walls, corners, lockers, and glowing classroom doors hide the notebooks. Open a door to collect one — read each space story carefully. You have 30 seconds!</p>
       <button class="big-btn" id="btnPlay">Play, Rocco!</button>
-      <p class="tiny">Collect 6 notebooks · 3 misses and Cap'n Calc jump-scares you for good · original space-school adventure</p>
+      <p class="tiny">Collect 6 notebooks · If Cap'n Calc catches you, the level restarts with brand-new question types · original space-school adventure</p>
     </div>
   </div>
 
   <div id="explore">
     <div id="viewport">
-      <div id="room"></div>
+      <canvas id="view"></canvas>
     </div>
     <div class="vignette" id="vignette"></div>
+    <div id="lookPrompt">Open the glowing door to find a notebook!</div>
     <div id="hud">
       <div class="hud-pill">Rocco · 📓 <strong id="nbNum">0</strong>/<span id="nbTotal">6</span></div>
       <div class="hud-pill" id="hudRoom">Hallway</div>
@@ -226,14 +157,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     </div>
     <div id="roomLabel">Hallway</div>
     <div id="speech"><span id="speechText">Walk, Rocco!</span></div>
-    <div id="dpad" aria-label="D-pad walk controls">
-      <button type="button" class="dir-btn" data-dir="up" aria-label="Walk up">▲</button>
-      <button type="button" class="dir-btn" data-dir="left" aria-label="Walk left">◀</button>
-      <button type="button" class="dir-btn" data-dir="right" aria-label="Walk right">▶</button>
-      <button type="button" class="dir-btn" data-dir="down" aria-label="Walk down">▼</button>
-      <div class="hint">D-pad<br>walk</div>
+    <div id="dpad" aria-label="D-pad walk and turn controls">
+      <button type="button" class="dir-btn" data-dir="up" aria-label="Walk forward">▲</button>
+      <button type="button" class="dir-btn" data-dir="left" aria-label="Turn left">◀</button>
+      <button type="button" class="dir-btn" data-dir="right" aria-label="Turn right">▶</button>
+      <button type="button" class="dir-btn" data-dir="down" aria-label="Walk backward">▼</button>
+      <div class="hint">walk<br>turn</div>
     </div>
-    <div id="hintFloat">Walk into glowing notebooks. Doors lead to other rooms.</div>
+    <button type="button" id="btnInteract" aria-label="Open door">OPEN</button>
+    <div id="hintFloat">Open glowing doors to find notebooks. Turn corners carefully!</div>
   </div>
 
   <div id="quiz">
@@ -253,7 +185,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     <div class="panel">
       <div class="emoji-row">🚀😅⭐</div>
       <h1>Caught in the hallway!</h1>
-      <p class="sub">Three strikes, Rocco! Cap'n Calc blasted in with his rocket backpack and a wild pop-quiz scare. Take a breath and walk Station Zoom again.</p>
+      <p class="sub">Cap'n Calc caught up! The school reshuffles its notebooks into brand-new kinds of questions. Take a breath and walk Station Zoom again.</p>
       <button class="big-btn" id="btnRetry">Try again, Rocco!</button>
     </div>
   </div>
@@ -273,107 +205,200 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 <script>
 (function(){
+
   const TIME_PER_Q = 30;
   const MAX_WRONG = 3;
-  const NEED_BOOKS = 6;
-  const PW = 6.6, PH = 11.2;
-  const SPEED = 34;
-
   const CALC_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="11" ry="20" fill="#ffb347"/><ellipse class="flame" cx="149" cy="218" rx="6" ry="13" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="222" rx="3" ry="8" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="48" y="150" width="10" height="52" rx="5" fill="#f3c19a" transform="rotate(18 53 176)"/><rect x="140" y="148" width="10" height="48" rx="5" fill="#f3c19a" transform="rotate(-22 145 172)"/><g transform="rotate(-18 168 150)"><rect x="154" y="108" width="14" height="92" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M157 116h8M157 128h8M157 140h8M157 152h8M157 164h8M157 176h8M157 188h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#f3c19a"/><circle cx="102" cy="88" r="50" fill="#f3c19a"/><ellipse cx="84" cy="70" rx="16" ry="10" fill="#fbe0c8" opacity=".75"/><ellipse cx="52" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="152" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="84" cy="88" rx="6" ry="8" fill="#1a1a2e"/><ellipse cx="120" cy="88" rx="6" ry="8" fill="#1a1a2e"/><circle cx="86" cy="85" r="2" fill="#fff"/><circle cx="122" cy="85" r="2" fill="#fff"/><path d="M74 108 Q102 132 130 108" stroke="#c45c5c" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
   const SCARE_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="14" ry="26" fill="#ffb347"/><ellipse class="flame" cx="149" cy="220" rx="8" ry="16" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="226" rx="4" ry="10" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="44" y="148" width="10" height="54" rx="5" fill="#f3c19a" transform="rotate(28 49 175)"/><rect x="138" y="78" width="10" height="70" rx="5" fill="#f3c19a" transform="rotate(-38 143 113)"/><g transform="rotate(-52 150 70)"><rect x="136" y="8" width="16" height="110" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M140 18h8M140 32h8M140 46h8M140 60h8M140 74h8M140 88h8M140 102h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#e8a090"/><circle cx="102" cy="86" r="54" fill="#e8a090"/><ellipse cx="84" cy="68" rx="16" ry="10" fill="#f3c19a" opacity=".55"/><ellipse cx="48" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="156" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="82" cy="86" rx="9" ry="12" fill="#1a1a2e"/><ellipse cx="124" cy="86" rx="9" ry="12" fill="#1a1a2e"/><circle cx="85" cy="82" r="3" fill="#fff"/><circle cx="127" cy="82" r="3" fill="#fff"/><path d="M68 112 Q102 168 136 112" fill="#7a2020" stroke="#5a1010" stroke-width="3"/><path d="M78 124 Q102 150 126 124" fill="#3a0c0c"/></svg>';
 
-  const ROOMS = {
-    hallway: {
-      name: 'Hallway',
-      theme: 'room-hallway',
-      props: [
-        {kind:'lockers', x:5, y:16, w:11, h:28, solid:true},
-        {kind:'lockers', x:84, y:16, w:11, h:28, solid:true},
-        {kind:'desk', x:39, y:40, w:22, h:13, solid:true},
-        {kind:'banner', x:28, y:18, w:44, h:9, solid:false, label:'STATION ZOOM'},
-        {kind:'trophy', x:22, y:72, w:8, h:11, solid:true},
-        {kind:'fountain', x:70, y:72, w:8, h:11, solid:true}
-      ],
-      doors: [
-        {x:41, y:0, w:18, h:7, to:'classroom', sx:46.7, sy:78, label:'Classroom'},
-        {x:41, y:93, w:18, h:7, to:'rocketbay', sx:46.7, sy:12, label:'Rocket Bay'},
-        {x:0, y:42, w:7, h:18, to:'cafeteria', sx:82, sy:45, label:'Cafeteria'},
-        {x:93, y:42, w:7, h:18, to:'gym', sx:10, sy:45, label:'Gym'}
-      ],
-      books: [{id:'hall-desk', x:46, y:32}]
+  /* ::ROCCO_LOGIC_START:: */
+  const NEED_BOOKS = 6;
+  const CATCH_DIST = 0.62;
+  const PLAYER_RADIUS = 0.18;
+  const CALC_RADIUS = 0.22;
+  const MOVE_SPEED = 2.85;
+  const ROT_SPEED = 2.35;
+  const FOV = Math.PI / 3;
+  const INTERACT_DIST = 1.25;
+  const SPAWN = {x:16.5, y:10.5, dir: -Math.PI/2};
+
+  const MAP_ROWS = [
+    "####################################",
+    "#LLLLLL#..................#........#",
+    "#L....L#..................#........#",
+    "#L.D...+..................+.....D..#",
+    "#L....L#..................#........#",
+    "#LLLLLL#..................#........#",
+    "########..................##########",
+    "#......#..................#........#",
+    "#......+..................+.....D..#",
+    "#..D...#..................#........#",
+    "#......#..................#........#",
+    "########..................##########",
+    "#......#..................#........#",
+    "#......+..................+........#",
+    "#......#..................#.....D..#",
+    "#......#........D.........#........#",
+    "#......#..................#........#",
+    "####################################"
+  ];
+  const MAP_W = MAP_ROWS[0].length;
+  const MAP_H = MAP_ROWS.length;
+
+  function mapChar(tx, ty){
+    if(ty<0 || tx<0 || ty>=MAP_H || tx>=MAP_W) return '#';
+    return MAP_ROWS[ty].charAt(tx);
+  }
+  function isSolid(tx, ty){
+    const c = mapChar(tx, ty);
+    return c !== '.' && c !== '+' && c !== ' ';
+  }
+  function circleBlocked(x, y, r){
+    const x0 = Math.floor(x - r), x1 = Math.floor(x + r);
+    const y0 = Math.floor(y - r), y1 = Math.floor(y + r);
+    for(let ty=y0; ty<=y1; ty++){
+      for(let tx=x0; tx<=x1; tx++){
+        if(isSolid(tx, ty)){
+          const nx = Math.max(tx, Math.min(x, tx+1));
+          const ny = Math.max(ty, Math.min(y, ty+1));
+          if(Math.hypot(x-nx, y-ny) < r) return true;
+        }
+      }
+    }
+    return false;
+  }
+  function tryMoveEntity(ent, nx, ny, radius){
+    if(!circleBlocked(nx, ent.y, radius)) ent.x = nx;
+    if(!circleBlocked(ent.x, ny, radius)) ent.y = ny;
+  }
+  function canCatch(px, py, cx, cy){
+    return Math.hypot(px-cx, py-cy) < CATCH_DIST;
+  }
+  function roomNameAt(x, y){
+    const tx = Math.floor(x), ty = Math.floor(y);
+    if(tx>=1 && tx<=6 && ty>=1 && ty<=5) return 'Locker Room';
+    if(tx>=27 && tx<=34 && ty>=1 && ty<=5) return 'Classroom';
+    if(tx>=1 && tx<=6 && ty>=7 && ty<=10) return 'Cafeteria';
+    if(tx>=27 && tx<=34 && ty>=7 && ty<=10) return 'Gym';
+    if(tx>=27 && tx<=34 && ty>=12 && ty<=16) return 'Rocket Bay';
+    return 'Hallway';
+  }
+  function listNotebookDoors(){
+    const doors = [];
+    for(let y=0;y<MAP_H;y++){
+      for(let x=0;x<MAP_W;x++){
+        if(mapChar(x,y)==='D') doors.push({tx:x, ty:y});
+      }
+    }
+    return doors;
+  }
+  function doorInFront(px, py, dir, maxDist){
+    const dist = maxDist == null ? INTERACT_DIST : maxDist;
+    for(const step of [0.55, 0.85, dist]){
+      const lx = px + Math.cos(dir) * step;
+      const ly = py + Math.sin(dir) * step;
+      const tx = Math.floor(lx), ty = Math.floor(ly);
+      if(mapChar(tx, ty) === 'D'){
+        const d = Math.hypot((tx+0.5)-px, (ty+0.5)-py);
+        if(d <= dist + 0.15) return {tx, ty, dist:d};
+      }
+    }
+    return null;
+  }
+  function movementPaused(flags){
+    return !!(flags && (flags.quizOpen || flags.paused));
+  }
+
+  function rand(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function choicesFor(ans){
+    const set = new Set([ans]);
+    while(set.size < 4){
+      let n = ans + rand(-10,10);
+      if(n === ans || n < 0) n = ans + rand(1,9);
+      set.add(n);
+    }
+    return shuffle([...set]);
+  }
+
+  const QUESTION_TYPES = {
+    equal_groups: function(){
+      const ships = rand(3,9), windows = rand(2,8);
+      return {q:'Rocco counts '+ships+' starships on the launch pad. Each starship has '+windows+' windows. How many windows are there in all?', a:ships*windows};
     },
-    classroom: {
-      name: 'Classroom',
-      theme: 'room-classroom',
-      props: [
-        {kind:'chalkboard', x:18, y:6, w:64, h:12, solid:true},
-        {kind:'bookshelf', x:3, y:26, w:9, h:32, solid:true},
-        {kind:'desk', x:18, y:42, w:18, h:13, solid:true},
-        {kind:'desk', x:50, y:58, w:18, h:13, solid:true},
-        {kind:'console', x:70, y:30, w:16, h:14, solid:true}
-      ],
-      doors: [
-        {x:41, y:93, w:18, h:7, to:'hallway', sx:46.7, sy:10, label:'Hallway'}
-      ],
-      books: [{id:'class-desk', x:22, y:34}, {id:'class-term', x:74, y:22}]
+    subtract_left: function(){
+      const cooked = rand(35,90), ate = rand(12, cooked-10);
+      return {q:'The cafeteria cooked '+cooked+' moon muffins. The astronauts ate '+ate+' of them. How many muffins are left for Rocco?', a:cooked-ate};
     },
-    cafeteria: {
-      name: 'Cafeteria',
-      theme: 'room-cafeteria',
-      props: [
-        {kind:'counter', x:8, y:6, w:84, h:11, solid:true},
-        {kind:'table', x:16, y:30, w:24, h:16, solid:true},
-        {kind:'table', x:58, y:30, w:24, h:16, solid:true},
-        {kind:'table', x:37, y:60, w:24, h:16, solid:true},
-        {kind:'plant', x:8, y:78, w:8, h:10, solid:true}
-      ],
-      doors: [
-        {x:93, y:42, w:7, h:18, to:'hallway', sx:10, sy:45, label:'Hallway'}
-      ],
-      books: [{id:'cafe-tray', x:22, y:22}]
+    full_buses: function(){
+      const cap = rand(6,10), buses = rand(3,8);
+      return {q:'A space bus holds '+cap+' kids. Rocco sees '+buses+' full buses line up. How many kids are on the buses?', a:cap*buses};
     },
-    gym: {
-      name: 'Gym',
-      theme: 'room-gym',
-      props: [
-        {kind:'bleacher', x:8, y:6, w:84, h:12, solid:true},
-        {kind:'hoop', x:44, y:22, w:12, h:10, solid:false},
-        {kind:'bench', x:70, y:52, w:18, h:12, solid:true}
-      ],
-      doors: [
-        {x:0, y:42, w:7, h:18, to:'hallway', sx:82, sy:45, label:'Hallway'}
-      ],
-      books: [{id:'gym-score', x:74, y:44}]
+    give_away_two: function(){
+      const start = rand(22,50);
+      const a = rand(6,12);
+      const b = rand(4, Math.max(4, start-a-5));
+      return {q:'Rocco packed '+start+' glow sticks. He gave '+a+' to his team and '+b+' to Cap\'n Calc. How many glow sticks does Rocco have now?', a:start-a-b};
     },
-    rocketbay: {
-      name: 'Rocket Bay',
-      theme: 'room-rocketbay',
-      props: [
-        {kind:'rocket', x:12, y:22, w:26, h:52, solid:true},
-        {kind:'console', x:56, y:38, w:20, h:16, solid:true},
-        {kind:'crate', x:78, y:64, w:14, h:14, solid:true}
-      ],
-      doors: [
-        {x:41, y:0, w:18, h:7, to:'hallway', sx:46.7, sy:80, label:'Hallway'}
-      ],
-      books: [{id:'bay-console', x:62, y:30}]
+    rows_plus_extra: function(){
+      const rows = rand(3,8), each = rand(4,9), extra = rand(2,12);
+      return {q:'There are '+rows+' rows of lockers. Each row has '+each+' lockers. Then the school adds '+extra+' more lockers. How many lockers in all?', a:rows*each+extra};
+    },
+    equal_share: function(){
+      const groups = rand(3,9), size = rand(2,8);
+      const total = groups*size;
+      return {q:'Rocco collected '+total+' space stamps. He puts them into equal groups of '+size+'. How many groups can he make?', a:groups};
+    },
+    add_together: function(){
+      const red = rand(11,40), blue = rand(11,40);
+      return {q:'The gym has '+red+' red balls and '+blue+' blue balls. How many balls are there altogether?', a:red+blue};
+    },
+    how_many_more: function(){
+      const mon = rand(30,80), tue = rand(10, mon-5);
+      return {q:'A rocket used '+mon+' fuel cells on Monday and '+tue+' on Tuesday. How many more were used on Monday than Tuesday?', a:mon-tue};
+    },
+    plant_pots: function(){
+      const beans = rand(4,9), pots = rand(3,8);
+      return {q:'Rocco plants '+beans+' moon beans in each of '+pots+' pots. How many moon beans did he plant?', a:beans*pots};
+    },
+    use_then_find: function(){
+      const start = rand(40,90), used = rand(10, Math.floor(start/2)), found = rand(3,15);
+      return {q:'There were '+start+' stickers on a sheet. Rocco used '+used+', then found '+found+' more under a desk. How many stickers does he have now?', a:start-used+found};
+    },
+    teams_plus_bonus: function(){
+      const teams = rand(3,8), pts = rand(5,9), bonus = rand(2,12);
+      return {q:teams+' teams each scored '+pts+' points. Then Rocco\'s team scored '+bonus+' bonus points. What is the total of all those points?', a:teams*pts+bonus};
+    },
+    each_took: function(){
+      const kids = rand(3,9), each = rand(2,5);
+      const start = kids*each + rand(8,28);
+      return {q:'The classroom had '+start+' pencils. '+kids+' kids each took '+each+' pencils. How many pencils are left for Rocco?', a:start-(kids*each)};
     }
   };
+  const QUESTION_TYPE_IDS = Object.keys(QUESTION_TYPES);
 
-  const QUESTIONS = [
-    {q:'Rocco counts 5 starships on the launch pad. Each starship has 3 windows. How many windows are there in all?', a:15},
-    {q:'The cafeteria cooked 48 moon muffins. The astronauts ate 19 of them. How many muffins are left for Rocco?', a:29},
-    {q:'A space bus holds 8 kids. Rocco sees 4 full buses line up. How many kids are on the buses?', a:32},
-    {q:'Rocco packed 27 glow sticks. He gave 9 to his team and 6 to Cap\'n Calc. How many glow sticks does Rocco have now?', a:12},
-    {q:'There are 6 rows of lockers. Each row has 5 lockers. Then the school adds 4 more lockers. How many lockers in all?', a:34},
-    {q:'Rocco collected 36 space stamps. He puts them into equal groups of 6. How many groups can he make?', a:6},
-    {q:'The gym has 14 red balls and 17 blue balls. How many balls are there altogether?', a:31},
-    {q:'A rocket used 45 fuel cells on Monday and 28 on Tuesday. How many more were used on Monday than Tuesday?', a:17},
-    {q:'Rocco plants 7 moon beans in each of 5 pots. How many moon beans did he plant?', a:35},
-    {q:'There were 60 stickers on a sheet. Rocco used 23, then found 8 more under a desk. How many stickers does he have now?', a:45},
-    {q:'Four teams each scored 9 points. Then Rocco\'s team scored 5 bonus points. What is the total of all those points?', a:41},
-    {q:'The classroom had 32 pencils. 8 kids each took 2 pencils. How many pencils are left for Rocco?', a:16}
-  ];
+  function pickLifeQuestions(prevTypes){
+    const blocked = new Set(prevTypes || []);
+    let avail = QUESTION_TYPE_IDS.filter(function(id){ return !blocked.has(id); });
+    if(avail.length < NEED_BOOKS){
+      avail = QUESTION_TYPE_IDS.filter(function(id){ return !blocked.has(id); });
+    }
+    if(avail.length < NEED_BOOKS){
+      avail = QUESTION_TYPE_IDS.slice();
+    }
+    const chosen = shuffle(avail.slice()).slice(0, NEED_BOOKS);
+    return chosen.map(function(id){
+      const item = QUESTION_TYPES[id]();
+      return {type:id, q:item.q, a:item.a, c:choicesFor(item.a)};
+    });
+  }
+  /* ::ROCCO_LOGIC_END:: */
 
   const GOOD_LINES = [
     'Blast off, Rocco!',
@@ -404,15 +429,23 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     'Pop quiz panic, Rocco!'
   ];
 
+  const ROOM_PAL = {
+    'Hallway':     {floor:[32,40,64], ceil:[16,20,34], wall:[92,112,156]},
+    'Locker Room': {floor:[36,46,52], ceil:[18,28,32], wall:[70,96,108]},
+    'Classroom':   {floor:[122,98,64], ceil:[46,70,40], wall:[82,126,74]},
+    'Cafeteria':   {floor:[176,146,88], ceil:[88,68,46], wall:[190,148,86]},
+    'Gym':         {floor:[158,108,58], ceil:[88,46,30], wall:[186,96,50]},
+    'Rocket Bay':  {floor:[38,36,46], ceil:[20,18,28], wall:[76,82,104]}
+  };
+
   const $ = (id) => document.getElementById(id);
   const keys = {up:false, down:false, left:false, right:false};
   let state = 'title';
   let quizOpen = false;
   let paused = false;
   let choiceReadyAt = 0;
-  let roomId = 'hallway';
-  let player = {x:46.7, y:58};
-  let calc = {x:80, y:20, visible:false};
+  let player = {x:SPAWN.x, y:SPAWN.y, dir:SPAWN.dir};
+  let calc = {x:16.5, y:2.4, visible:false};
   let books = [];
   let collected = 0;
   let wrongs = 0;
@@ -428,27 +461,16 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   let audioCtx = null, masterGain = null, humOsc = null, humGain = null, bgmNodes = null, bgmTimer = null;
   let lastTs = 0;
   let whooshCD = 0;
+  let walkPhase = 0;
+  let stepCD = 0;
+  let lastLifeTypes = [];
+  let deathPending = false;
+  let scareTimer = null;
+  let calcImg = null;
+  let viewCanvas = null, viewCtx = null;
 
-  function rand(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
-  function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [arr[i],arr[j]] = [arr[j],arr[i]];
-    }
-    return arr;
-  }
   function overlap(a,b){
     return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
-  }
-  function playerBox(x,y){ return {x:x, y:y, w:PW, h:PH}; }
-  function choicesFor(ans){
-    const set = new Set([ans]);
-    while(set.size < 4){
-      let n = ans + rand(-10,10);
-      if(n === ans || n < 0) n = ans + rand(1,9);
-      set.add(n);
-    }
-    return shuffle([...set]);
   }
 
   function makeStars(){
@@ -461,6 +483,28 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       s.style.setProperty('--d', (1.6+Math.random()*2.4)+'s');
       box.appendChild(s);
     }
+  }
+
+  function ensureCalcImg(){
+    if(calcImg) return calcImg;
+    calcImg = new Image();
+    calcImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(CALC_SVG);
+    return calcImg;
+  }
+
+  function resizeView(){
+    viewCanvas = $('view');
+    if(!viewCanvas) return;
+    const host = $('viewport') || viewCanvas.parentElement;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(160, host.clientWidth || window.innerWidth);
+    const h = Math.max(160, host.clientHeight || window.innerHeight);
+    const tw = Math.floor(w * dpr), th = Math.floor(h * dpr);
+    if(viewCanvas.width !== tw || viewCanvas.height !== th){
+      viewCanvas.width = tw;
+      viewCanvas.height = th;
+    }
+    viewCtx = viewCanvas.getContext('2d');
   }
 
   function ensureAudio(){
@@ -682,156 +726,229 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(v) u.voice = v;
     speechSynthesis.speak(u);
   }
-
   function say(msg, ms){
-    $('speechText').textContent = msg;
-    $('speech').classList.add('show');
+    const el = $('speechText');
+    const box = $('speech');
+    if(!el || !box) return;
+    el.textContent = msg;
+    box.classList.add('show');
     clearTimeout(say._t);
-    say._t = setTimeout(()=>$('speech').classList.remove('show'), ms||1800);
+    say._t = setTimeout(function(){ box.classList.remove('show'); }, ms || 1800);
   }
 
-  function currentRoom(){ return ROOMS[roomId]; }
-  function solids(){ return currentRoom().props.filter(p => p.solid); }
-
-  function blocked(x,y){
-    const box = playerBox(x,y);
-    const doors = currentRoom().doors;
-    const inDoor = doors.some(d => overlap(box, d));
-    if(x < 1.2 || y < 1.2 || x+PW > 98.8 || y+PH > 98.8){
-      if(!inDoor) return true;
-      if(x < -3 || y < -3 || x+PW > 103 || y+PH > 103) return true;
+  function rgb(c, shade){
+    const s = shade == null ? 1 : shade;
+    return 'rgb('+Math.round(c[0]*s)+','+Math.round(c[1]*s)+','+Math.round(c[2]*s)+')';
+  }
+  function bookAt(tx, ty){
+    return books.find(function(b){ return b.tx===tx && b.ty===ty; });
+  }
+  function wallShadeColor(tile, side, dist, wallX, mapX, mapY){
+    const fromX = mapX + (side===0 ? (player.x<mapX?-0.1:1.1) : 0.5);
+    const fromY = mapY + (side===1 ? (player.y<mapY?-0.1:1.1) : 0.5);
+    const room = roomNameAt(fromX, fromY);
+    const pal = ROOM_PAL[room] || ROOM_PAL.Hallway;
+    let col = pal.wall.slice();
+    if(tile === 'L'){
+      const panel = Math.floor(wallX * 5);
+      col = (panel % 2 === 0) ? [78, 102, 142] : [58, 78, 114];
+      const fx = wallX * 5 - panel;
+      if(fx > 0.46 && fx < 0.54) col = [36, 48, 72];
+      if(wallX % 0.2 > 0.08 && wallX % 0.2 < 0.14) col = [210, 186, 92];
+    } else if(tile === 'D'){
+      const book = bookAt(mapX, mapY);
+      if(book && book.got){
+        col = [72, 58, 46];
+      } else {
+        const pulse = 0.82 + 0.18 * Math.sin((performance.now()/220) + mapX + mapY);
+        col = [Math.round(36*pulse), Math.round(168*pulse), Math.round(196*pulse)];
+        if(wallX > 0.38 && wallX < 0.62) col = [180, 240, 255];
+      }
+    } else if(tile === '#'){
+      const stripe = Math.floor(wallX * 8) % 2;
+      if(stripe){
+        col = [Math.max(0, col[0]-12), Math.max(0, col[1]-12), Math.max(0, col[2]-10)];
+      }
     }
-    return solids().some(s => overlap(box, s));
+    const fog = Math.max(0.18, 1 - dist / 16);
+    const sideMul = side ? 0.72 : 1;
+    return rgb(col, fog * sideMul);
   }
 
-  function placeEl(el, x, y, w, h){
-    el.style.left = x + '%';
-    el.style.top = y + '%';
-    if(w != null) el.style.width = w + '%';
-    if(h != null) el.style.height = h + '%';
+  function castColumn(rayDirX, rayDirY){
+    let mapX = Math.floor(player.x);
+    let mapY = Math.floor(player.y);
+    const deltaDistX = Math.abs(1 / (rayDirX || 1e-12));
+    const deltaDistY = Math.abs(1 / (rayDirY || 1e-12));
+    let stepX, stepY, sideDistX, sideDistY, side = 0;
+    if(rayDirX < 0){ stepX = -1; sideDistX = (player.x - mapX) * deltaDistX; }
+    else { stepX = 1; sideDistX = (mapX + 1.0 - player.x) * deltaDistX; }
+    if(rayDirY < 0){ stepY = -1; sideDistY = (player.y - mapY) * deltaDistY; }
+    else { stepY = 1; sideDistY = (mapY + 1.0 - player.y) * deltaDistY; }
+    let hit = 0, tile = '#';
+    for(let i=0;i<72 && !hit;i++){
+      if(sideDistX < sideDistY){ sideDistX += deltaDistX; mapX += stepX; side = 0; }
+      else { sideDistY += deltaDistY; mapY += stepY; side = 1; }
+      tile = mapChar(mapX, mapY);
+      if(isSolid(mapX, mapY)) hit = 1;
+    }
+    let perp;
+    if(side === 0) perp = (mapX - player.x + (1 - stepX) / 2) / (rayDirX || 1e-12);
+    else perp = (mapY - player.y + (1 - stepY) / 2) / (rayDirY || 1e-12);
+    perp = Math.max(0.05, perp);
+    let wallX = (side === 0) ? (player.y + perp * rayDirY) : (player.x + perp * rayDirX);
+    wallX -= Math.floor(wallX);
+    return {dist:perp, side:side, tile:tile, wallX:wallX, mapX:mapX, mapY:mapY};
   }
 
-  function buildRoom(){
-    const r = currentRoom();
-    const room = $('room');
-    room.className = r.theme + (wrongs ? ' chaos'+Math.min(wrongs,3) : '');
-    room.innerHTML = '';
-    r.props.forEach(p => {
-      const d = document.createElement('div');
-      d.className = 'prop ' + p.kind;
-      placeEl(d, p.x, p.y, p.w, p.h);
-      if(p.label && p.kind === 'banner') d.textContent = p.label;
-      room.appendChild(d);
-    });
-    r.doors.forEach(d => {
-      const el = document.createElement('div');
-      el.className = 'door';
-      el.textContent = d.label;
-      placeEl(el, d.x, d.y, d.w, d.h);
-      room.appendChild(el);
-    });
-    books.filter(b => b.room === roomId).forEach(b => {
-      const el = document.createElement('div');
-      el.className = 'notebook' + (b.got ? ' got' : '');
-      el.id = 'nb-'+b.id;
-      el.textContent = b.got ? '✅' : '📓';
-      placeEl(el, b.x, b.y, 8, 10);
-      room.appendChild(el);
-    });
-    const pl = document.createElement('div');
-    pl.id = 'player';
-    pl.innerHTML = '<div class="shadow"></div><div class="body"><div class="hair"></div><div class="head"></div><div class="eye l"></div><div class="eye r"></div><div class="smile"></div><div class="torso"></div><div class="leg l"></div><div class="leg r"></div></div>';
-    room.appendChild(pl);
-    const npc = document.createElement('div');
-    npc.id = 'calcNPC';
-    npc.innerHTML = CALC_SVG;
-    room.appendChild(npc);
-    $('hudRoom').textContent = r.name;
-    $('roomLabel').textContent = r.name;
-    renderActors();
+  function drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob){
+    if(!calc.visible) return;
+    const img = ensureCalcImg();
+    if(!img.complete || !img.naturalWidth) return;
+    const dx = calc.x - player.x;
+    const dy = calc.y - player.y;
+    const invDet = 1.0 / (planeX * dirY - dirX * planeY);
+    const transformX = invDet * (dirY * dx - dirX * dy);
+    const transformY = invDet * (-planeY * dx + planeX * dy);
+    if(transformY <= 0.2) return;
+    const spriteScreenX = (w / 2) * (1 + transformX / transformY);
+    const spriteH = Math.abs(h / transformY) * 0.95;
+    const spriteW = spriteH * 0.68;
+    const drawStartY = (h - spriteH) / 2 + bob + spriteH * 0.08;
+    const col = Math.floor(spriteScreenX);
+    if(col < 0 || col >= w) return;
+    if(transformY >= zbuf[col] - 0.02) return;
+    viewCtx.drawImage(img, spriteScreenX - spriteW/2, drawStartY, spriteW, spriteH);
   }
 
-  function renderActors(){
-    const pl = $('player');
-    const npc = $('calcNPC');
-    if(pl) placeEl(pl, player.x, player.y);
-    if(npc){
-      placeEl(npc, calc.x, calc.y);
-      npc.classList.toggle('show', calc.visible && wrongs >= 1);
-      npc.classList.toggle('chase', wrongs >= 2);
+  function renderView(){
+    resizeView();
+    if(!viewCtx) return;
+    const w = viewCanvas.width, h = viewCanvas.height;
+    const room = roomNameAt(player.x, player.y);
+    const pal = ROOM_PAL[room] || ROOM_PAL.Hallway;
+    const moving = !!(keys.up || keys.down);
+    const bob = moving ? Math.sin(walkPhase) * h * 0.012 : 0;
+    viewCtx.fillStyle = rgb(pal.ceil);
+    viewCtx.fillRect(0, 0, w, Math.ceil(h/2 + bob));
+    viewCtx.fillStyle = rgb(pal.floor);
+    viewCtx.fillRect(0, Math.floor(h/2 + bob), w, h);
+    const dirX = Math.cos(player.dir), dirY = Math.sin(player.dir);
+    const planeX = -dirY * Math.tan(FOV/2);
+    const planeY = dirX * Math.tan(FOV/2);
+    const zbuf = new Float32Array(w);
+    for(let x=0; x<w; x++){
+      const cameraX = 2 * x / w - 1;
+      const rayDirX = dirX + planeX * cameraX;
+      const rayDirY = dirY + planeY * cameraX;
+      const hit = castColumn(rayDirX, rayDirY);
+      zbuf[x] = hit.dist;
+      const lineH = h / hit.dist;
+      let y0 = Math.floor(h/2 - lineH/2 + bob);
+      let y1 = Math.ceil(h/2 + lineH/2 + bob);
+      if(y0 < 0) y0 = 0;
+      if(y1 > h) y1 = h;
+      viewCtx.fillStyle = wallShadeColor(hit.tile, hit.side, hit.dist, hit.wallX, hit.mapX, hit.mapY);
+      viewCtx.fillRect(x, y0, 1, Math.max(1, y1-y0));
+      if(hit.tile === 'L'){
+        const ventH = Math.max(1, (y1-y0)*0.07);
+        viewCtx.fillStyle = 'rgba(20,28,44,'+(hit.side?0.45:0.3)+')';
+        viewCtx.fillRect(x, y0 + (y1-y0)*0.42, 1, ventH);
+      }
+      viewCtx.fillStyle = 'rgba(10,8,16,'+(hit.side?0.38:0.22)+')';
+      viewCtx.fillRect(x, y1 - Math.max(2, (y1-y0)*0.08), 1, Math.max(2, (y1-y0)*0.08));
+    }
+    drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob);
+    const prompt = $('lookPrompt');
+    const looking = currentNotebookDoor();
+    if(prompt){
+      if(looking && !looking.got){
+        prompt.textContent = 'Open the glowing door to find a notebook!';
+        prompt.classList.add('show');
+      } else if(looking && looking.got){
+        prompt.textContent = 'This door already gave its notebook.';
+        prompt.classList.add('show');
+      } else {
+        prompt.classList.remove('show');
+      }
     }
   }
 
-  function enterRoom(id, sx, sy){
-    roomId = id;
-    player.x = sx;
-    player.y = sy;
-    doorCD = 0.45;
-    if(wrongs >= 1){
-      calc.x = rand(8, 82);
-      calc.y = rand(10, 72);
-      calc.visible = true;
-    } else {
-      calc.visible = false;
+  function spawnCalcAway(){
+    const spots = [{x:16.5,y:2.3},{x:32.2,y:14.4},{x:3.4,y:8.5},{x:32.2,y:3.4},{x:3.4,y:14.5}];
+    let best = spots[0], bestD = -1;
+    spots.forEach(function(s){
+      if(circleBlocked(s.x, s.y, CALC_RADIUS)) return;
+      const d = Math.hypot(s.x-player.x, s.y-player.y);
+      if(d > bestD){ bestD = d; best = s; }
+    });
+    calc.x = best.x; calc.y = best.y;
+  }
+
+  function currentNotebookDoor(){
+    const hit = doorInFront(player.x, player.y, player.dir, INTERACT_DIST);
+    if(!hit) return null;
+    return bookAt(hit.tx, hit.ty) || null;
+  }
+
+  function tryInteract(){
+    if(quizOpen || paused || state !== 'explore') return false;
+    if(doorCD > 0) return false;
+    const book = currentNotebookDoor();
+    if(book && !book.got){
+      startQuiz(book);
+      return true;
     }
-    buildRoom();
-    if(id === 'rocketbay') sfxRocket();
+    return false;
   }
 
   function updatePlayer(dt){
-    let dx = 0, dy = 0;
-    if(keys.left) dx -= 1;
-    if(keys.right) dx += 1;
-    if(keys.up) dy -= 1;
-    if(keys.down) dy += 1;
-    const pl = $('player');
-    if(dx || dy){
-      const m = Math.hypot(dx, dy) || 1;
-      dx = (dx/m) * SPEED * dt;
-      dy = (dy/m) * SPEED * dt;
-      if(!blocked(player.x+dx, player.y)) player.x += dx;
-      if(!blocked(player.x, player.y+dy)) player.y += dy;
-      if(pl){
-        pl.classList.add('walk');
-        pl.classList.remove('face-left','face-right','face-up','face-down');
-        if(Math.abs(dx) > Math.abs(dy)) pl.classList.add(dx<0?'face-left':'face-right');
-        else pl.classList.add(dy<0?'face-up':'face-down');
-      }
-    } else if(pl){
-      pl.classList.remove('walk');
+    if(keys.left) player.dir -= ROT_SPEED * dt;
+    if(keys.right) player.dir += ROT_SPEED * dt;
+    let walk = 0;
+    if(keys.up) walk += 1;
+    if(keys.down) walk -= 1;
+    let blockedFwd = false;
+    if(walk){
+      const sp = MOVE_SPEED * walk * dt;
+      const nx = player.x + Math.cos(player.dir) * sp;
+      const ny = player.y + Math.sin(player.dir) * sp;
+      const ox = player.x, oy = player.y;
+      tryMoveEntity(player, nx, ny, PLAYER_RADIUS);
+      if(Math.hypot(player.x-ox, player.y-oy) < Math.abs(sp)*0.35) blockedFwd = walk > 0;
+      walkPhase += dt * 12;
+      stepCD -= dt;
+      if(stepCD <= 0){ sfxStep(); stepCD = 0.34; }
+    }
+    if(blockedFwd && doorCD <= 0){
+      tryInteract();
     }
   }
 
   function updateCalc(dt){
     if(wrongs < 1){ calc.visible = false; return; }
-    calc.visible = true;
-    const tx = player.x - 2, ty = player.y - 4;
-    const speed = wrongs >= 2 ? 16 : 7;
-    const vx = tx - calc.x, vy = ty - calc.y;
+    if(!calc.visible){
+      spawnCalcAway();
+      calc.visible = true;
+    }
+    const speed = wrongs >= 3 ? 2.55 : (wrongs >= 2 ? 1.85 : 1.15);
+    const vx = player.x - calc.x, vy = player.y - calc.y;
     const m = Math.hypot(vx, vy);
-    if(m > 1.2){
-      calc.x += (vx/m) * speed * dt;
-      calc.y += (vy/m) * speed * dt;
+    if(m > 0.05){
+      tryMoveEntity(calc, calc.x + (vx/m)*speed*dt, calc.y + (vy/m)*speed*dt, CALC_RADIUS);
     }
     whooshCD -= dt;
-    if(wrongs >= 2 && whooshCD <= 0 && m < 18){
+    if(wrongs >= 2 && whooshCD <= 0 && m < 8){
       whooshCD = 2.8;
       sfxRocket();
     }
   }
 
-  function checkDoors(){
-    if(quizOpen || paused || doorCD > 0 || state !== 'explore') return;
-    const box = playerBox(player.x, player.y);
-    const door = currentRoom().doors.find(d => overlap(box, d));
-    if(door) enterRoom(door.to, door.sx, door.sy);
-  }
-
-  function checkNotebooks(){
-    if(quizOpen || paused || doorCD > 0 || state !== 'explore') return;
-    const box = playerBox(player.x, player.y);
-    const hit = books.find(b => !b.got && b.room === roomId && overlap(box, {x:b.x, y:b.y, w:8, h:10}));
-    if(hit) startQuiz(hit);
+  function checkCatch(){
+    if(!calc.visible || quizOpen || paused || state !== 'explore' || deathPending) return;
+    if(canCatch(player.x, player.y, calc.x, calc.y)){
+      triggerCaught();
+    }
   }
 
   function updateHud(){
@@ -839,8 +956,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     $('nbTotal').textContent = String(NEED_BOOKS);
     document.querySelectorAll('.wrong-dot').forEach((d,i)=> d.classList.toggle('on', i < wrongs));
     $('vignette').className = 'vignette' + (wrongs ? ' lvl'+Math.min(wrongs,3) : '');
-    const room = $('room');
-    if(room) room.className = currentRoom().theme + (wrongs ? ' chaos'+Math.min(wrongs,3) : '');
+    if(viewCanvas) viewCanvas.className = wrongs ? 'chaos'+Math.min(wrongs,3) : '';
+    const name = roomNameAt(player.x, player.y);
+    $('hudRoom').textContent = name;
+    $('roomLabel').textContent = name;
     setHum(wrongs);
   }
 
@@ -850,6 +969,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     $('roomLabel').classList.toggle('show', on);
     $('dpad').classList.toggle('show', on);
     $('hintFloat').classList.toggle('show', on);
+    $('btnInteract').classList.toggle('show', on);
+    if(on) resizeView();
   }
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -929,15 +1050,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(book.got) return;
     book.got = true;
     collected++;
-    const el = $('nb-'+book.id);
-    if(el){ el.classList.add('got'); el.textContent = '✅'; }
     updateHud();
   }
 
   function afterAnswer(){
-    if(wrongs >= MAX_WRONG){
-      endCaught();
-    } else if(collected >= NEED_BOOKS){
+    if(collected >= NEED_BOOKS){
       endWin();
     } else {
       state = 'explore';
@@ -967,6 +1084,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       btn.classList.add('bad');
       lastMissTimeout = false;
       collectBook(quizBook);
+      sfxBad();
       setTimeout(() => { closeQuiz(); applyMiss(null); }, 450);
     }
   }
@@ -985,8 +1103,16 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     wrongs++;
     mistakes++;
     peakChaos = Math.max(peakChaos, wrongs);
+    if(!calc.visible) spawnCalcAway();
+    calc.visible = true;
     updateHud();
     jumpScare(forcedLine || BAD_LINES[rand(0, BAD_LINES.length-1)]);
+  }
+
+  function triggerCaught(){
+    if(deathPending || state === 'end') return;
+    deathPending = true;
+    jumpScare('Cap\'n Calc caught you, Rocco!');
   }
 
   function jumpScare(line){
@@ -998,29 +1124,32 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     void app.offsetWidth;
     app.classList.add('shake');
     const scare = $('jumpscare');
-    $('scareText').textContent = wrongs >= MAX_WRONG ? 'GOTCHA, ROCCO!' : 'POP QUIZ, ROCCO!';
+    $('scareText').textContent = deathPending ? 'GOTCHA, ROCCO!' : 'POP QUIZ, ROCCO!';
     scare.classList.remove('show');
     void scare.offsetWidth;
     scare.classList.add('show');
     sfxJumpScare();
     say(line, 1600);
     speak(line, {rate:0.95, pitch:0.82});
-    calc.visible = true;
-    calc.x = Math.max(8, player.x - 8);
-    calc.y = Math.max(6, player.y - 10);
-    renderActors();
-    setTimeout(() => {
+    if(scareTimer) clearTimeout(scareTimer);
+    const wait = deathPending ? 1800 : 1600;
+    scareTimer = setTimeout(() => {
       scare.classList.remove('show');
-      afterAnswer();
-    }, 1600);
+      if(deathPending){
+        deathPending = false;
+        restartAfterCatch();
+      } else {
+        afterAnswer();
+      }
+    }, wait);
   }
 
   function pickEnding(){
     if(mistakes === 0){
-      return {key:'secret', label:'★ Secret Ending Unlocked', title:'Beat the Principal', emoji:'👑🚀⭐', headline:'Rocco grades the Principal!', blurb:'Zero mistakes, Rocco! You walked every room, snatched every notebook, and Cap\'n Calc\'s rocket backpack sputtered out. Station Zoom crowns you Math Principal for a day.', tiny:'Secret clear · 0 mistakes · Made for Rocco', secret:true};
+      return {key:'secret', label:'★ Secret Ending Unlocked', title:'Beat the Principal', emoji:'👑🚀⭐', headline:'Rocco grades the Principal!', blurb:'Zero mistakes, Rocco! You walked the first-person halls, opened every glowing door, and Cap\'n Calc\'s rocket backpack sputtered out. Station Zoom crowns you Math Principal for a day.', tiny:'Secret clear · 0 mistakes · Made for Rocco', secret:true};
     }
     if(peakChaos >= 2){
-      return {key:'barely', label:'Ending · High Tension', title:'Barely Escaped', emoji:'😅💨⭐', headline:'Whew — you made it, Rocco!', blurb:'Cap\'n Calc was hopping the halls right behind you. You still grabbed the last notebook and slipped past his rocket trail.', tiny:'Peak chaos · almost caught · Made for Rocco', secret:false};
+      return {key:'barely', label:'Ending · High Tension', title:'Barely Escaped', emoji:'😅💨⭐', headline:'Whew — you made it, Rocco!', blurb:'Cap\'n Calc was hopping the halls right behind you. You still opened the last notebook door and slipped past his rocket trail.', tiny:'Peak chaos · almost caught · Made for Rocco', secret:false};
     }
     if(mistakes === 1){
       return {key:'close', label:'Ending · Close Call', title:'Close Call Clear', emoji:'🌟😅🚀', headline:'Close one, Rocco!', blurb:'Only one oops all day. Cap\'n Calc jump-scared once, then backed off when your next answer sparkled. School day\'s yours.', tiny:'1 mistake · Made for Rocco', secret:false};
@@ -1028,19 +1157,14 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     return {key:'messy', label:'Ending · Messy Escape', title:'Messy Escape', emoji:'📚🌀🚀', headline:'Chaotic win, Rocco!', blurb:'Papers flying, moon muffins rolling — you still walked the whole school and finished the mission with a grin.', tiny: mistakes + ' mistakes · messy clear · Made for Rocco', secret:false};
   }
 
-  function endCaught(){
-    state = 'end';
+  function restartAfterCatch(){
     stopTimer();
     setHum(0);
     sfxCaught();
-    showExplore(false);
-    if(lastMissTimeout){
-      speak("Time's up! Gotcha, Rocco!", {rate:0.95, pitch:0.85});
-    } else {
-      speak('Gotcha, Rocco!', {rate:0.95, pitch:0.85});
-    }
-    showScreen('caught');
+    speak('Gotcha, Rocco! New questions incoming!', {rate:0.95, pitch:0.85});
+    startGame({respawn:true});
   }
+
   function endWin(){
     state = 'end';
     stopTimer();
@@ -1061,32 +1185,43 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     showScreen('win');
   }
 
-  function startGame(){
+  function startGame(opts){
+    opts = opts || {};
     ensureAudio();
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     startBgm();
+    ensureCalcImg();
     quizOpen = false;
     paused = false;
-    const pool = shuffle(QUESTIONS.slice());
-    const spots = [];
-    Object.keys(ROOMS).forEach(id => {
-      ROOMS[id].books.forEach(b => spots.push({room:id, id:b.id, x:b.x, y:b.y}));
-    });
-    books = spots.map((s,i) => {
-      const q = pool[i % pool.length];
-      return {id:s.id, room:s.room, x:s.x, y:s.y, got:false, q:{q:q.q, a:q.a, c:choicesFor(q.a)}};
+    deathPending = false;
+    if(scareTimer){ clearTimeout(scareTimer); scareTimer = null; }
+    $('jumpscare').classList.remove('show');
+    $('quiz').classList.remove('show');
+    const prev = opts.respawn ? lastLifeTypes.slice() : [];
+    const picked = pickLifeQuestions(prev);
+    lastLifeTypes = picked.map(function(q){ return q.type; });
+    const doors = listNotebookDoors();
+    books = doors.map(function(d, i){
+      const q = picked[i % picked.length];
+      return {id:'door-'+d.tx+'-'+d.ty, tx:d.tx, ty:d.ty, got:false, q:q};
     });
     collected = 0; wrongs = 0; mistakes = 0; peakChaos = 0;
     locked = false; lastMissTimeout = false; stopTimer();
-    roomId = 'hallway';
-    player = {x:46.7, y:58};
-    calc = {x:82, y:18, visible:false};
+    player = {x:SPAWN.x, y:SPAWN.y, dir:SPAWN.dir};
+    calc = {x:16.5, y:2.4, visible:false};
+    doorCD = 0.3;
     showScreen(null);
-    buildRoom();
     updateHud();
+    resizeView();
+    renderView();
     state = 'explore';
-    say('Welcome, Rocco... Cap\'n Calc is lurking...', 2200);
-    speak('Welcome, Rocco. Walk the school and find the notebooks. Cap\'n Calc is lurking in the hallway!', {rate:1.05, pitch:1.15});
+    if(opts.respawn){
+      say('New notebooks, Rocco! Different kinds of questions this time!', 2400);
+      speak('Welcome back, Rocco. The notebooks changed. Find the glowing doors. Cap\'n Calc is still lurking!', {rate:1.05, pitch:1.15});
+    } else {
+      say('Welcome, Rocco... Cap\'n Calc is lurking...', 2200);
+      speak('Welcome, Rocco. Walk the school in first person and open the glowing doors to find notebooks. Cap\'n Calc is lurking in the hallway!', {rate:1.05, pitch:1.15});
+    }
   }
 
   function tick(ts){
@@ -1094,15 +1229,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     lastTs = ts;
     if(doorCD > 0) doorCD -= dt;
     if(paused || quizOpen){
-      if(state === 'quiz' || state === 'scare') renderActors();
+      if(state === 'quiz' || state === 'scare') renderView();
     } else if(state === 'explore'){
       updatePlayer(dt);
       updateCalc(dt);
-      renderActors();
-      checkDoors();
-      checkNotebooks();
+      checkCatch();
+      updateHud();
+      renderView();
     } else if(state === 'quiz' || state === 'scare'){
-      renderActors();
+      renderView();
     }
     requestAnimationFrame(tick);
   }
@@ -1117,9 +1252,19 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       btn.addEventListener('pointercancel', off);
       btn.addEventListener('lostpointercapture', off);
     });
+    const act = $('btnInteract');
+    const actOn = (e) => { e.preventDefault(); act.classList.add('held'); tryInteract(); };
+    const actOff = () => act.classList.remove('held');
+    act.addEventListener('pointerdown', (e) => { try{ act.setPointerCapture(e.pointerId); }catch(err){} actOn(e); });
+    act.addEventListener('pointerup', actOff);
+    act.addEventListener('pointercancel', actOff);
     window.addEventListener('keydown', (e) => {
       const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
       if(map[e.key]){ keys[map[e.key]] = true; e.preventDefault(); }
+      if(e.key === 'e' || e.key === 'E' || e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        tryInteract();
+      }
     });
     window.addEventListener('keyup', (e) => {
       const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
@@ -1127,20 +1272,25 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     });
   }
 
-  $('btnPlay').addEventListener('click', startGame);
-  $('btnRetry').addEventListener('click', startGame);
-  $('btnAgain').addEventListener('click', startGame);
+  $('btnPlay').addEventListener('click', function(){ startGame(); });
+  $('btnRetry').addEventListener('click', function(){ startGame({respawn:true}); });
+  $('btnAgain').addEventListener('click', function(){ startGame(); });
   $('btnMute').addEventListener('click', function(ev){
     ev.stopPropagation();
     ensureAudio();
     setMuted(!muted);
     if(!muted) startBgm();
   });
+  window.addEventListener('resize', resizeView);
+  if(window.visualViewport){
+    visualViewport.addEventListener('resize', resizeView);
+  }
   if(window.speechSynthesis){
     try { speechSynthesis.getVoices(); } catch(e){}
   }
   makeStars();
   bindPad();
+  resizeView();
   if($('scareArt')) $('scareArt').innerHTML = SCARE_SVG;
   requestAnimationFrame(tick);
 })();
