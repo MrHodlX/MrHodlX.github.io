@@ -430,7 +430,19 @@ button{font-family:inherit;border:none;cursor:pointer}
   background:radial-gradient(ellipse at center,#7c3aed 0%,#1a0a2e 70%);
   flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:hidden;
 }
-#celeb.show{display:flex}
+#celeb.show{display:flex;overflow-y:auto}
+#star-recorder{position:relative;z-index:2;display:none;flex-direction:column;align-items:center;gap:8px;margin:0 0 16px;padding:14px 16px;max-width:420px;width:min(92vw,420px);border-radius:22px;background:rgba(26,10,46,.55);border:2px solid rgba(255,230,109,.45);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#star-recorder.show{display:flex}
+#star-recorder .rec-title{font-size:clamp(18px,4.6vw,24px);font-weight:700;color:#ffe66d;text-align:center}
+#star-recorder .rec-hint{font-size:15px;color:#fce7f3;text-align:center;line-height:1.35;max-width:360px}
+#star-recorder .rec-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:4px}
+#star-recorder .rec-btn{padding:12px 18px;border-radius:999px;font-size:16px;font-weight:700;color:#1a0a2e;background:linear-gradient(180deg,#ffe66d,#fbbf24);box-shadow:0 4px 0 #d97706}
+#star-recorder .rec-btn.stop{background:linear-gradient(180deg,#fda4af,#fb7185);box-shadow:0 4px 0 #be185d;color:#fff}
+#star-recorder .rec-btn.secondary{background:linear-gradient(180deg,#67e8f9,#22d3ee);box-shadow:0 4px 0 #0e7490}
+#star-recorder .rec-btn:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+#star-recorder .rec-status{min-height:22px;font-size:14px;color:#c4b5fd;text-align:center;max-width:360px}
+#star-recorder.recording .rec-status{color:#fda4af;font-weight:700}
+#rec-playback{display:none}
 .star-lights{
   font-size:clamp(48px,14vw,80px);font-weight:700;letter-spacing:8px;
   background:linear-gradient(90deg,#ffe66d,#ff9ecd,#67e8f9,#ffe66d);
@@ -520,6 +532,19 @@ button{font-family:inherit;border:none;cursor:pointer}
     <div class="trophy">🏆</div>
     <div class="celeb-msg">You collected all 10 notes!<br>Dance party forever! 🎉</div>
     <div class="celeb-prizes" id="celeb-prizes"></div>
+    <div id="star-recorder" hidden aria-hidden="true">
+      <div class="rec-title">🎤 Record your song, Star!</div>
+      <p class="rec-hint" id="rec-hint">You got every answer right! Tap Record when you want to sing. Nothing is sent anywhere — it stays on this device.</p>
+      <div class="rec-actions">
+        <button type="button" class="rec-btn" id="rec-record">● Record</button>
+        <button type="button" class="rec-btn stop" id="rec-stop" disabled>■ Stop</button>
+        <button type="button" class="rec-btn secondary" id="rec-play" disabled>▶ Play</button>
+        <button type="button" class="rec-btn secondary" id="rec-download" disabled>⬇ Download</button>
+        <button type="button" class="rec-btn" id="rec-again" disabled>↻ Record again</button>
+      </div>
+      <div class="rec-status" id="rec-status" aria-live="polite"></div>
+      <audio id="rec-playback" preload="none"></audio>
+    </div>
     <button class="again-btn" id="again-btn" type="button">Play again</button>
   </div>
 
@@ -1320,6 +1345,61 @@ document.getElementById('voice-toggle').addEventListener('click',function(){
   }
 });
 
+
+/* ::NOTE_PARTY_RECORDER_START:: */
+const RECORDER_NOTE_GOAL = 10;
+const REC_MAX_MS = 60000;
+function canUnlockRecorder(state){
+  if(!state || typeof state !== 'object') return false;
+  if((state.notesCollected||0) < RECORDER_NOTE_GOAL) return false;
+  const done = state.noteDone || {};
+  for(let i=0;i<RECORDER_NOTE_GOAL;i++){
+    if(!done[i]) return false;
+  }
+  return true;
+}
+function recorderSupported(){
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+}
+function pickRecorderMime(isTypeSupported){
+  const check = isTypeSupported || (window.MediaRecorder && MediaRecorder.isTypeSupported
+    ? function(t){ return MediaRecorder.isTypeSupported(t); }
+    : function(){ return false; });
+  const types = ['audio/mp4','audio/mp4;codecs=mp4a.40.2','audio/aac','audio/mpeg','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
+  for(let i=0;i<types.length;i++){
+    try{ if(check(types[i])) return types[i]; }catch(e){}
+  }
+  return '';
+}
+function recExtensionForMime(mime){
+  const m = String(mime||'').toLowerCase();
+  if(m.indexOf('mp4')>=0 || m.indexOf('aac')>=0 || m.indexOf('mpeg')>=0) return 'm4a';
+  if(m.indexOf('ogg')>=0) return 'ogg';
+  return 'webm';
+}
+function recStatusForUnsupported(){
+  return "This device can't record audio here, but you still won, Star! 🌟";
+}
+function recStatusForGetUserMediaError(err){
+  const name = err && err.name;
+  if(name==='NotAllowedError' || name==='PermissionDeniedError'){
+    return 'Microphone is off. Ask a grown-up to allow it, then tap Record again.';
+  }
+  if(name==='NotFoundError' || name==='DevicesNotFoundError'){
+    return 'No microphone found. You can still dance and sing along!';
+  }
+  if(name==='NotReadableError' || name==='TrackStartError'){
+    return 'The microphone is busy. Close other apps and tap Record again.';
+  }
+  return "Couldn't start the recorder. You can try again!";
+}
+function recorderControlState(phase){
+  if(phase==='recording') return {record:false,stop:true,play:false,download:false,rerecord:false};
+  if(phase==='recorded') return {record:false,stop:false,play:true,download:true,rerecord:true};
+  return {record:true,stop:false,play:false,download:false,rerecord:false};
+}
+/* ::NOTE_PARTY_RECORDER_END:: */
+
 /* ===== CELEBRATION ===== */
 function showCelebration(){
   const celeb=document.getElementById('celeb');
@@ -1332,6 +1412,7 @@ function showCelebration(){
     prizes.appendChild(s);
   });
   celeb.classList.add('show');
+  revealRecorderIfUnlocked();
   launchFireworks();
   chimePrize();
   setTimeout(chimeGood,300);
@@ -1362,6 +1443,8 @@ function launchFireworks(){
 /* ===== BOOT ===== */
 function startGame(){
   ensureAudio();
+  cleanupStarRecorder(true);
+  hideStarRecorder();
   state={notesCollected:0,prizes:[],noteDone:{},challenges:pickChallenges(),singing:false,singHits:0};
   document.getElementById('start').classList.add('hidden');
   document.getElementById('celeb').classList.remove('show');
@@ -1381,6 +1464,206 @@ document.getElementById('again-btn').addEventListener('click',()=>{
   startGame();
 });
 
+
+/* ===== STAR RECORDER ===== */
+let recStream=null, recRecorder=null, recChunks=[], recUrl=null, recBlob=null, recTimer=null, recStartAt=0, recPhase='idle';
+function recEl(id){ return document.getElementById(id); }
+function setRecStatus(msg){
+  const el=recEl('rec-status');
+  if(el) el.textContent=msg||'';
+}
+function applyRecorderControls(phase){
+  recPhase=phase;
+  const ui=recorderControlState(phase);
+  const map={record:'rec-record',stop:'rec-stop',play:'rec-play',download:'rec-download',rerecord:'rec-again'};
+  Object.keys(map).forEach(function(k){
+    const b=recEl(map[k]);
+    if(b) b.disabled=!ui[k];
+  });
+  const box=recEl('star-recorder');
+  if(box) box.classList.toggle('recording', phase==='recording');
+}
+function hideStarRecorder(){
+  const box=recEl('star-recorder');
+  if(box){
+    box.classList.remove('show','recording');
+    box.hidden=true;
+    box.setAttribute('aria-hidden','true');
+  }
+}
+function revealRecorderIfUnlocked(){
+  const box=recEl('star-recorder');
+  if(!box) return;
+  if(!canUnlockRecorder(state)){
+    hideStarRecorder();
+    return;
+  }
+  box.hidden=false;
+  box.classList.add('show');
+  box.setAttribute('aria-hidden','false');
+  if(!recorderSupported()){
+    applyRecorderControls('idle');
+    const rec=recEl('rec-record');
+    if(rec) rec.disabled=true;
+    setRecStatus(recStatusForUnsupported());
+  } else {
+    applyRecorderControls(recBlob ? 'recorded' : 'idle');
+    setRecStatus(recBlob
+      ? 'Nice! You can play it, download it, or record again.'
+      : 'You got every answer right! Tap Record when you want to sing.');
+  }
+}
+function stopRecTracks(){
+  if(recStream){
+    recStream.getTracks().forEach(function(tr){ try{ tr.stop(); }catch(e){} });
+    recStream=null;
+  }
+}
+function revokeRecUrl(){
+  if(recUrl){
+    try{ URL.revokeObjectURL(recUrl); }catch(e){}
+    recUrl=null;
+  }
+  const audio=recEl('rec-playback');
+  if(audio){
+    try{ audio.pause(); }catch(e){}
+    audio.removeAttribute('src');
+    try{ audio.load(); }catch(e){}
+  }
+}
+function clearRecTimer(){
+  if(recTimer){ clearTimeout(recTimer); recTimer=null; }
+}
+function cleanupStarRecorder(forgetBlob){
+  clearRecTimer();
+  if(recRecorder && recRecorder.state!=='inactive'){
+    try{ recRecorder.stop(); }catch(e){}
+  }
+  recRecorder=null;
+  recChunks=[];
+  stopRecTracks();
+  if(forgetBlob){
+    recBlob=null;
+    revokeRecUrl();
+    recPhase='idle';
+    setRecStatus('');
+    applyRecorderControls('idle');
+  }
+}
+function stopStarPlayback(){
+  const audio=recEl('rec-playback');
+  if(audio){ try{ audio.pause(); audio.currentTime=0; }catch(e){} }
+}
+function finishRecorderFromBlob(){
+  stopRecTracks();
+  clearRecTimer();
+  const mime=(recRecorder && recRecorder.mimeType) || (recChunks[0] && recChunks[0].type) || 'audio/webm';
+  recBlob=new Blob(recChunks, {type:mime});
+  recChunks=[];
+  recRecorder=null;
+  revokeRecUrl();
+  recUrl=URL.createObjectURL(recBlob);
+  const audio=recEl('rec-playback');
+  if(audio) audio.src=recUrl;
+  applyRecorderControls('recorded');
+  setRecStatus('Nice singing, Star! Play it back, download it, or record again.');
+}
+function stopStarRecord(){
+  clearRecTimer();
+  if(recRecorder && recRecorder.state==='recording'){
+    try{ recRecorder.stop(); }catch(e){ stopRecTracks(); }
+  } else {
+    stopRecTracks();
+    if(recChunks.length) finishRecorderFromBlob();
+    else applyRecorderControls(recBlob?'recorded':'idle');
+  }
+}
+function startStarRecord(){
+  if(!canUnlockRecorder(state)){
+    setRecStatus('Finish every note question first — you can record after all the answers are right!');
+    return;
+  }
+  if(!recorderSupported()){
+    setRecStatus(recStatusForUnsupported());
+    return;
+  }
+  if(recPhase==='recording') return;
+  stopStarPlayback();
+  recChunks=[];
+  setRecStatus('Please allow the microphone if asked…');
+  applyRecorderControls('recording');
+  const recBtn=recEl('rec-record');
+  if(recBtn) recBtn.disabled=true;
+  navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(stream){
+    recStream=stream;
+    const mime=pickRecorderMime();
+    try{
+      recRecorder= mime ? new MediaRecorder(stream, {mimeType:mime}) : new MediaRecorder(stream);
+    }catch(e){
+      try{ recRecorder=new MediaRecorder(stream); }catch(e2){
+        stopRecTracks();
+        applyRecorderControls('idle');
+        setRecStatus(recStatusForUnsupported());
+        return;
+      }
+    }
+    recChunks=[];
+    recRecorder.ondataavailable=function(ev){ if(ev && ev.data && ev.data.size) recChunks.push(ev.data); };
+    recRecorder.onstop=function(){ finishRecorderFromBlob(); };
+    recRecorder.start(250);
+    recStartAt=Date.now();
+    applyRecorderControls('recording');
+    setRecStatus('Recording… tap Stop when you are done (up to 1 minute).');
+    recTimer=setTimeout(function(){ recTimer=null; stopStarRecord(); }, REC_MAX_MS);
+  }).catch(function(err){
+    stopRecTracks();
+    applyRecorderControls('idle');
+    setRecStatus(recStatusForGetUserMediaError(err));
+  });
+}
+function playStarRecording(){
+  if(!recUrl) return;
+  const audio=recEl('rec-playback');
+  if(!audio) return;
+  if(!audio.src) audio.src=recUrl;
+  audio.play().catch(function(){ setRecStatus('Could not play that recording. Try recording again!'); });
+}
+function downloadStarRecording(){
+  if(!recBlob || !recUrl) return;
+  const a=document.createElement('a');
+  a.href=recUrl;
+  a.download='star-note-party-song.'+recExtensionForMime(recBlob.type||'');
+  a.rel='noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+function rerecordStar(){
+  if(recPhase==='recording') return;
+  stopStarPlayback();
+  recBlob=null;
+  revokeRecUrl();
+  applyRecorderControls('idle');
+  setRecStatus('Tap Record when you are ready to try again!');
+}
+function bindStarRecorder(){
+  const rec=recEl('rec-record'), stop=recEl('rec-stop'), play=recEl('rec-play');
+  const dl=recEl('rec-download'), again=recEl('rec-again');
+  if(rec) rec.addEventListener('click', function(e){ e.preventDefault(); startStarRecord(); });
+  if(stop) stop.addEventListener('click', function(e){ e.preventDefault(); stopStarRecord(); });
+  if(play) play.addEventListener('click', function(e){ e.preventDefault(); playStarRecording(); });
+  if(dl) dl.addEventListener('click', function(e){ e.preventDefault(); downloadStarRecording(); });
+  if(again) again.addEventListener('click', function(e){ e.preventDefault(); rerecordStar(); });
+  window.addEventListener('pagehide', function(){ cleanupStarRecorder(true); });
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){
+      if(recPhase==='recording') stopStarRecord();
+      stopRecTracks();
+    }
+  });
+}
+
+bindStarRecorder();
 buildStartFX();
 
 // Prevent iOS bounce scroll
