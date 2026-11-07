@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-07-dualstick-scares v1 -->
+<!-- build 2026-11-07-touchdrag v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -53,20 +53,14 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 #explore{position:absolute;inset:0;display:none;z-index:5}
 #explore.show{display:block}
-#viewport{position:absolute;inset:0;overflow:hidden;background:#070a14}
-#view{position:absolute;inset:0;width:100%;height:100%;display:block}
+#viewport{position:absolute;inset:0;overflow:hidden;background:#070a14;touch-action:none}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #view.chaos1{filter:saturate(1.05)}
 #view.chaos2{filter:saturate(1.15) hue-rotate(-8deg)}
 #view.chaos3{filter:saturate(1.3) hue-rotate(-16deg) contrast(1.08)}
 #lookPrompt{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);z-index:12;display:none;background:rgba(8,14,28,.86);border:2px solid rgba(124,240,255,.55);color:#9ef3ff;border-radius:16px;padding:10px 14px;font-size:clamp(14px,3.6vw,18px);font-weight:600;text-align:center;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #lookPrompt.show{display:block}
 
-#stickMove,#stickLook{position:absolute;z-index:35;width:min(42vw,176px);height:min(42vw,176px);display:none;touch-action:none;border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(30,42,78,.55),rgba(10,14,28,.82));border:3px solid rgba(124,240,255,.38);box-shadow:inset 0 0 0 10px rgba(8,12,24,.25),0 8px 18px rgba(0,0,0,.35)}
-#stickMove{left:max(10px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom))}
-#stickLook{right:max(10px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom))}
-#stickMove.show,#stickLook.show{display:block}
-.stick-knob{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);border:3px solid rgba(255,255,255,.35);box-shadow:0 6px 0 rgba(29,95,173,.85),0 10px 16px rgba(0,0,0,.35);pointer-events:none}
-.stick-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9d4ff;opacity:.8;pointer-events:none;text-align:center;line-height:1.15}
 #btnInteract{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;border:3px solid rgba(158,243,255,.55);box-shadow:0 7px 0 #1d5fad,0 12px 22px rgba(58,160,255,.3);touch-action:none}
 #btnInteract.show{display:block}
 #btnInteract.held,#btnInteract:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #1d5fad}
@@ -168,18 +162,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     </div>
     <div id="roomLabel">Hallway</div>
     <div id="speech"><span id="speechText">Walk, Explorer!</span></div>
-    <div id="dpad" class="dual-sticks" aria-label="Dual virtual joysticks for move and look">
-    <div id="stickMove" aria-label="Move stick: walk and strafe">
-      <div class="stick-knob" id="moveKnob"></div>
-      <div class="stick-label">move</div>
-    </div>
-    <div id="stickLook" aria-label="Look stick: turn and look up or down">
-      <div class="stick-knob" id="lookKnob"></div>
-      <div class="stick-label">look</div>
-    </div>
-    </div>
+    <div id="dpad" hidden aria-hidden="true"></div>
     <button type="button" id="btnInteract" aria-label="Open door">OPEN</button>
-    <div id="hintFloat">Left stick walks and strafes. Right stick looks around. Open glowing doors to find notebooks!</div>
+    <div id="hintFloat">drag left to walk / drag right to look</div>
   </div>
 
   <div id="quiz">
@@ -283,6 +268,24 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
   function lookFromStick(stickX, stickY){
     return {yaw: stickX, pitch: -stickY};
+  }
+  const MOVE_DRAG_RADIUS = 72;
+  const LOOK_YAW_SENS = 0.0045;
+  const LOOK_PITCH_SENS = 0.0032;
+  function regionFromStartX(x, width){
+    if(!(width > 0)) return 'look';
+    return x < width * 0.5 ? 'move' : 'look';
+  }
+  function shouldIgnoreControlTarget(el){
+    if(!el) return false;
+    const node = (el.nodeType === 3) ? el.parentElement : el;
+    if(!node || !node.closest) return false;
+    return !!node.closest('#btnInteract,#btnMute,#btnPlay,#btnRetry,#btnAgain,#quiz,.choice,button,a,input,textarea,select,label');
+  }
+  function lookFromFingerDelta(dx, dy, yawSens, pitchSens){
+    const ys = (yawSens == null) ? LOOK_YAW_SENS : yawSens;
+    const ps = (pitchSens == null) ? LOOK_PITCH_SENS : pitchSens;
+    return {yaw: dx * ys, pitch: -dy * ps};
   }
   function clampPitch(p){
     if(p > PITCH_MAX) return PITCH_MAX;
@@ -515,8 +518,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   const $ = (id) => document.getElementById(id);
   const keys = {up:false, down:false, left:false, right:false, strafeL:false, strafeR:false, lookUp:false, lookDown:false};
-  const moveStick = {active:false, pointerId:null, x:0, y:0};
-  const lookStick = {active:false, pointerId:null, x:0, y:0};
+  const moveStick = {active:false, pointerId:null, x:0, y:0, startX:0, startY:0};
+  const lookDrag = {active:false, pointerId:null, lastX:0, lastY:0};
   let state = 'title';
   let quizOpen = false;
   let paused = false;
@@ -1215,9 +1218,6 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(keys.right) yaw += 1;
     if(keys.lookUp) pitchDelta += 1;
     if(keys.lookDown) pitchDelta -= 1;
-    const look = lookFromStick(lookStick.x, lookStick.y);
-    yaw += look.yaw;
-    pitchDelta += look.pitch;
     player.dir += yaw * ROT_SPEED * dt;
     player.pitch = clampPitch((player.pitch || 0) + pitchDelta * LOOK_PITCH_SPEED * dt);
 
@@ -1290,8 +1290,6 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     $('explore').classList.toggle('show', on);
     $('hud').classList.toggle('show', on);
     $('roomLabel').classList.toggle('show', on);
-    if($('stickMove')) $('stickMove').classList.toggle('show', on);
-    if($('stickLook')) $('stickLook').classList.toggle('show', on);
     $('hintFloat').classList.toggle('show', on);
     $('btnInteract').classList.toggle('show', on);
     if(on) resizeView();
@@ -1332,23 +1330,21 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }, 1000);
   }
 
-  function resetStickVisual(el){
-    if(!el) return;
-    const knob = el.querySelector('.stick-knob');
-    if(knob) knob.style.transform = 'translate(0px, 0px)';
+  function clearMoveInput(){
+    moveStick.active = false;
+    moveStick.pointerId = null;
+    moveStick.x = 0;
+    moveStick.y = 0;
   }
-  function clearStick(st, el){
-    st.active = false;
-    st.pointerId = null;
-    st.x = 0;
-    st.y = 0;
-    resetStickVisual(el);
+  function clearLookInput(){
+    lookDrag.active = false;
+    lookDrag.pointerId = null;
   }
   function resetControls(){
     keys.up = keys.down = keys.left = keys.right = false;
     keys.strafeL = keys.strafeR = keys.lookUp = keys.lookDown = false;
-    clearStick(moveStick, $('stickMove'));
-    clearStick(lookStick, $('stickLook'));
+    clearMoveInput();
+    clearLookInput();
     playerMoving = false;
   }
   function releaseKeys(){ resetControls(); }
@@ -1588,47 +1584,61 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     requestAnimationFrame(tick);
   }
 
-  function bindStick(el, st){
-    if(!el) return;
-    function apply(e){
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width/2;
-      const cy = rect.top + rect.height/2;
-      const radius = Math.min(rect.width, rect.height) / 2;
-      const n = normalizeStick(e.clientX - cx, e.clientY - cy, radius, STICK_DEADZONE);
-      st.x = n.x; st.y = n.y; st.active = true;
-      const knob = el.querySelector('.stick-knob');
-      if(knob){
-        const reach = Math.max(12, radius * 0.55);
-        knob.style.transform = 'translate('+(n.x*reach)+'px,'+(n.y*reach)+'px)';
+  function bindPad(){
+    const surface = $('view') || $('viewport');
+    function onDown(e){
+      if(shouldIgnoreControlTarget(e.target)) return;
+      if(state !== 'explore' || quizOpen || paused || deathPending) return;
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
+      if(!surface) return;
+      const rect = surface.getBoundingClientRect();
+      const role = regionFromStartX(e.clientX - rect.left, rect.width);
+      if(role === 'move'){
+        if(moveStick.pointerId != null && moveStick.pointerId !== e.pointerId) return;
+        moveStick.pointerId = e.pointerId;
+        moveStick.active = true;
+        moveStick.startX = e.clientX;
+        moveStick.startY = e.clientY;
+        moveStick.x = 0;
+        moveStick.y = 0;
+      } else {
+        if(lookDrag.pointerId != null && lookDrag.pointerId !== e.pointerId) return;
+        lookDrag.pointerId = e.pointerId;
+        lookDrag.active = true;
+        lookDrag.lastX = e.clientX;
+        lookDrag.lastY = e.clientY;
+      }
+      try { surface.setPointerCapture(e.pointerId); } catch(err){}
+      e.preventDefault();
+    }
+    function onMove(e){
+      if(moveStick.pointerId === e.pointerId){
+        const n = normalizeStick(e.clientX - moveStick.startX, e.clientY - moveStick.startY, MOVE_DRAG_RADIUS, STICK_DEADZONE);
+        moveStick.x = n.x;
+        moveStick.y = n.y;
+        e.preventDefault();
+      } else if(lookDrag.pointerId === e.pointerId){
+        const dx = e.clientX - lookDrag.lastX;
+        const dy = e.clientY - lookDrag.lastY;
+        lookDrag.lastX = e.clientX;
+        lookDrag.lastY = e.clientY;
+        const look = lookFromFingerDelta(dx, dy);
+        player.dir += look.yaw;
+        player.pitch = clampPitch((player.pitch || 0) + look.pitch);
+        e.preventDefault();
       }
     }
-    el.addEventListener('pointerdown', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      if(st.pointerId != null && st.pointerId !== e.pointerId) return;
-      st.pointerId = e.pointerId;
-      try { el.setPointerCapture(e.pointerId); } catch(err){}
-      apply(e);
-    });
-    el.addEventListener('pointermove', function(e){
-      if(st.pointerId !== e.pointerId) return;
-      e.preventDefault();
-      apply(e);
-    });
-    function up(e){
-      if(st.pointerId != null && e && e.pointerId !== st.pointerId) return;
-      clearStick(st, el);
+    function onUp(e){
+      if(moveStick.pointerId === e.pointerId) clearMoveInput();
+      if(lookDrag.pointerId === e.pointerId) clearLookInput();
     }
-    el.addEventListener('pointerup', up);
-    el.addEventListener('pointercancel', up);
-    el.addEventListener('lostpointercapture', function(e){
-      if(st.pointerId === e.pointerId) clearStick(st, el);
-    });
-  }
-  function bindPad(){
-    bindStick($('stickMove'), moveStick);
-    bindStick($('stickLook'), lookStick);
+    if(surface){
+      surface.addEventListener('pointerdown', onDown);
+      surface.addEventListener('pointermove', onMove);
+      surface.addEventListener('pointerup', onUp);
+      surface.addEventListener('pointercancel', onUp);
+      surface.addEventListener('lostpointercapture', onUp);
+    }
     const act = $('btnInteract');
     const actOn = (e) => { e.preventDefault(); act.classList.add('held'); tryInteract(); };
     const actOff = () => act.classList.remove('held');
