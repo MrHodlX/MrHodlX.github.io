@@ -1597,8 +1597,9 @@ function recorderControlState(phase){
   return {record:true,stop:false,play:false,download:false,rerecord:false};
 }
 /* ::NOTE_PARTY_MIX_START:: */
-const REC_BEAT_BPM = 104;
+const REC_BEAT_BPM = 118;
 const REC_BEAT_SEC = 60 / REC_BEAT_BPM;
+const REC_BEAT_PROGRESSION = ['I','V','vi','IV'];
 const REC_MIC_GAIN = 1;
 const REC_BEAT_SPEAKER_GAIN = 0.26;
 const REC_BEAT_MIX_GAIN = 0.3;
@@ -1672,20 +1673,62 @@ function disconnectMixGraph(graph){
     try{ if(graph[k] && graph[k].disconnect) graph[k].disconnect(); }catch(e){}
   });
 }
-function recBeatPatternForBar(){
+function recProgressionDegree(barIndex){
+  return REC_BEAT_PROGRESSION[(((barIndex|0)%4)+4)%4];
+}
+function recChordForBar(barIndex){
+  const chords = [
+    {degree:'I',  root:130.81, fifth:196.00, oct:261.63, pad:[261.63,329.63,392.00]},
+    {degree:'V',  root:98.00,  fifth:146.83, oct:196.00, pad:[246.94,293.66,392.00]},
+    {degree:'vi', root:110.00, fifth:164.81, oct:220.00, pad:[220.00,261.63,329.63]},
+    {degree:'IV', root:87.31,  fifth:130.81, oct:174.61, pad:[174.61,220.00,261.63]}
+  ];
+  return chords[(((barIndex|0)%4)+4)%4];
+}
+function recBeatPatternForBar(barIndex){
+  const ch = recChordForBar(barIndex||0);
+  const hook = [
+    [{beat:0.5,freq:659.25,dur:0.28},{beat:2.5,freq:523.25,dur:0.28}],
+    [{beat:1.5,freq:587.33,dur:0.26},{beat:3.0,freq:493.88,dur:0.30}],
+    [{beat:0.5,freq:659.25,dur:0.28},{beat:2.5,freq:440.00,dur:0.32}],
+    [{beat:1.0,freq:698.46,dur:0.22},{beat:2.5,freq:659.25,dur:0.22},{beat:3.5,freq:587.33,dur:0.28}]
+  ][(((barIndex|0)%4)+4)%4];
   return {
-    kicks:[0,2],
+    degree: ch.degree,
+    kicks:[0,1,2,3],
+    claps:[1,3],
     snares:[1,3],
     hats:[0,0.5,1,1.5,2,2.5,3,3.5],
-    bass:[{beat:0,freq:98},{beat:1,freq:110},{beat:2,freq:130.81},{beat:3,freq:146.83}],
-    melody:[{beat:0,freq:392},{beat:1,freq:440},{beat:2,freq:523.25},{beat:3.5,freq:493.88}]
+    hatAccent:[0.5,1.5,2.5,3.5],
+    bass:[
+      {beat:0,    freq:ch.root,  vol:0.15, dur:0.28},
+      {beat:0.75, freq:ch.root,  vol:0.08, dur:0.16},
+      {beat:1.5,  freq:ch.oct,   vol:0.13, dur:0.22},
+      {beat:2,    freq:ch.root,  vol:0.15, dur:0.28},
+      {beat:2.75, freq:ch.fifth, vol:0.09, dur:0.16},
+      {beat:3.5,  freq:ch.oct,   vol:0.13, dur:0.20}
+    ],
+    chords:[{beat:0, freqs:ch.pad, dur:3.7, vol:0.026}],
+    melody: hook
   };
 }
 function beatEventsHaveBothPaths(pat){
   if(!pat) return false;
-  const perc = (pat.kicks&&pat.kicks.length) && (pat.snares&&pat.snares.length) && (pat.hats&&pat.hats.length);
-  const inst = (pat.bass&&pat.bass.length) && (pat.melody&&pat.melody.length);
+  const back = (pat.claps&&pat.claps.length) || (pat.snares&&pat.snares.length);
+  const perc = (pat.kicks&&pat.kicks.length) && back && (pat.hats&&pat.hats.length);
+  const inst = (pat.bass&&pat.bass.length) && ((pat.melody&&pat.melody.length) || (pat.chords&&pat.chords.length));
   return !!(perc && inst);
+}
+function recBeatIsFourOnTheFloor(pat){
+  return !!(pat && pat.kicks && pat.kicks.length===4 && pat.kicks[0]===0 && pat.kicks[1]===1 && pat.kicks[2]===2 && pat.kicks[3]===3);
+}
+function recBeatHasBackbeatClaps(pat){
+  const c = (pat && (pat.claps||pat.snares)) || [];
+  return c.indexOf(1)>=0 && c.indexOf(3)>=0;
+}
+function recHookIsRestrained(pat){
+  if(!pat || !pat.melody || !pat.hats) return false;
+  return pat.melody.length>0 && pat.melody.length < pat.hats.length && pat.melody.length <= 3;
 }
 /* ::NOTE_PARTY_MIX_END:: */
 /* ::NOTE_PARTY_LEVEL2_START:: */
@@ -2037,7 +2080,7 @@ function recPlayTone(ctx, destGain, freq, time, dur, type, vol){
   o.type=type||'sine';
   o.frequency.setValueAtTime(freq, time);
   g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.012);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.018);
   g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
   o.connect(g); g.connect(destGain);
   o.start(time); o.stop(time+dur+0.03);
@@ -2045,37 +2088,88 @@ function recPlayTone(ctx, destGain, freq, time, dur, type, vol){
 function recPlayKick(ctx, destGain, time){
   const o=ctx.createOscillator(), g=ctx.createGain();
   o.type='sine';
-  o.frequency.setValueAtTime(150, time);
-  o.frequency.exponentialRampToValueAtTime(48, time+0.18);
+  o.frequency.setValueAtTime(128, time);
+  o.frequency.exponentialRampToValueAtTime(46, time+0.14);
   g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(0.55, time+0.008);
-  g.gain.exponentialRampToValueAtTime(0.0001, time+0.22);
+  g.gain.exponentialRampToValueAtTime(0.30, time+0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, time+0.20);
   o.connect(g); g.connect(destGain);
-  o.start(time); o.stop(time+0.24);
+  o.start(time); o.stop(time+0.22);
+  const c=ctx.createOscillator(), cg=ctx.createGain();
+  c.type='sine';
+  c.frequency.setValueAtTime(780, time);
+  c.frequency.exponentialRampToValueAtTime(160, time+0.028);
+  cg.gain.setValueAtTime(0.0001, time);
+  cg.gain.exponentialRampToValueAtTime(0.07, time+0.003);
+  cg.gain.exponentialRampToValueAtTime(0.0001, time+0.032);
+  c.connect(cg); cg.connect(destGain);
+  c.start(time); c.stop(time+0.04);
 }
 function recPlayNoise(ctx, destGain, time, dur, vol, hipass){
   const src=ctx.createBufferSource();
   src.buffer=ensureNoiseBuffer(ctx);
   const f=ctx.createBiquadFilter();
   f.type=hipass?'highpass':'bandpass';
-  f.frequency.setValueAtTime(hipass?6000:1800, time);
+  f.frequency.setValueAtTime(hipass?7000:2100, time);
+  if(!hipass) f.Q.setValueAtTime(0.9, time);
   const g=ctx.createGain();
   g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.005);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.004);
   g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
   src.connect(f); f.connect(g); g.connect(destGain);
   src.start(time); src.stop(time+dur+0.02);
 }
-function scheduleRecBeatBar(ctx, beatGain, barStart){
-  const pat=recBeatPatternForBar();
-  pat.kicks.forEach(function(b){ recPlayKick(ctx, beatGain, barStart+b*REC_BEAT_SEC); });
-  pat.snares.forEach(function(b){
-    recPlayNoise(ctx, beatGain, barStart+b*REC_BEAT_SEC, 0.12, 0.28, false);
-    recPlayTone(ctx, beatGain, 180, barStart+b*REC_BEAT_SEC, 0.1, 'triangle', 0.12);
+function recPlayClap(ctx, destGain, time){
+  recPlayNoise(ctx, destGain, time, 0.07, 0.13, false);
+  recPlayNoise(ctx, destGain, time+0.013, 0.06, 0.09, false);
+  recPlayNoise(ctx, destGain, time+0.024, 0.04, 0.05, true);
+}
+function recPlayBass(ctx, destGain, freq, time, dur, vol){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type='triangle';
+  o.frequency.setValueAtTime(freq*1.03, time);
+  o.frequency.exponentialRampToValueAtTime(freq, time+0.03);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.012);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol*0.42), time+0.09);
+  g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
+  o.connect(g); g.connect(destGain);
+  o.start(time); o.stop(time+dur+0.03);
+}
+function recPlayChord(ctx, destGain, freqs, time, dur, vol){
+  (freqs||[]).forEach(function(f,i){
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(f, time);
+    const v=(vol||0.026)*(i===0?0.8:1);
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.linearRampToValueAtTime(v, time+0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+Math.max(0.12, dur));
+    o.connect(g); g.connect(destGain);
+    o.start(time); o.stop(time+dur+0.04);
   });
-  pat.hats.forEach(function(b){ recPlayNoise(ctx, beatGain, barStart+b*REC_BEAT_SEC, 0.045, 0.08, true); });
-  pat.bass.forEach(function(n){ recPlayTone(ctx, beatGain, n.freq, barStart+n.beat*REC_BEAT_SEC, REC_BEAT_SEC*0.85, 'triangle', 0.18); });
-  pat.melody.forEach(function(n){ recPlayTone(ctx, beatGain, n.freq, barStart+n.beat*REC_BEAT_SEC, REC_BEAT_SEC*0.45, 'sine', 0.14); });
+}
+function recPlayHook(ctx, destGain, freq, time, dur, vol){
+  recPlayTone(ctx, destGain, freq, time, dur, 'sine', vol||0.085);
+  recPlayTone(ctx, destGain, freq*2, time, dur*0.65, 'sine', (vol||0.085)*0.2);
+}
+function scheduleRecBeatBar(ctx, beatGain, barStart, barIndex){
+  const pat=recBeatPatternForBar(barIndex||0);
+  pat.kicks.forEach(function(b){ recPlayKick(ctx, beatGain, barStart+b*REC_BEAT_SEC); });
+  (pat.claps||pat.snares||[]).forEach(function(b){ recPlayClap(ctx, beatGain, barStart+b*REC_BEAT_SEC); });
+  pat.hats.forEach(function(b){
+    const accent=(pat.hatAccent||[]).indexOf(b)>=0;
+    recPlayNoise(ctx, beatGain, barStart+b*REC_BEAT_SEC, accent?0.038:0.028, accent?0.046:0.03, true);
+  });
+  pat.bass.forEach(function(n){
+    recPlayBass(ctx, beatGain, n.freq, barStart+n.beat*REC_BEAT_SEC, n.dur||0.24, n.vol||0.13);
+  });
+  (pat.chords||[]).forEach(function(c){
+    recPlayChord(ctx, beatGain, c.freqs, barStart+(c.beat||0)*REC_BEAT_SEC, (c.dur||3.6)*REC_BEAT_SEC, c.vol||0.026);
+  });
+  (pat.melody||[]).forEach(function(n){
+    recPlayHook(ctx, beatGain, n.freq, barStart+n.beat*REC_BEAT_SEC, n.dur||0.26, 0.082);
+  });
 }
 function startRecBeat(ctx, beatGain){
   stopRecBeat();
@@ -2085,7 +2179,7 @@ function startRecBeat(ctx, beatGain){
   function pump(){
     if(!recBeatActive) return;
     const barStart=recBeatStart+recBeatBar*REC_BEAT_SEC*4;
-    scheduleRecBeatBar(ctx, beatGain, barStart);
+    scheduleRecBeatBar(ctx, beatGain, barStart, recBeatBar);
     recBeatBar++;
     const nextAt=recBeatStart+recBeatBar*REC_BEAT_SEC*4;
     const wait=Math.max(40,(nextAt-0.12-ctx.currentTime)*1000);
