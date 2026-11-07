@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-07-dualstick-scares v1 -->
+<!-- build 2026-11-07-touchdrag v2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -53,20 +53,14 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 #explore{position:absolute;inset:0;display:none;z-index:5}
 #explore.show{display:block}
-#viewport{position:absolute;inset:0;overflow:hidden;background:#070a14}
-#view{position:absolute;inset:0;width:100%;height:100%;display:block}
+#viewport{position:absolute;inset:0;overflow:hidden;background:#070a14;touch-action:none}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #view.chaos1{filter:saturate(1.05)}
 #view.chaos2{filter:saturate(1.15) hue-rotate(-8deg)}
 #view.chaos3{filter:saturate(1.3) hue-rotate(-16deg) contrast(1.08)}
 #lookPrompt{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);z-index:12;display:none;background:rgba(8,14,28,.86);border:2px solid rgba(124,240,255,.55);color:#9ef3ff;border-radius:16px;padding:10px 14px;font-size:clamp(14px,3.6vw,18px);font-weight:600;text-align:center;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #lookPrompt.show{display:block}
 
-#stickMove,#stickLook{position:absolute;z-index:35;width:min(42vw,176px);height:min(42vw,176px);display:none;touch-action:none;border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(30,42,78,.55),rgba(10,14,28,.82));border:3px solid rgba(124,240,255,.38);box-shadow:inset 0 0 0 10px rgba(8,12,24,.25),0 8px 18px rgba(0,0,0,.35)}
-#stickMove{left:max(10px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom))}
-#stickLook{right:max(10px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom))}
-#stickMove.show,#stickLook.show{display:block}
-.stick-knob{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);border:3px solid rgba(255,255,255,.35);box-shadow:0 6px 0 rgba(29,95,173,.85),0 10px 16px rgba(0,0,0,.35);pointer-events:none}
-.stick-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9d4ff;opacity:.8;pointer-events:none;text-align:center;line-height:1.15}
 #btnInteract{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#7cf0ff,#3aa0ff);color:#071018;border:3px solid rgba(158,243,255,.55);box-shadow:0 7px 0 #1d5fad,0 12px 22px rgba(58,160,255,.3);touch-action:none}
 #btnInteract.show{display:block}
 #btnInteract.held,#btnInteract:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #1d5fad}
@@ -117,7 +111,23 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   #jumpscare.show .boom{animation:none}
   #popscare .pop-loom{animation:popFade .4s ease both}
   #app.shake{animation:none}
+  .ruler-swing{animation:none!important;transform:rotate(48deg)}
+  #ropeplay .player-rope path{transition:none}
 }
+.ruler-swing{transform-box:view-box;transform-origin:102px 170px;animation:rulerTap .62s cubic-bezier(.18,1.12,.32,1) both}
+@keyframes rulerTap{0%{transform:rotate(-52deg)}42%{transform:rotate(8deg)}68%{transform:rotate(40deg)}82%{transform:rotate(34deg)}100%{transform:rotate(48deg)}}
+#ropeplay{position:absolute;inset:0;z-index:55;display:none;align-items:center;justify-content:flex-end;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 38%,rgba(24,10,14,.12),rgba(4,2,8,.32));padding-bottom:max(96px,calc(env(safe-area-inset-bottom) + 88px));overflow:hidden}
+#ropeplay.show{display:flex}
+#ropeplay .rope-art{width:min(58vw,300px);pointer-events:none}
+#ropeplay .rope-art svg{width:100%;height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
+#ropeplay .player-rope{width:min(92vw,560px);height:86px;pointer-events:none;margin-top:-8px}
+#ropeplay .player-rope path{fill:none;stroke:#1a1a1a;stroke-width:6;stroke-linecap:round}
+#ropeplay.in-window .player-rope path{stroke:#d4a017}
+#ropeplay .rope-line{margin-top:6px;max-width:92%;text-align:center;font-size:clamp(18px,4.6vw,28px);font-weight:800;color:#fff4d2;text-shadow:0 0 12px #a01a4a,0 3px 0 #4a1020}
+#ropeplay .rope-count{margin-top:4px;font-size:clamp(20px,5vw,32px);font-weight:800;color:#ffe66d;text-shadow:0 2px 0 #5a1020}
+#btnJump{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#ff8fab,#e03131);color:#fff8f0;border:3px solid rgba(255,214,165,.65);box-shadow:0 7px 0 #9b1b1b,0 12px 22px rgba(224,49,49,.3);touch-action:none}
+#btnJump.show{display:block}
+#btnJump.held,#btnJump:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #9b1b1b}
 @keyframes boomPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes flameFlicker{from{transform:translateX(-50%) scaleY(.85) scaleX(1.05);opacity:.85}to{transform:translateX(-50%) scaleY(1.15) scaleX(.95);opacity:1}}
 
@@ -168,18 +178,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     </div>
     <div id="roomLabel">Hallway</div>
     <div id="speech"><span id="speechText">Walk, Explorer!</span></div>
-    <div id="dpad" class="dual-sticks" aria-label="Dual virtual joysticks for move and look">
-    <div id="stickMove" aria-label="Move stick: walk and strafe">
-      <div class="stick-knob" id="moveKnob"></div>
-      <div class="stick-label">move</div>
-    </div>
-    <div id="stickLook" aria-label="Look stick: turn and look up or down">
-      <div class="stick-knob" id="lookKnob"></div>
-      <div class="stick-label">look</div>
-    </div>
-    </div>
+    <div id="dpad" hidden aria-hidden="true"></div>
     <button type="button" id="btnInteract" aria-label="Open door">OPEN</button>
-    <div id="hintFloat">Left stick walks and strafes. Right stick looks around. Open glowing doors to find notebooks!</div>
+    <button type="button" id="btnJump" aria-label="Jump the rope">JUMP</button>
+    <div id="hintFloat">drag left to walk / drag right to look</div>
   </div>
 
   <div id="quiz">
@@ -198,6 +200,13 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   <div id="popscare" aria-hidden="true">
     <div class="pop-loom" id="popArt"></div>
     <div class="pop-line" id="popText">PEEK-A-BOO!</div>
+  </div>
+
+  <div id="ropeplay" aria-hidden="true">
+    <div class="rope-art" id="ropeArt"></div>
+    <svg class="player-rope" viewBox="0 0 200 80" aria-hidden="true"><path id="ropeArc" d="M8,16 Q100,22 192,16"/></svg>
+    <div class="rope-line" id="ropeText"></div>
+    <div class="rope-count" id="ropeCount"></div>
   </div>
 
   <div id="caught" class="screen">
@@ -229,6 +238,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const MAX_WRONG = 3;
   const CALC_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="11" ry="20" fill="#ffb347"/><ellipse class="flame" cx="149" cy="218" rx="6" ry="13" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="222" rx="3" ry="8" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="48" y="150" width="10" height="52" rx="5" fill="#f3c19a" transform="rotate(18 53 176)"/><rect x="140" y="148" width="10" height="48" rx="5" fill="#f3c19a" transform="rotate(-22 145 172)"/><g transform="rotate(-18 168 150)"><rect x="154" y="108" width="14" height="92" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M157 116h8M157 128h8M157 140h8M157 152h8M157 164h8M157 176h8M157 188h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#f3c19a"/><circle cx="102" cy="88" r="50" fill="#f3c19a"/><ellipse cx="84" cy="70" rx="16" ry="10" fill="#fbe0c8" opacity=".75"/><ellipse cx="52" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="152" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="84" cy="88" rx="6" ry="8" fill="#1a1a2e"/><ellipse cx="120" cy="88" rx="6" ry="8" fill="#1a1a2e"/><circle cx="86" cy="85" r="2" fill="#fff"/><circle cx="122" cy="85" r="2" fill="#fff"/><path d="M74 108 Q102 132 130 108" stroke="#c45c5c" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
   const SCARE_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="14" ry="26" fill="#ffb347"/><ellipse class="flame" cx="149" cy="220" rx="8" ry="16" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="226" rx="4" ry="10" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="44" y="148" width="10" height="54" rx="5" fill="#f3c19a" transform="rotate(28 49 175)"/><rect x="138" y="78" width="10" height="70" rx="5" fill="#f3c19a" transform="rotate(-38 143 113)"/><g transform="rotate(-52 150 70)"><rect x="136" y="8" width="16" height="110" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M140 18h8M140 32h8M140 46h8M140 60h8M140 74h8M140 88h8M140 102h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#e8a090"/><circle cx="102" cy="86" r="54" fill="#e8a090"/><ellipse cx="84" cy="68" rx="16" ry="10" fill="#f3c19a" opacity=".55"/><ellipse cx="48" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="156" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="82" cy="86" rx="9" ry="12" fill="#1a1a2e"/><ellipse cx="124" cy="86" rx="9" ry="12" fill="#1a1a2e"/><circle cx="85" cy="82" r="3" fill="#fff"/><circle cx="127" cy="82" r="3" fill="#fff"/><path d="M68 112 Q102 168 136 112" fill="#7a2020" stroke="#5a1010" stroke-width="3"/><path d="M78 124 Q102 150 126 124" fill="#3a0c0c"/></svg>';
+  const PRINCIPAL_SCARE_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="14" ry="26" fill="#ffb347"/><ellipse class="flame" cx="149" cy="220" rx="8" ry="16" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="226" rx="4" ry="10" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="44" y="148" width="10" height="54" rx="5" fill="#f3c19a" transform="rotate(28 49 175)"/><rect x="138" y="78" width="10" height="70" rx="5" fill="#f3c19a" transform="rotate(-38 143 113)"/><g class="ruler-swing"><rect x="94" y="58" width="16" height="112" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M98 70h8M98 84h8M98 98h8M98 112h8M98 126h8M98 140h8M98 154h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#e8a090"/><circle cx="102" cy="86" r="54" fill="#e8a090"/><ellipse cx="84" cy="68" rx="16" ry="10" fill="#f3c19a" opacity=".55"/><ellipse cx="48" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="156" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="82" cy="86" rx="9" ry="12" fill="#1a1a2e"/><ellipse cx="124" cy="86" rx="9" ry="12" fill="#1a1a2e"/><circle cx="85" cy="82" r="3" fill="#fff"/><circle cx="127" cy="82" r="3" fill="#fff"/><path d="M68 112 Q102 168 136 112" fill="#7a2020" stroke="#5a1010" stroke-width="3"/><path d="M78 124 Q102 150 126 124" fill="#3a0c0c"/></svg>';
 
   /* ::EXPLORER_LOGIC_START:: */
   const NEED_BOOKS = 6;
@@ -284,6 +294,24 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   function lookFromStick(stickX, stickY){
     return {yaw: stickX, pitch: -stickY};
   }
+  const MOVE_DRAG_RADIUS = 72;
+  const LOOK_YAW_SENS = 0.0045;
+  const LOOK_PITCH_SENS = 0.0032;
+  function regionFromStartX(x, width){
+    if(!(width > 0)) return 'look';
+    return x < width * 0.5 ? 'move' : 'look';
+  }
+  function shouldIgnoreControlTarget(el){
+    if(!el) return false;
+    const node = (el.nodeType === 3) ? el.parentElement : el;
+    if(!node || !node.closest) return false;
+    return !!node.closest('#btnInteract,#btnJump,#btnMute,#btnPlay,#btnRetry,#btnAgain,#quiz,#ropeplay,.choice,button,a,input,textarea,select,label');
+  }
+  function lookFromFingerDelta(dx, dy, yawSens, pitchSens){
+    const ys = (yawSens == null) ? LOOK_YAW_SENS : yawSens;
+    const ps = (pitchSens == null) ? LOOK_PITCH_SENS : pitchSens;
+    return {yaw: dx * ys, pitch: -dy * ps};
+  }
   function clampPitch(p){
     if(p > PITCH_MAX) return PITCH_MAX;
     if(p < -PITCH_MAX) return -PITCH_MAX;
@@ -295,6 +323,36 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(fired && fired.has && fired.has(id)) return false;
     if(lastTs != null && (now - lastTs) < cooldown) return false;
     return true;
+  }
+  const SCARE_APPEAR_DIST = 1.15;
+  const ROPE_NEED = 5;
+  const ROPE_JUMP_LO = 0.42;
+  const ROPE_JUMP_HI = 0.62;
+  function scareAppearPos(px, py, dir, dist){
+    const d = (dist == null) ? SCARE_APPEAR_DIST : dist;
+    return {x: px + Math.cos(dir) * d, y: py + Math.sin(dir) * d};
+  }
+  function ropePhaseWrap(phase){
+    let p = phase;
+    if(typeof p !== 'number' || !isFinite(p)) return 0;
+    p = p - Math.floor(p);
+    if(p < 0) p += 1;
+    return p;
+  }
+  function ropeJumpWindow(phase, lo, hi){
+    const p = ropePhaseWrap(phase);
+    const a = (lo == null) ? ROPE_JUMP_LO : lo;
+    const b = (hi == null) ? ROPE_JUMP_HI : hi;
+    return p >= a && p <= b;
+  }
+  function applyRopeJump(count, needed, inWindow){
+    const need = needed || ROPE_NEED;
+    const c = count || 0;
+    if(inWindow){
+      const next = c + 1;
+      return {count: next, missed: false, done: next >= need};
+    }
+    return {count: 0, missed: true, done: false};
   }
 
   const MAP_ROWS = [
@@ -515,8 +573,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   const $ = (id) => document.getElementById(id);
   const keys = {up:false, down:false, left:false, right:false, strafeL:false, strafeR:false, lookUp:false, lookDown:false};
-  const moveStick = {active:false, pointerId:null, x:0, y:0};
-  const lookStick = {active:false, pointerId:null, x:0, y:0};
+  const moveStick = {active:false, pointerId:null, x:0, y:0, startX:0, startY:0};
+  const lookDrag = {active:false, pointerId:null, lastX:0, lastY:0};
   let state = 'title';
   let quizOpen = false;
   let paused = false;
@@ -1034,6 +1092,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       viewCtx.fillRect(x, y1 - Math.max(2, (y1-y0)*0.08), 1, Math.max(2, (y1-y0)*0.08));
     }
     drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
+    drawRopeKidSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
     drawPopSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
     const prompt = $('lookPrompt');
     const looking = currentNotebookDoor();
@@ -1051,8 +1110,160 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
 
 
-  const POP_LOCKER_SVG = '<svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="18" y="12" width="124" height="196" rx="10" fill="#3d5278" stroke="#1c2a44" stroke-width="6"/><rect x="28" y="24" width="48" height="172" rx="6" fill="#5b739c"/><rect x="84" y="24" width="48" height="172" rx="6" fill="#4a628a"/><circle cx="68" cy="110" r="7" fill="#f4d35e"/><circle cx="92" cy="110" r="7" fill="#f4d35e"/><ellipse cx="62" cy="92" rx="10" ry="12" fill="#1a1a2e"/><ellipse cx="98" cy="92" rx="10" ry="12" fill="#1a1a2e"/><circle cx="65" cy="88" r="3" fill="#fff"/><circle cx="101" cy="88" r="3" fill="#fff"/><path d="M70 132 Q80 144 90 132" stroke="#f2c6c6" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
-  const POP_NOTE_SVG = '<svg viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="28" y="18" width="104" height="164" rx="8" fill="#f3efe2" stroke="#7c6a3a" stroke-width="5"/><path d="M44 52h72M44 76h72M44 100h72M44 124h56" stroke="#8aa0c8" stroke-width="6" stroke-linecap="round"/><ellipse cx="64" cy="40" rx="10" ry="12" fill="#1a1a2e"/><ellipse cx="96" cy="40" rx="10" ry="12" fill="#1a1a2e"/><circle cx="67" cy="36" r="3" fill="#fff"/><circle cx="99" cy="36" r="3" fill="#fff"/><path d="M70 58 Q80 70 90 58" stroke="#c45c5c" stroke-width="4" fill="none"/></svg>';
+
+
+  const ROPE_KID_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="rope-smile" d="M78 118 Q100 140 124 118" fill="none" stroke="#b03636" stroke-width="4" stroke-linecap="round"/></svg>';
+  const ROPE_KID_SAD_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="rope-frown" d="M80 132 Q100 116 122 132" fill="none" stroke="#6b3050" stroke-width="4" stroke-linecap="round"/></svg>';
+  let ropeKid = {x:10.5, y:3.5, visible:true};
+  let ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
+  let ropeKidImg = null;
+  function ensureRopeKidImg(){
+    if(ropeKidImg) return ropeKidImg;
+    ropeKidImg = new Image();
+    ropeKidImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ROPE_KID_SVG);
+    return ropeKidImg;
+  }
+  function isRopeLocking(){
+    return !!(ropePlay && ropePlay.active && !ropePlay.done);
+  }
+  function setRopeHud(line, countText){
+    if($('ropeText')) $('ropeText').textContent = line || '';
+    if($('ropeCount')) $('ropeCount').textContent = countText != null ? countText : ((ropePlay.count||0) + ' / ' + ROPE_NEED);
+  }
+  function showRopeUI(on){
+    const box = $('ropeplay');
+    if(box){
+      box.classList.toggle('show', !!on);
+      box.setAttribute('aria-hidden', on ? 'false' : 'true');
+    }
+    if($('btnJump')) $('btnJump').classList.toggle('show', !!on);
+    if($('btnInteract')){
+      if(on) $('btnInteract').classList.remove('show');
+      else if(state === 'explore') $('btnInteract').classList.add('show');
+    }
+  }
+  function updateRopeArc(){
+    const el = $('ropeArc');
+    if(!el) return;
+    const ph = ropePhaseWrap(ropePlay.phase);
+    const dip = reducedMotion ? 28 : (16 + Math.sin(ph * Math.PI) * 54);
+    el.setAttribute('d', 'M8,16 Q100,' + dip.toFixed(1) + ' 192,16');
+    const box = $('ropeplay');
+    if(box) box.classList.toggle('in-window', ropeJumpWindow(ropePlay.phase));
+  }
+  function hideRopePlay(){
+    showRopeUI(false);
+    if($('ropeplay')) $('ropeplay').classList.remove('in-window');
+  }
+  function startRopePlay(){
+    if(isRopeLocking() || quizOpen || paused || state !== 'explore' || deathPending) return false;
+    resetControls();
+    ropePlay.active = true;
+    ropePlay.count = 0;
+    ropePlay.phase = 0.08;
+    ropePlay.jumped = false;
+    ropePlay.done = false;
+    ropePlay.started = true;
+    if($('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SVG;
+    showRopeUI(true);
+    setRopeHud('Hey! Jump rope with me — pretty please? Five good jumps in a row! Jump when the rope swings low.', '0 / 5');
+    updateRopeArc();
+    return true;
+  }
+  function endRopePlay(sad){
+    if(sad && ropePlay.active && $('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SAD_SVG;
+    if(sad && ropePlay.active) setRopeHud('Oh no — our game stopped. I\'ll come find you later.', (ropePlay.count||0) + ' / ' + ROPE_NEED);
+    ropePlay.active = false;
+    ropePlay.done = false;
+    ropePlay.started = false;
+    ropePlay.cool = 15;
+    hideRopePlay();
+    ropeKid.x = 10.5;
+    ropeKid.y = 3.5;
+  }
+  function interruptRopePlay(){
+    if(ropePlay && ropePlay.active) endRopePlay(true);
+  }
+  function resetRopePlay(){
+    ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
+    ropeKid = {x:10.5, y:3.5, visible:true};
+    hideRopePlay();
+  }
+  function tryRopeJump(){
+    if(!isRopeLocking()) return false;
+    const inWin = ropeJumpWindow(ropePlay.phase);
+    const r = applyRopeJump(ropePlay.count, ROPE_NEED, inWin);
+    ropePlay.jumped = true;
+    if(r.missed){
+      ropePlay.count = 0;
+      setRopeHud('Missed it! That\'s okay — we start the five over! Jump when the rope swings low.', '0 / 5');
+      return true;
+    }
+    ropePlay.count = r.count;
+    const words = ['', 'One!', 'Two!', 'Three!', 'Four!', 'Five!'];
+    setRopeHud(words[r.count] || (r.count + '!'), r.count + ' / ' + ROPE_NEED);
+    if(r.done){
+      ropePlay.done = true;
+      setRopeHud('Five in a row! You\'re great at this. See you around the halls!', r.count + ' / ' + ROPE_NEED);
+      setTimeout(function(){ endRopePlay(false); }, reducedMotion ? 700 : 1400);
+    }
+    return true;
+  }
+  function updateRopeKid(dt){
+    if(ropePlay.cool > 0) ropePlay.cool -= dt;
+    if(isRopeLocking()){
+      ropePlay.phase += dt / (reducedMotion ? 1.25 : 0.95);
+      if(ropePlay.phase >= 1){
+        ropePlay.phase -= 1;
+        if(!ropePlay.jumped){
+          ropePlay.count = 0;
+          setRopeHud('The rope came around — that one didn\'t count! From the top, five in a row!', '0 / 5');
+        }
+        ropePlay.jumped = false;
+      }
+      updateRopeArc();
+      return;
+    }
+    if(state !== 'explore' || quizOpen || paused || deathPending) return;
+    const dx = player.x - ropeKid.x, dy = player.y - ropeKid.y;
+    const dist = Math.hypot(dx, dy);
+    if(ropePlay.cool <= 0 && dist < 0.88){
+      startRopePlay();
+      return;
+    }
+    const chase = ropePlay.cool <= 0 && dist < 8.5;
+    const speed = chase ? 3.05 : 1.25;
+    if(dist > 0.12){
+      tryMoveEntity(ropeKid, ropeKid.x + (dx/dist)*speed*dt, ropeKid.y + (dy/dist)*speed*dt, 0.2);
+    }
+    if(chase && dist < 6.5){
+      if(!ropePlay.invited){
+        ropePlay.invited = true;
+        say('Hey! Jump rope with me — five in a row!', 1600);
+      }
+    } else {
+      ropePlay.invited = false;
+    }
+  }
+  function drawRopeKidSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
+    if(!ropeKid || isRopeLocking()) return;
+    const img = ensureRopeKidImg();
+    if(!img.complete || !img.naturalWidth) return;
+    const dx = ropeKid.x - player.x;
+    const dy = ropeKid.y - player.y;
+    const invDet = 1.0 / (planeX * dirY - dirX * planeY);
+    const transformX = invDet * (dirY * dx - dirX * dy);
+    const transformY = invDet * (-planeY * dx + planeX * dy);
+    if(transformY <= 0.18) return;
+    const spriteScreenX = (w / 2) * (1 + transformX / transformY);
+    const spriteH = Math.abs(h / transformY) * 0.82;
+    const spriteW = spriteH * 0.72;
+    const drawStartY = (h - spriteH) / 2 + bob + spriteH * 0.1 + (typeof pitchShift==='number'?pitchShift:0);
+    const col = Math.floor(spriteScreenX);
+    if(col < 0 || col >= w) return;
+    if(transformY >= zbuf[col] - 0.02) return;
+    viewCtx.drawImage(img, spriteScreenX - spriteW/2, drawStartY, spriteW, spriteH);
+  }
 
   function hidePopScare(){
     const el = $('popscare');
@@ -1076,14 +1287,13 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     popFired.add(id);
     popLastAt = now;
     popUntil = now + (reducedMotion ? 0.55 : 0.85);
-    popWorld = {kind:kind, x:wx, y:wy, born:now};
+    const pos = scareAppearPos(player.x, player.y, player.dir, SCARE_APPEAR_DIST);
+    popWorld = {kind:'calc', x:pos.x, y:pos.y, born:now, teleport:true};
     const art = $('popArt');
     const textEl = $('popText');
     const box = $('popscare');
     if(art){
-      if(kind === 'note') art.innerHTML = POP_NOTE_SVG;
-      else if(kind === 'calc') art.innerHTML = SCARE_SVG;
-      else art.innerHTML = POP_LOCKER_SVG;
+      art.innerHTML = PRINCIPAL_SCARE_SVG;
     }
     if(textEl) textEl.textContent = line || 'PEEK-A-BOO!';
     if(box){
@@ -1111,11 +1321,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const now = (typeof performance !== 'undefined' && performance.now) ? performance.now()/1000 : Date.now()/1000;
     if(now > popUntil){ popWorld = null; return; }
     if(!drawPopSprite.cache) drawPopSprite.cache = {};
-    const kind = popWorld.kind || 'locker';
+    const kind = 'calc';
     let img = drawPopSprite.cache[kind];
     if(!img){
       img = new Image();
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(kind==='note' ? POP_NOTE_SVG : (kind==='calc' ? CALC_SVG : POP_LOCKER_SVG));
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SCARE_SVG);
       drawPopSprite.cache[kind] = img;
     }
     if(!img.complete || !img.naturalWidth) return;
@@ -1126,7 +1336,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const transformY = invDet * (-planeY * dx + planeX * dy);
     if(transformY <= 0.12) return;
     const age = Math.max(0, now - (popWorld.born||now));
-    const loom = 1 + Math.min(1.35, age * 2.4);
+    const loom = reducedMotion ? 1.12 : (1 + Math.min(1.35, age * 2.4));
     const spriteScreenX = (w / 2) * (1 + transformX / transformY);
     const spriteH = Math.abs(h / transformY) * 0.85 * loom;
     const spriteW = spriteH * 0.7;
@@ -1155,7 +1365,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }
     const doorKey = doorway ? (doorway.tx+','+doorway.ty) : '';
     if(doorway && doorKey !== lastDoorwayKey){
-      firePopScare('door:'+doorKey, 'locker', doorway.tx+0.5, doorway.ty+0.5, 'WHOA, A DOORWAY!');
+      firePopScare('door:'+doorKey, 'calc', doorway.tx+0.5, doorway.ty+0.5, 'HE POPPED IN!');
     }
     lastDoorwayKey = doorKey;
 
@@ -1164,21 +1374,21 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       return Math.hypot((b.tx+0.5)-player.x, (b.ty+0.5)-player.y) < 1.85;
     });
     if(nearBook){
-      firePopScare('note:'+nearBook.tx+','+nearBook.ty, 'note', nearBook.tx+0.5, nearBook.ty+0.5, 'A NOTEBOOK JUMPS OUT!');
+      firePopScare('note:'+nearBook.tx+','+nearBook.ty, 'calc', nearBook.tx+0.5, nearBook.ty+0.5, 'HE APPEARED!');
     }
 
     if(calc.visible){
       const d = Math.hypot(calc.x-player.x, calc.y-player.y);
       if(d > 1.4 && d < 3.4){
-        firePopScare('calc-peek', 'calc', calc.x, calc.y, 'HE PEEKED CLOSER!');
+        firePopScare('calc-peek', 'calc', calc.x, calc.y, 'HE TELEPORTED CLOSER!');
       }
     }
 
     if(tx >= 10 && tx <= 22 && ty >= 2 && ty <= 5){
-      firePopScare('hall-north', 'locker', player.x + Math.cos(player.dir)*1.15, player.y + Math.sin(player.dir)*1.15, 'HALLWAY SURPRISE!');
+      firePopScare('hall-north', 'calc', player.x + Math.cos(player.dir)*1.15, player.y + Math.sin(player.dir)*1.15, 'HE APPEARED!');
     }
     if(tx >= 14 && tx <= 19 && ty >= 14 && ty <= 16){
-      firePopScare('hall-south', 'note', player.x + Math.cos(player.dir)*1.15, player.y + Math.sin(player.dir)*1.15, 'SOMETHING DROPPED!');
+      firePopScare('hall-south', 'calc', player.x + Math.cos(player.dir)*1.15, player.y + Math.sin(player.dir)*1.15, 'THERE HE IS!');
     }
   }
   function spawnCalcAway(){
@@ -1199,6 +1409,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
 
   function tryInteract(){
+    if(isRopeLocking()){ tryRopeJump(); return true; }
     if(quizOpen || paused || state !== 'explore') return false;
     if(doorCD > 0) return false;
     const book = currentNotebookDoor();
@@ -1215,11 +1426,12 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(keys.right) yaw += 1;
     if(keys.lookUp) pitchDelta += 1;
     if(keys.lookDown) pitchDelta -= 1;
-    const look = lookFromStick(lookStick.x, lookStick.y);
-    yaw += look.yaw;
-    pitchDelta += look.pitch;
     player.dir += yaw * ROT_SPEED * dt;
     player.pitch = clampPitch((player.pitch || 0) + pitchDelta * LOOK_PITCH_SPEED * dt);
+    if(isRopeLocking()){
+      playerMoving = false;
+      return;
+    }
 
     let fwd = 0, strafe = 0;
     if(keys.up) fwd += 1;
@@ -1290,10 +1502,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     $('explore').classList.toggle('show', on);
     $('hud').classList.toggle('show', on);
     $('roomLabel').classList.toggle('show', on);
-    if($('stickMove')) $('stickMove').classList.toggle('show', on);
-    if($('stickLook')) $('stickLook').classList.toggle('show', on);
     $('hintFloat').classList.toggle('show', on);
-    $('btnInteract').classList.toggle('show', on);
+    $('btnInteract').classList.toggle('show', on && !isRopeLocking());
+    if($('btnJump')) $('btnJump').classList.toggle('show', on && isRopeLocking());
     if(on) resizeView();
   }
   function showScreen(id){
@@ -1332,29 +1543,28 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }, 1000);
   }
 
-  function resetStickVisual(el){
-    if(!el) return;
-    const knob = el.querySelector('.stick-knob');
-    if(knob) knob.style.transform = 'translate(0px, 0px)';
+  function clearMoveInput(){
+    moveStick.active = false;
+    moveStick.pointerId = null;
+    moveStick.x = 0;
+    moveStick.y = 0;
   }
-  function clearStick(st, el){
-    st.active = false;
-    st.pointerId = null;
-    st.x = 0;
-    st.y = 0;
-    resetStickVisual(el);
+  function clearLookInput(){
+    lookDrag.active = false;
+    lookDrag.pointerId = null;
   }
   function resetControls(){
     keys.up = keys.down = keys.left = keys.right = false;
     keys.strafeL = keys.strafeR = keys.lookUp = keys.lookDown = false;
-    clearStick(moveStick, $('stickMove'));
-    clearStick(lookStick, $('stickLook'));
+    clearMoveInput();
+    clearLookInput();
     playerMoving = false;
   }
   function releaseKeys(){ resetControls(); }
 
   function startQuiz(book){
     if(quizOpen || paused) return;
+    interruptRopePlay();
     quizOpen = true;
     paused = true;
     state = 'quiz';
@@ -1459,6 +1669,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   function jumpScare(line){
     resetControls();
     hidePopScare();
+    interruptRopePlay();
     state = 'scare';
     paused = true;
     quizOpen = false;
@@ -1467,6 +1678,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     void app.offsetWidth;
     app.classList.add('shake');
     const scare = $('jumpscare');
+    if($('scareArt')) $('scareArt').innerHTML = PRINCIPAL_SCARE_SVG;
     $('scareText').textContent = deathPending ? 'GOTCHA, EXPLORER!' : 'POP QUIZ, EXPLORER!';
     scare.classList.remove('show');
     void scare.offsetWidth;
@@ -1555,6 +1767,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     doorCD = 0.3;
     resetControls();
     resetPopScares();
+    resetRopePlay();
     showScreen(null);
     updateHud();
     resizeView();
@@ -1578,6 +1791,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     } else if(state === 'explore'){
       updatePlayer(dt);
       updateCalc(dt);
+      updateRopeKid(dt);
       checkCatch();
       checkPopScares();
       updateHud();
@@ -1588,53 +1802,75 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     requestAnimationFrame(tick);
   }
 
-  function bindStick(el, st){
-    if(!el) return;
-    function apply(e){
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width/2;
-      const cy = rect.top + rect.height/2;
-      const radius = Math.min(rect.width, rect.height) / 2;
-      const n = normalizeStick(e.clientX - cx, e.clientY - cy, radius, STICK_DEADZONE);
-      st.x = n.x; st.y = n.y; st.active = true;
-      const knob = el.querySelector('.stick-knob');
-      if(knob){
-        const reach = Math.max(12, radius * 0.55);
-        knob.style.transform = 'translate('+(n.x*reach)+'px,'+(n.y*reach)+'px)';
+  function bindPad(){
+    const surface = $('view') || $('viewport');
+    function onDown(e){
+      if(shouldIgnoreControlTarget(e.target)) return;
+      if(state !== 'explore' || quizOpen || paused || deathPending) return;
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
+      if(!surface) return;
+      const rect = surface.getBoundingClientRect();
+      const role = regionFromStartX(e.clientX - rect.left, rect.width);
+      if(role === 'move'){
+        if(moveStick.pointerId != null && moveStick.pointerId !== e.pointerId) return;
+        moveStick.pointerId = e.pointerId;
+        moveStick.active = true;
+        moveStick.startX = e.clientX;
+        moveStick.startY = e.clientY;
+        moveStick.x = 0;
+        moveStick.y = 0;
+      } else {
+        if(lookDrag.pointerId != null && lookDrag.pointerId !== e.pointerId) return;
+        lookDrag.pointerId = e.pointerId;
+        lookDrag.active = true;
+        lookDrag.lastX = e.clientX;
+        lookDrag.lastY = e.clientY;
+      }
+      try { surface.setPointerCapture(e.pointerId); } catch(err){}
+      e.preventDefault();
+    }
+    function onMove(e){
+      if(moveStick.pointerId === e.pointerId){
+        const n = normalizeStick(e.clientX - moveStick.startX, e.clientY - moveStick.startY, MOVE_DRAG_RADIUS, STICK_DEADZONE);
+        moveStick.x = n.x;
+        moveStick.y = n.y;
+        e.preventDefault();
+      } else if(lookDrag.pointerId === e.pointerId){
+        const dx = e.clientX - lookDrag.lastX;
+        const dy = e.clientY - lookDrag.lastY;
+        lookDrag.lastX = e.clientX;
+        lookDrag.lastY = e.clientY;
+        const look = lookFromFingerDelta(dx, dy);
+        player.dir += look.yaw;
+        player.pitch = clampPitch((player.pitch || 0) + look.pitch);
+        e.preventDefault();
       }
     }
-    el.addEventListener('pointerdown', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      if(st.pointerId != null && st.pointerId !== e.pointerId) return;
-      st.pointerId = e.pointerId;
-      try { el.setPointerCapture(e.pointerId); } catch(err){}
-      apply(e);
-    });
-    el.addEventListener('pointermove', function(e){
-      if(st.pointerId !== e.pointerId) return;
-      e.preventDefault();
-      apply(e);
-    });
-    function up(e){
-      if(st.pointerId != null && e && e.pointerId !== st.pointerId) return;
-      clearStick(st, el);
+    function onUp(e){
+      if(moveStick.pointerId === e.pointerId) clearMoveInput();
+      if(lookDrag.pointerId === e.pointerId) clearLookInput();
     }
-    el.addEventListener('pointerup', up);
-    el.addEventListener('pointercancel', up);
-    el.addEventListener('lostpointercapture', function(e){
-      if(st.pointerId === e.pointerId) clearStick(st, el);
-    });
-  }
-  function bindPad(){
-    bindStick($('stickMove'), moveStick);
-    bindStick($('stickLook'), lookStick);
+    if(surface){
+      surface.addEventListener('pointerdown', onDown);
+      surface.addEventListener('pointermove', onMove);
+      surface.addEventListener('pointerup', onUp);
+      surface.addEventListener('pointercancel', onUp);
+      surface.addEventListener('lostpointercapture', onUp);
+    }
     const act = $('btnInteract');
     const actOn = (e) => { e.preventDefault(); act.classList.add('held'); tryInteract(); };
     const actOff = () => act.classList.remove('held');
     act.addEventListener('pointerdown', (e) => { try{ act.setPointerCapture(e.pointerId); }catch(err){} actOn(e); });
     act.addEventListener('pointerup', actOff);
     act.addEventListener('pointercancel', actOff);
+    const jmp = $('btnJump');
+    if(jmp){
+      const jmpOn = (e) => { e.preventDefault(); e.stopPropagation(); jmp.classList.add('held'); tryRopeJump(); };
+      const jmpOff = () => jmp.classList.remove('held');
+      jmp.addEventListener('pointerdown', (e) => { try{ jmp.setPointerCapture(e.pointerId); }catch(err){} jmpOn(e); });
+      jmp.addEventListener('pointerup', jmpOff);
+      jmp.addEventListener('pointercancel', jmpOff);
+    }
     window.addEventListener('keydown', (e) => {
       const map = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', W:'up', A:'left', S:'down', D:'right'};
       const extra = {q:'strafeL', Q:'strafeL', c:'strafeR', C:'strafeR', r:'lookUp', R:'lookUp', f:'lookDown', F:'lookDown', PageUp:'lookUp', PageDown:'lookDown'};
@@ -1674,7 +1910,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   makeStars();
   bindPad();
   resizeView();
-  if($('scareArt')) $('scareArt').innerHTML = SCARE_SVG;
+  if($('scareArt')) $('scareArt').innerHTML = PRINCIPAL_SCARE_SVG;
   requestAnimationFrame(tick);
 })();
 </script>
