@@ -466,6 +466,45 @@ button{font-family:inherit;border:none;cursor:pointer}
   background:linear-gradient(180deg,#ffe66d,#fbbf24);color:#1a0a2e;
   box-shadow:0 5px 0 #d97706;
 }
+
+.level2-btn{
+  padding:16px 36px;font-size:22px;font-weight:700;border-radius:999px;
+  background:linear-gradient(180deg,#67e8f9,#22d3ee);color:#1a0a2e;
+  box-shadow:0 5px 0 #0e7490;margin:4px 0 16px;max-width:420px;width:min(92vw,420px);
+}
+.level2-btn[hidden]{display:none!important}
+#level2{
+  position:absolute;inset:0;z-index:98;display:none;
+  background:radial-gradient(ellipse at center,#0ea5e9 0%,#1e1b4b 55%,#1a0a2e 100%);
+  flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;
+}
+#level2.show{display:flex}
+.l2-title{font-size:clamp(26px,7vw,36px);font-weight:700;color:#ffe66d;margin-bottom:6px;text-align:center}
+.l2-sub{font-size:16px;color:#e0f2fe;text-align:center;max-width:420px;margin-bottom:10px;line-height:1.35}
+.l2-round{font-size:18px;font-weight:700;color:#67e8f9;margin-bottom:8px}
+.l2-status{min-height:28px;font-size:18px;color:#fce7f3;text-align:center;margin-bottom:14px;max-width:400px}
+.l2-pads{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(92vw,360px);margin:0 0 18px}
+.l2-pad{
+  min-height:88px;border-radius:22px;font-size:34px;font-weight:700;color:#1a0a2e;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  box-shadow:0 5px 0 rgba(0,0,0,.25);border:3px solid rgba(255,255,255,.35);
+}
+.l2-pad span{font-size:14px;font-weight:700}
+.l2-pad[data-inst="0"]{background:linear-gradient(180deg,#fda4af,#fb7185)}
+.l2-pad[data-inst="1"]{background:linear-gradient(180deg,#7dd3fc,#38bdf8)}
+.l2-pad[data-inst="2"]{background:linear-gradient(180deg,#fde047,#fbbf24)}
+.l2-pad[data-inst="3"]{background:linear-gradient(180deg,#6ee7b7,#34d399)}
+.l2-pad.lit{transform:scale(1.06);filter:brightness(1.15);box-shadow:0 0 24px rgba(255,230,109,.85),0 5px 0 rgba(0,0,0,.2)}
+.l2-pad:disabled{opacity:.55}
+.l2-start{padding:14px 32px;border-radius:999px;font-size:20px;font-weight:700;color:#1a0a2e;background:linear-gradient(180deg,#ffe66d,#fbbf24);box-shadow:0 4px 0 #d97706;margin-bottom:10px}
+.l2-back{padding:12px 28px;border-radius:999px;font-size:16px;font-weight:600;background:rgba(255,255,255,.15);color:#fff;margin-top:4px}
+.l2-play{display:flex;flex-direction:column;align-items:center;width:100%}
+.l2-play.hidden,.l2-win.hidden{display:none!important}
+.l2-win{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:12px}
+.l2-win-title{font-size:clamp(24px,6vw,34px);font-weight:700;color:#ffe66d}
+.l2-win-msg{font-size:18px;color:#fce7f3;max-width:360px;line-height:1.4}
+.l2-win-btn{padding:14px 28px;border-radius:999px;font-size:18px;font-weight:700;color:#1a0a2e;background:linear-gradient(180deg,#67e8f9,#22d3ee);box-shadow:0 4px 0 #0e7490}
+.l2-win-btn.alt{background:linear-gradient(180deg,#ffe66d,#fbbf24);box-shadow:0 4px 0 #d97706}
 </style>
 </head>
 <body>
@@ -532,9 +571,10 @@ button{font-family:inherit;border:none;cursor:pointer}
     <div class="trophy">🏆</div>
     <div class="celeb-msg">You collected all 10 notes!<br>Dance party forever! 🎉</div>
     <div class="celeb-prizes" id="celeb-prizes"></div>
+    <button type="button" class="level2-btn" id="level2-btn" hidden>▶ Level 2: Music Memory!</button>
     <div id="star-recorder" hidden aria-hidden="true">
-      <div class="rec-title">🎤 Record your song, Star!</div>
-      <p class="rec-hint" id="rec-hint">You got every answer right! Tap Record when you want to sing. Nothing is sent anywhere — it stays on this device.</p>
+      <div class="rec-title">🎤 Recording Studio</div>
+      <p class="rec-hint" id="rec-hint">You got every answer right! Tap Record to sing with a backing beat — your voice and the music are saved together. Headphones help so the beat is not picked up twice. Nothing is sent anywhere — it stays on this device.</p>
       <div class="rec-actions">
         <button type="button" class="rec-btn" id="rec-record">● Record</button>
         <button type="button" class="rec-btn stop" id="rec-stop" disabled>■ Stop</button>
@@ -546,6 +586,30 @@ button{font-family:inherit;border:none;cursor:pointer}
       <audio id="rec-playback" preload="none"></audio>
     </div>
     <button class="again-btn" id="again-btn" type="button">Play again</button>
+  </div>
+
+  <div id="level2">
+    <div class="l2-play" id="l2-play">
+      <div class="l2-title">🎵 Music Memory</div>
+      <p class="l2-sub">Listen to the colorful instruments, then play the same pattern back. Each round adds one more sound!</p>
+      <div class="l2-round" id="l2-round">Round 1 of 6</div>
+      <div class="l2-status" id="l2-status" aria-live="polite">Tap Start to hear the first pattern.</div>
+      <div class="l2-pads" id="l2-pads" role="group" aria-label="Instruments">
+        <button type="button" class="l2-pad" data-inst="0" aria-label="Pink Chime">🔔<span>Pink Chime</span></button>
+        <button type="button" class="l2-pad" data-inst="1" aria-label="Blue Drum">🥁<span>Blue Drum</span></button>
+        <button type="button" class="l2-pad" data-inst="2" aria-label="Yellow Pluck">🎸<span>Yellow Pluck</span></button>
+        <button type="button" class="l2-pad" data-inst="3" aria-label="Green Horn">🎺<span>Green Horn</span></button>
+      </div>
+      <button type="button" class="l2-start" id="l2-start">▶ Start</button>
+      <button type="button" class="l2-back" id="l2-back">Back to Party</button>
+    </div>
+    <div class="l2-win hidden" id="l2-win">
+      <div class="l2-win-title">🎉 You remembered the song!</div>
+      <p class="l2-win-msg">Level 2 complete! Play again, visit the recording studio, or go back to the party.</p>
+      <button type="button" class="l2-win-btn alt" id="l2-again">Play Level 2 again</button>
+      <button type="button" class="l2-win-btn" id="l2-studio">🎤 Recording Studio</button>
+      <button type="button" class="l2-back" id="l2-win-back">Back to Party</button>
+    </div>
   </div>
 
   <div id="particles"></div>
@@ -1266,6 +1330,8 @@ function renderLyrics(activeIdx){
 }
 
 function openSing(){
+  closeLevel2();
+  if(recPhase==='recording') stopStarRecord();
   ensureAudio();
   pickEnglishVoice();
   document.getElementById('singalong').classList.add('show');
@@ -1530,6 +1596,133 @@ function recorderControlState(phase){
   if(phase==='recorded') return {record:false,stop:false,play:true,download:true,rerecord:true};
   return {record:true,stop:false,play:false,download:false,rerecord:false};
 }
+/* ::NOTE_PARTY_MIX_START:: */
+const REC_BEAT_BPM = 104;
+const REC_BEAT_SEC = 60 / REC_BEAT_BPM;
+const REC_MIC_GAIN = 1;
+const REC_BEAT_SPEAKER_GAIN = 0.26;
+const REC_BEAT_MIX_GAIN = 0.3;
+const REC_MIX_MASTER_GAIN = 0.85;
+function mixedRecordingSupported(env){
+  const e = env || {};
+  const AC = e.AudioContext || (typeof window!=='undefined' && (window.AudioContext||window.webkitAudioContext));
+  const MR = (e.MediaRecorder!==undefined) ? e.MediaRecorder : (typeof window!=='undefined' ? window.MediaRecorder : undefined);
+  const md = (e.mediaDevices!==undefined) ? e.mediaDevices : (typeof navigator!=='undefined' ? navigator.mediaDevices : undefined);
+  if(!AC || !MR || !md || !md.getUserMedia) return false;
+  const proto = AC.prototype || {};
+  if(typeof proto.createMediaStreamSource !== 'function') return false;
+  if(typeof proto.createMediaStreamDestination !== 'function') return false;
+  return true;
+}
+function recStatusForMixedUnsupported(){
+  return "This browser can't mix a beat into your recording (it would only save the microphone). Try another browser — I don't want to save your voice without the music.";
+}
+function recStatusForRecordingWithBeat(){
+  return 'Recording with the beat… tap Stop when you are done (up to 1 minute). Headphones help so the beat is not picked up twice.';
+}
+function recIdleHintWithBeat(){
+  return 'Tap Record to sing with a backing beat (headphones help!). Your voice and the music are saved together.';
+}
+function destStreamHasAudio(stream){
+  try{ return !!(stream && stream.getAudioTracks && stream.getAudioTracks().length); }
+  catch(e){ return false; }
+}
+function shouldMonitorMicToSpeakers(){ return false; }
+function whichStreamToRecord(graph, micStream){
+  if(graph && destStreamHasAudio(graph.mixedStream)) return graph.mixedStream;
+  return null;
+}
+function buildMixGraph(ctx, micStream, opts){
+  opts = opts || {};
+  if(!ctx || typeof ctx.createMediaStreamSource !== 'function' || typeof ctx.createMediaStreamDestination !== 'function'){
+    const err = new Error('mixed-destination-unsupported');
+    err.code = 'mixed-destination-unsupported';
+    throw err;
+  }
+  const micSource = ctx.createMediaStreamSource(micStream);
+  const micGain = ctx.createGain();
+  micGain.gain.value = (opts.micGain!=null) ? opts.micGain : REC_MIC_GAIN;
+  const beatGain = ctx.createGain();
+  beatGain.gain.value = 1;
+  const speakerGain = ctx.createGain();
+  speakerGain.gain.value = (opts.speakerGain!=null) ? opts.speakerGain : REC_BEAT_SPEAKER_GAIN;
+  const mixBeatGain = ctx.createGain();
+  mixBeatGain.gain.value = (opts.mixBeatGain!=null) ? opts.mixBeatGain : REC_BEAT_MIX_GAIN;
+  const mixMaster = ctx.createGain();
+  mixMaster.gain.value = (opts.mixMaster!=null) ? opts.mixMaster : REC_MIX_MASTER_GAIN;
+  const dest = ctx.createMediaStreamDestination();
+  micSource.connect(micGain);
+  micGain.connect(mixMaster);
+  if(opts.monitorMic){ micGain.connect(ctx.destination); }
+  beatGain.connect(speakerGain);
+  speakerGain.connect(ctx.destination);
+  beatGain.connect(mixBeatGain);
+  mixBeatGain.connect(mixMaster);
+  mixMaster.connect(dest);
+  if(!destStreamHasAudio(dest.stream)){
+    const err = new Error('mixed-destination-no-tracks');
+    err.code = 'mixed-destination-no-tracks';
+    throw err;
+  }
+  return {micSource:micSource, micGain:micGain, beatGain:beatGain, speakerGain:speakerGain, mixBeatGain:mixBeatGain, mixMaster:mixMaster, dest:dest, mixedStream:dest.stream, micMonitored:!!opts.monitorMic};
+}
+function disconnectMixGraph(graph){
+  if(!graph) return;
+  ['micSource','micGain','beatGain','speakerGain','mixBeatGain','mixMaster'].forEach(function(k){
+    try{ if(graph[k] && graph[k].disconnect) graph[k].disconnect(); }catch(e){}
+  });
+}
+function recBeatPatternForBar(){
+  return {
+    kicks:[0,2],
+    snares:[1,3],
+    hats:[0,0.5,1,1.5,2,2.5,3,3.5],
+    bass:[{beat:0,freq:98},{beat:1,freq:110},{beat:2,freq:130.81},{beat:3,freq:146.83}],
+    melody:[{beat:0,freq:392},{beat:1,freq:440},{beat:2,freq:523.25},{beat:3.5,freq:493.88}]
+  };
+}
+function beatEventsHaveBothPaths(pat){
+  if(!pat) return false;
+  const perc = (pat.kicks&&pat.kicks.length) && (pat.snares&&pat.snares.length) && (pat.hats&&pat.hats.length);
+  const inst = (pat.bass&&pat.bass.length) && (pat.melody&&pat.melody.length);
+  return !!(perc && inst);
+}
+/* ::NOTE_PARTY_MIX_END:: */
+/* ::NOTE_PARTY_LEVEL2_START:: */
+const L2_ROUNDS = 6;
+const L2_START_LEN = 2;
+const L2_INSTRUMENTS = [
+  {id:0, name:'Pink Chime', emoji:'🔔', freq:659.25, type:'sine'},
+  {id:1, name:'Blue Drum', emoji:'🥁', freq:90, type:'sine'},
+  {id:2, name:'Yellow Pluck', emoji:'🎸', freq:329.63, type:'triangle'},
+  {id:3, name:'Green Horn', emoji:'🎺', freq:392, type:'sawtooth'}
+];
+function canUnlockLevelTwo(state){ return canUnlockRecorder(state); }
+function l2PatternLengthForRound(round){ return L2_START_LEN + (round|0); }
+function l2IsWinningRound(round, total){ return ((round|0)+1) >= (total||L2_ROUNDS); }
+function l2InputCorrect(pattern, inputIdx, inst){
+  if(!pattern || inputIdx<0 || inputIdx>=pattern.length) return false;
+  return pattern[inputIdx]===inst;
+}
+function l2AppendRandom(pattern, count, randFn){
+  const next = (pattern||[]).slice();
+  const rnd = randFn || Math.random;
+  next.push(Math.floor(rnd()*count)%count);
+  return next;
+}
+function l2MakePattern(length, count, randFn){
+  const p=[], rnd=randFn||Math.random;
+  for(let i=0;i<length;i++) p.push(Math.floor(rnd()*count)%count);
+  return p;
+}
+function l2KeyToInstrument(key){
+  const map={'1':0,'2':1,'3':2,'4':3,'q':0,'w':1,'e':2,'r':3};
+  if(key==null) return -1;
+  const k=String(key).toLowerCase();
+  return Object.prototype.hasOwnProperty.call(map,k) ? map[k] : -1;
+}
+function l2ShouldAcceptInput(phase){ return phase==='repeating'; }
+/* ::NOTE_PARTY_LEVEL2_END:: */
 /* ::NOTE_PARTY_RECORDER_END:: */
 
 /* ===== CELEBRATION ===== */
@@ -1545,6 +1738,7 @@ function showCelebration(){
   });
   celeb.classList.add('show');
   revealRecorderIfUnlocked();
+  revealLevelTwoIfUnlocked();
   launchFireworks();
   chimePrize();
   setTimeout(chimeGood,300);
@@ -1575,11 +1769,14 @@ function launchFireworks(){
 /* ===== BOOT ===== */
 function startGame(){
   ensureAudio();
+  closeLevel2();
   cleanupStarRecorder(true);
   hideStarRecorder();
   state={notesCollected:0,prizes:[],noteDone:{},challenges:pickChallenges(),singing:false,singHits:0};
   document.getElementById('start').classList.add('hidden');
   document.getElementById('celeb').classList.remove('show');
+  const l2el=document.getElementById('level2');
+  if(l2el) l2el.classList.remove('show');
   document.getElementById('world-wrap').classList.add('show');
   document.getElementById('hud').classList.add('show');
   buildWorld();
@@ -1599,6 +1796,9 @@ document.getElementById('again-btn').addEventListener('click',()=>{
 
 /* ===== STAR RECORDER ===== */
 let recStream=null, recRecorder=null, recChunks=[], recUrl=null, recBlob=null, recTimer=null, recStartAt=0, recPhase='idle';
+let recMixGraph=null, recBeatTimer=null, recBeatActive=false, recBeatStart=0, recBeatBar=0, recNoiseBuf=null;
+let l2State={active:false,round:0,pattern:[],inputIdx:0,phase:'idle'};
+let l2Timers=[], l2SoundNodes=[];
 function recEl(id){ return document.getElementById(id); }
 function setRecStatus(msg){
   const el=recEl('rec-status');
@@ -1638,11 +1838,16 @@ function revealRecorderIfUnlocked(){
     const rec=recEl('rec-record');
     if(rec) rec.disabled=true;
     setRecStatus(recStatusForUnsupported());
+  } else if(!mixedRecordingSupported()){
+    applyRecorderControls('idle');
+    const rec=recEl('rec-record');
+    if(rec) rec.disabled=true;
+    setRecStatus(recStatusForMixedUnsupported());
   } else {
     applyRecorderControls(recBlob ? 'recorded' : 'idle');
     setRecStatus(recBlob
       ? 'Nice! You can play it, download it, or record again.'
-      : 'You got every answer right! Tap Record when you want to sing.');
+      : recIdleHintWithBeat());
   }
 }
 function stopRecTracks(){
@@ -1668,6 +1873,7 @@ function clearRecTimer(){
 }
 function cleanupStarRecorder(forgetBlob){
   clearRecTimer();
+  teardownRecMix();
   if(recRecorder && recRecorder.state!=='inactive'){
     try{ recRecorder.stop(); }catch(e){}
   }
@@ -1687,6 +1893,7 @@ function stopStarPlayback(){
   if(audio){ try{ audio.pause(); audio.currentTime=0; }catch(e){} }
 }
 function finishRecorderFromBlob(){
+  teardownRecMix();
   stopRecTracks();
   clearRecTimer();
   const mime=(recRecorder && recRecorder.mimeType) || (recChunks[0] && recChunks[0].type) || 'audio/webm';
@@ -1702,6 +1909,7 @@ function finishRecorderFromBlob(){
 }
 function stopStarRecord(){
   clearRecTimer();
+  stopRecBeat();
   if(recRecorder && recRecorder.state==='recording'){
     try{ recRecorder.stop(); }catch(e){ stopRecTracks(); }
   } else {
@@ -1709,6 +1917,12 @@ function stopStarRecord(){
     if(recChunks.length) finishRecorderFromBlob();
     else applyRecorderControls(recBlob?'recorded':'idle');
   }
+}
+function failRecordStart(msg){
+  teardownRecMix();
+  stopRecTracks();
+  applyRecorderControls('idle');
+  setRecStatus(msg);
 }
 function startStarRecord(){
   if(!canUnlockRecorder(state)){
@@ -1719,38 +1933,59 @@ function startStarRecord(){
     setRecStatus(recStatusForUnsupported());
     return;
   }
+  if(!mixedRecordingSupported()){
+    setRecStatus(recStatusForMixedUnsupported());
+    return;
+  }
   if(recPhase==='recording') return;
+  if(typeof l2State!=='undefined' && l2State.active) closeLevel2();
   stopStarPlayback();
   recChunks=[];
   setRecStatus('Please allow the microphone if asked…');
   applyRecorderControls('recording');
   const recBtn=recEl('rec-record');
   if(recBtn) recBtn.disabled=true;
+  try{ ensureAudio(); }catch(e){}
   navigator.mediaDevices.getUserMedia({audio:true, video:false}).then(function(stream){
     recStream=stream;
+    let graph;
+    try{
+      graph = buildMixGraph(ensureAudio(), stream, {monitorMic: shouldMonitorMicToSpeakers()});
+    }catch(e){
+      failRecordStart(recStatusForMixedUnsupported());
+      return;
+    }
+    recMixGraph = graph;
+    const recordStream = whichStreamToRecord(graph, stream);
+    if(!recordStream){
+      failRecordStart(recStatusForMixedUnsupported());
+      return;
+    }
     const mime=pickRecorderMime();
     try{
-      recRecorder= mime ? new MediaRecorder(stream, {mimeType:mime}) : new MediaRecorder(stream);
+      recRecorder= mime ? new MediaRecorder(recordStream, {mimeType:mime}) : new MediaRecorder(recordStream);
     }catch(e){
-      try{ recRecorder=new MediaRecorder(stream); }catch(e2){
-        stopRecTracks();
-        applyRecorderControls('idle');
-        setRecStatus(recStatusForUnsupported());
+      try{ recRecorder=new MediaRecorder(recordStream); }catch(e2){
+        failRecordStart(recStatusForMixedUnsupported());
         return;
       }
     }
     recChunks=[];
     recRecorder.ondataavailable=function(ev){ if(ev && ev.data && ev.data.size) recChunks.push(ev.data); };
     recRecorder.onstop=function(){ finishRecorderFromBlob(); };
-    recRecorder.start(250);
+    try{
+      recRecorder.start(250);
+    }catch(e3){
+      failRecordStart(recStatusForMixedUnsupported());
+      return;
+    }
+    startRecBeat(ensureAudio(), graph.beatGain);
     recStartAt=Date.now();
     applyRecorderControls('recording');
-    setRecStatus('Recording… tap Stop when you are done (up to 1 minute).');
+    setRecStatus(recStatusForRecordingWithBeat());
     recTimer=setTimeout(function(){ recTimer=null; stopStarRecord(); }, REC_MAX_MS);
   }).catch(function(err){
-    stopRecTracks();
-    applyRecorderControls('idle');
-    setRecStatus(recStatusForGetUserMediaError(err));
+    failRecordStart(recStatusForGetUserMediaError(err));
   });
 }
 function playStarRecording(){
@@ -1778,6 +2013,318 @@ function rerecordStar(){
   applyRecorderControls('idle');
   setRecStatus('Tap Record when you are ready to try again!');
 }
+
+function stopRecBeat(){
+  recBeatActive=false;
+  if(recBeatTimer){ clearTimeout(recBeatTimer); recBeatTimer=null; }
+}
+function teardownRecMix(){
+  stopRecBeat();
+  disconnectMixGraph(recMixGraph);
+  recMixGraph=null;
+}
+function ensureNoiseBuffer(ctx){
+  if(recNoiseBuf && recNoiseBuf.sampleRate===ctx.sampleRate) return recNoiseBuf;
+  const len=Math.floor(ctx.sampleRate*0.2);
+  const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<len;i++) data[i]=Math.random()*2-1;
+  recNoiseBuf=buf;
+  return buf;
+}
+function recPlayTone(ctx, destGain, freq, time, dur, type, vol){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=type||'sine';
+  o.frequency.setValueAtTime(freq, time);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
+  o.connect(g); g.connect(destGain);
+  o.start(time); o.stop(time+dur+0.03);
+}
+function recPlayKick(ctx, destGain, time){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(150, time);
+  o.frequency.exponentialRampToValueAtTime(48, time+0.18);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(0.55, time+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, time+0.22);
+  o.connect(g); g.connect(destGain);
+  o.start(time); o.stop(time+0.24);
+}
+function recPlayNoise(ctx, destGain, time, dur, vol, hipass){
+  const src=ctx.createBufferSource();
+  src.buffer=ensureNoiseBuffer(ctx);
+  const f=ctx.createBiquadFilter();
+  f.type=hipass?'highpass':'bandpass';
+  f.frequency.setValueAtTime(hipass?6000:1800, time);
+  const g=ctx.createGain();
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), time+0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
+  src.connect(f); f.connect(g); g.connect(destGain);
+  src.start(time); src.stop(time+dur+0.02);
+}
+function scheduleRecBeatBar(ctx, beatGain, barStart){
+  const pat=recBeatPatternForBar();
+  pat.kicks.forEach(function(b){ recPlayKick(ctx, beatGain, barStart+b*REC_BEAT_SEC); });
+  pat.snares.forEach(function(b){
+    recPlayNoise(ctx, beatGain, barStart+b*REC_BEAT_SEC, 0.12, 0.28, false);
+    recPlayTone(ctx, beatGain, 180, barStart+b*REC_BEAT_SEC, 0.1, 'triangle', 0.12);
+  });
+  pat.hats.forEach(function(b){ recPlayNoise(ctx, beatGain, barStart+b*REC_BEAT_SEC, 0.045, 0.08, true); });
+  pat.bass.forEach(function(n){ recPlayTone(ctx, beatGain, n.freq, barStart+n.beat*REC_BEAT_SEC, REC_BEAT_SEC*0.85, 'triangle', 0.18); });
+  pat.melody.forEach(function(n){ recPlayTone(ctx, beatGain, n.freq, barStart+n.beat*REC_BEAT_SEC, REC_BEAT_SEC*0.45, 'sine', 0.14); });
+}
+function startRecBeat(ctx, beatGain){
+  stopRecBeat();
+  recBeatActive=true;
+  recBeatStart=ctx.currentTime+0.06;
+  recBeatBar=0;
+  function pump(){
+    if(!recBeatActive) return;
+    const barStart=recBeatStart+recBeatBar*REC_BEAT_SEC*4;
+    scheduleRecBeatBar(ctx, beatGain, barStart);
+    recBeatBar++;
+    const nextAt=recBeatStart+recBeatBar*REC_BEAT_SEC*4;
+    const wait=Math.max(40,(nextAt-0.12-ctx.currentTime)*1000);
+    recBeatTimer=setTimeout(pump, wait);
+  }
+  pump();
+}
+function revealLevelTwoIfUnlocked(){
+  const btn=document.getElementById('level2-btn');
+  if(!btn) return;
+  if(canUnlockLevelTwo(state)){
+    btn.hidden=false;
+    btn.disabled=false;
+  } else {
+    btn.hidden=true;
+  }
+}
+function clearL2Timers(){
+  l2Timers.forEach(function(id){ clearTimeout(id); });
+  l2Timers=[];
+}
+function stopL2Sounds(){
+  l2SoundNodes.forEach(function(n){
+    try{ if(n.stop) n.stop(); }catch(e){}
+    try{ if(n.disconnect) n.disconnect(); }catch(e){}
+  });
+  l2SoundNodes=[];
+  document.querySelectorAll('.l2-pad.lit').forEach(function(el){ el.classList.remove('lit'); });
+}
+function l2SetStatus(msg){
+  const el=document.getElementById('l2-status');
+  if(el) el.textContent=msg||'';
+}
+function setL2PadsEnabled(on){
+  document.querySelectorAll('.l2-pad').forEach(function(p){ p.disabled=!on; });
+}
+function highlightL2Pad(id, on){
+  const pad=document.querySelector('.l2-pad[data-inst="'+id+'"]');
+  if(pad) pad.classList.toggle('lit', !!on);
+}
+function playL2Instrument(id){
+  const spec=L2_INSTRUMENTS[id];
+  if(!spec) return;
+  highlightL2Pad(id, true);
+  const off=setTimeout(function(){ highlightL2Pad(id, false); }, 280);
+  l2Timers.push(off);
+  try{
+    const ctx=ensureAudio();
+    const t=ctx.currentTime;
+    if(id===1){
+      recPlayKick(ctx, ctx.destination, t);
+      return;
+    }
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=spec.type||'sine';
+    o.frequency.setValueAtTime(spec.freq, t);
+    const vol = id===3 ? 0.08 : 0.16;
+    const dur = id===0 ? 0.45 : (id===3 ? 0.38 : 0.28);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+dur+0.03);
+    l2SoundNodes.push(o,g);
+    if(id===0){
+      const o2=ctx.createOscillator(), g2=ctx.createGain();
+      o2.type='sine'; o2.frequency.setValueAtTime(spec.freq*2, t);
+      g2.gain.setValueAtTime(0.0001, t);
+      g2.gain.exponentialRampToValueAtTime(0.07, t+0.01);
+      g2.gain.exponentialRampToValueAtTime(0.0001, t+0.4);
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.start(t); o2.stop(t+0.42);
+      l2SoundNodes.push(o2,g2);
+    }
+  }catch(e){}
+}
+function playL2Pattern(pattern, done){
+  const gap=520;
+  pattern.forEach(function(id,i){
+    l2Timers.push(setTimeout(function(){
+      if(!l2State.active) return;
+      playL2Instrument(id);
+    }, 350+i*gap));
+  });
+  l2Timers.push(setTimeout(function(){ if(done) done(); }, 350+pattern.length*gap+180));
+}
+function startL2Round(){
+  ensureAudio();
+  clearL2Timers();
+  stopL2Sounds();
+  l2State.inputIdx=0;
+  l2State.phase='listening';
+  const roundEl=document.getElementById('l2-round');
+  if(roundEl) roundEl.textContent='Round '+(l2State.round+1)+' of '+L2_ROUNDS;
+  l2SetStatus('Listen…');
+  setL2PadsEnabled(false);
+  playL2Pattern(l2State.pattern, function(){
+    if(!l2State.active) return;
+    l2State.phase='repeating';
+    l2SetStatus('Your turn! Play it back.');
+    setL2PadsEnabled(true);
+  });
+}
+function finishL2Win(){
+  clearL2Timers();
+  stopL2Sounds();
+  l2State.phase='won';
+  setL2PadsEnabled(false);
+  const play=document.getElementById('l2-play');
+  const win=document.getElementById('l2-win');
+  if(play) play.classList.add('hidden');
+  if(win) win.classList.remove('hidden');
+  try{ chimeGood(); }catch(e){}
+}
+function onL2Pad(id){
+  if(!l2State.active || !l2ShouldAcceptInput(l2State.phase)) return;
+  playL2Instrument(id);
+  if(!l2InputCorrect(l2State.pattern, l2State.inputIdx, id)){
+    l2State.phase='retry';
+    setL2PadsEnabled(false);
+    l2SetStatus("Almost! That's okay — listen again.");
+    l2Timers.push(setTimeout(function(){
+      if(!l2State.active) return;
+      startL2Round();
+    }, 900));
+    return;
+  }
+  l2State.inputIdx++;
+  if(l2State.inputIdx>=l2State.pattern.length){
+    if(l2IsWinningRound(l2State.round, L2_ROUNDS)){
+      finishL2Win();
+      return;
+    }
+    l2State.phase='listening';
+    setL2PadsEnabled(false);
+    l2SetStatus('Nice! Here comes a longer one…');
+    l2State.round++;
+    l2State.pattern=l2AppendRandom(l2State.pattern, L2_INSTRUMENTS.length);
+    l2Timers.push(setTimeout(function(){
+      if(!l2State.active) return;
+      startL2Round();
+    }, 750));
+  }
+}
+function openLevel2(){
+  if(!canUnlockLevelTwo(state)) return;
+  if(recPhase==='recording') stopStarRecord();
+  stopStarPlayback();
+  teardownRecMix();
+  closeSing();
+  stopSpeech();
+  ensureAudio();
+  l2State={active:true,round:0,pattern:[],inputIdx:0,phase:'idle'};
+  const play=document.getElementById('l2-play');
+  const win=document.getElementById('l2-win');
+  if(play) play.classList.remove('hidden');
+  if(win) win.classList.add('hidden');
+  const start=document.getElementById('l2-start');
+  if(start){ start.hidden=false; start.textContent='▶ Start'; }
+  const roundEl=document.getElementById('l2-round');
+  if(roundEl) roundEl.textContent='Round 1 of '+L2_ROUNDS;
+  l2SetStatus('Tap Start to hear the first pattern.');
+  setL2PadsEnabled(false);
+  const el=document.getElementById('level2');
+  if(el) el.classList.add('show');
+}
+function closeLevel2(){
+  clearL2Timers();
+  stopL2Sounds();
+  l2State.active=false;
+  l2State.phase='idle';
+  setL2PadsEnabled(false);
+  const el=document.getElementById('level2');
+  if(el) el.classList.remove('show');
+}
+function returnToParty(){
+  closeLevel2();
+  const celeb=document.getElementById('celeb');
+  if(celeb) celeb.classList.add('show');
+  revealRecorderIfUnlocked();
+  revealLevelTwoIfUnlocked();
+}
+function returnToStudio(){
+  returnToParty();
+  const rec=document.getElementById('star-recorder');
+  if(rec && rec.scrollIntoView) rec.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function restartL2(){
+  clearL2Timers();
+  stopL2Sounds();
+  l2State={active:true,round:0,pattern:[],inputIdx:0,phase:'idle'};
+  const play=document.getElementById('l2-play');
+  const win=document.getElementById('l2-win');
+  if(win) win.classList.add('hidden');
+  if(play) play.classList.remove('hidden');
+  const start=document.getElementById('l2-start');
+  if(start){ start.hidden=false; start.textContent='▶ Start'; }
+  const roundEl=document.getElementById('l2-round');
+  if(roundEl) roundEl.textContent='Round 1 of '+L2_ROUNDS;
+  l2SetStatus('Tap Start to hear the first pattern.');
+  setL2PadsEnabled(false);
+}
+function bindLevelTwo(){
+  const openBtn=document.getElementById('level2-btn');
+  if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openLevel2(); });
+  const start=document.getElementById('l2-start');
+  if(start) start.addEventListener('click', function(e){
+    e.preventDefault();
+    ensureAudio();
+    start.textContent='Hear again';
+    if(!l2State.pattern.length){
+      l2State.round=0;
+      l2State.pattern=l2MakePattern(l2PatternLengthForRound(0), L2_INSTRUMENTS.length);
+    }
+    startL2Round();
+  });
+  document.querySelectorAll('.l2-pad').forEach(function(pad){
+    pad.addEventListener('click', function(){
+      const id=parseInt(pad.getAttribute('data-inst'),10);
+      if(!isNaN(id)) onL2Pad(id);
+    });
+  });
+  const back=document.getElementById('l2-back');
+  if(back) back.addEventListener('click', function(e){ e.preventDefault(); returnToParty(); });
+  const again=document.getElementById('l2-again');
+  if(again) again.addEventListener('click', function(e){ e.preventDefault(); restartL2(); });
+  const studio=document.getElementById('l2-studio');
+  if(studio) studio.addEventListener('click', function(e){ e.preventDefault(); returnToStudio(); });
+  const winBack=document.getElementById('l2-win-back');
+  if(winBack) winBack.addEventListener('click', function(e){ e.preventDefault(); returnToParty(); });
+  document.addEventListener('keydown', function(e){
+    const overlay=document.getElementById('level2');
+    if(!l2State.active || !overlay || !overlay.classList.contains('show')) return;
+    if(e.key==='Escape'){ e.preventDefault(); returnToParty(); return; }
+    const id=l2KeyToInstrument(e.key);
+    if(id>=0){ e.preventDefault(); onL2Pad(id); }
+  });
+}
+
 function bindStarRecorder(){
   const rec=recEl('rec-record'), stop=recEl('rec-stop'), play=recEl('rec-play');
   const dl=recEl('rec-download'), again=recEl('rec-again');
@@ -1791,16 +2338,26 @@ function bindStarRecorder(){
     if(document.hidden){
       if(recPhase==='recording') stopStarRecord();
       stopRecTracks();
+      teardownRecMix();
+      if(typeof l2State!=='undefined' && l2State.active){
+        stopL2Sounds();
+        clearL2Timers();
+        if(l2State.phase==='listening'){
+          l2State.phase='idle';
+          l2SetStatus('Tap Hear again when you are ready.');
+        }
+      }
     }
   });
 }
 
 bindStarRecorder();
+bindLevelTwo();
 buildStartFX();
 
-// Prevent iOS bounce scroll
+// Prevent iOS bounce scroll (allow scrolling the party, studio, and level 2)
 document.addEventListener('touchmove',e=>{
-  if(!e.target.closest('.chal-card')) e.preventDefault();
+  if(!e.target.closest('.chal-card,#celeb,#level2,#star-recorder')) e.preventDefault();
 },{passive:false});
 
 })();
