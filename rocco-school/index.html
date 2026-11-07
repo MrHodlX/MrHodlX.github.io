@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Principal's Wrath">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1020">
-<title>Principal's Wrath — For Rocco</title>
+<title>Principal's Wrath — For Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
@@ -131,8 +131,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       <div class="tag">Space School · First-Person Mission</div>
       <h1>Principal's Wrath</h1>
       <p class="tagline">He grades forever</p>
-      <p class="sub">Help Rocco walk Station Zoom in first person. Solid hallway walls, corners, lockers, and glowing classroom doors hide the notebooks. Open a door to collect one — read each space story carefully. You have 30 seconds!</p>
-      <button class="big-btn" id="btnPlay">Play, Rocco!</button>
+      <p class="sub">Help Explorer walk Station Zoom in first person. Solid hallway walls, corners, lockers, and glowing classroom doors hide the notebooks. Open a door to collect one — read each space story carefully. You have 30 seconds!</p>
+      <button class="big-btn" id="btnPlay">Play, Explorer!</button>
       <p class="tiny">Collect 6 notebooks · If Cap'n Calc catches you, the level restarts with brand-new question types · original space-school adventure</p>
     </div>
   </div>
@@ -144,7 +144,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     <div class="vignette" id="vignette"></div>
     <div id="lookPrompt">Open the glowing door to find a notebook!</div>
     <div id="hud">
-      <div class="hud-pill">Rocco · 📓 <strong id="nbNum">0</strong>/<span id="nbTotal">6</span></div>
+      <div class="hud-pill">Explorer · 📓 <strong id="nbNum">0</strong>/<span id="nbTotal">6</span></div>
       <div class="hud-pill" id="hudRoom">Hallway</div>
       <div class="hud-pill">
         <div style="font-size:12px;color:#b8c4ef;margin-bottom:4px">Chaos</div>
@@ -156,7 +156,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       </div>
     </div>
     <div id="roomLabel">Hallway</div>
-    <div id="speech"><span id="speechText">Walk, Rocco!</span></div>
+    <div id="speech"><span id="speechText">Walk, Explorer!</span></div>
     <div id="dpad" aria-label="D-pad walk and turn controls">
       <button type="button" class="dir-btn" data-dir="up" aria-label="Walk forward">▲</button>
       <button type="button" class="dir-btn" data-dir="left" aria-label="Turn left">◀</button>
@@ -178,7 +178,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   <div id="jumpscare" aria-hidden="true">
     <div class="scare-slam" id="scareArt"></div>
-    <div class="boom" id="scareText">GOTCHA, ROCCO!</div>
+    <div class="boom" id="scareText">GOTCHA, EXPLORER!</div>
   </div>
 
   <div id="caught" class="screen">
@@ -186,7 +186,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       <div class="emoji-row">🚀😅⭐</div>
       <h1>Caught in the hallway!</h1>
       <p class="sub">Cap'n Calc caught up! The school reshuffles its notebooks into brand-new kinds of questions. Take a breath and walk Station Zoom again.</p>
-      <button class="big-btn" id="btnRetry">Try again, Rocco!</button>
+      <button class="big-btn" id="btnRetry">Try again, Explorer!</button>
     </div>
   </div>
 
@@ -195,10 +195,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       <div class="ending-label" id="endingLabel"></div>
       <div class="emoji-row" id="winEmoji">🌟🎉🚀</div>
       <p class="ending-title" id="endingTitle">Mission Clear</p>
-      <h1 id="winHeadline">You did it, Rocco!</h1>
+      <h1 id="winHeadline">You did it, Explorer!</h1>
       <p class="sub" id="winBlurb">School day's clear on Station Zoom.</p>
       <button class="big-btn" id="btnAgain">Play again</button>
-      <p class="tiny" id="winTiny">Made for Rocco · original space-school adventure</p>
+      <p class="tiny" id="winTiny">Made for Explorer · original space-school adventure</p>
     </div>
   </div>
 </div>
@@ -211,7 +211,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const CALC_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="11" ry="20" fill="#ffb347"/><ellipse class="flame" cx="149" cy="218" rx="6" ry="13" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="222" rx="3" ry="8" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="48" y="150" width="10" height="52" rx="5" fill="#f3c19a" transform="rotate(18 53 176)"/><rect x="140" y="148" width="10" height="48" rx="5" fill="#f3c19a" transform="rotate(-22 145 172)"/><g transform="rotate(-18 168 150)"><rect x="154" y="108" width="14" height="92" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M157 116h8M157 128h8M157 140h8M157 152h8M157 164h8M157 176h8M157 188h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#f3c19a"/><circle cx="102" cy="88" r="50" fill="#f3c19a"/><ellipse cx="84" cy="70" rx="16" ry="10" fill="#fbe0c8" opacity=".75"/><ellipse cx="52" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="152" cy="92" rx="8" ry="12" fill="#e8b089"/><ellipse cx="84" cy="88" rx="6" ry="8" fill="#1a1a2e"/><ellipse cx="120" cy="88" rx="6" ry="8" fill="#1a1a2e"/><circle cx="86" cy="85" r="2" fill="#fff"/><circle cx="122" cy="85" r="2" fill="#fff"/><path d="M74 108 Q102 132 130 108" stroke="#c45c5c" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
   const SCARE_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="132" y="128" width="34" height="72" rx="14" fill="#5d6b82"/><rect x="138" y="136" width="22" height="42" rx="8" fill="#8ea0bb"/><ellipse class="flame" cx="149" cy="212" rx="14" ry="26" fill="#ffb347"/><ellipse class="flame" cx="149" cy="220" rx="8" ry="16" fill="#ff6b3d"/><ellipse class="flame" cx="149" cy="226" rx="4" ry="10" fill="#ffe66d"/><rect x="82" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><rect x="112" y="208" width="9" height="42" rx="4" fill="#0f5c50"/><ellipse cx="86" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="117" cy="252" rx="11" ry="6" fill="#5b3a1c"/><ellipse cx="102" cy="178" rx="38" ry="42" fill="#1e8f7b"/><ellipse cx="102" cy="178" rx="24" ry="28" fill="#24a38c"/><rect x="90" y="168" width="24" height="30" rx="4" fill="#ffe566"/><text x="102" y="188" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" fill="#1a2040" font-weight="700">CALC</text><rect x="44" y="148" width="10" height="54" rx="5" fill="#f3c19a" transform="rotate(28 49 175)"/><rect x="138" y="78" width="10" height="70" rx="5" fill="#f3c19a" transform="rotate(-38 143 113)"/><g transform="rotate(-52 150 70)"><rect x="136" y="8" width="16" height="110" rx="3" fill="#e6c07b" stroke="#8b6914" stroke-width="1.5"/><path d="M140 18h8M140 32h8M140 46h8M140 60h8M140 74h8M140 88h8M140 102h8" stroke="#8b6914" stroke-width="1.2"/></g><rect x="94" y="128" width="16" height="16" fill="#e8a090"/><circle cx="102" cy="86" r="54" fill="#e8a090"/><ellipse cx="84" cy="68" rx="16" ry="10" fill="#f3c19a" opacity=".55"/><ellipse cx="48" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="156" cy="90" rx="9" ry="13" fill="#d48978"/><ellipse cx="82" cy="86" rx="9" ry="12" fill="#1a1a2e"/><ellipse cx="124" cy="86" rx="9" ry="12" fill="#1a1a2e"/><circle cx="85" cy="82" r="3" fill="#fff"/><circle cx="127" cy="82" r="3" fill="#fff"/><path d="M68 112 Q102 168 136 112" fill="#7a2020" stroke="#5a1010" stroke-width="3"/><path d="M78 124 Q102 150 126 124" fill="#3a0c0c"/></svg>';
 
-  /* ::ROCCO_LOGIC_START:: */
+  /* ::EXPLORER_LOGIC_START:: */
   const NEED_BOOKS = 6;
   const CATCH_DIST = 0.62;
   const PLAYER_RADIUS = 0.18;
@@ -330,21 +330,21 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const QUESTION_TYPES = {
     equal_groups: function(){
       const ships = rand(3,9), windows = rand(2,8);
-      return {q:'Rocco counts '+ships+' starships on the launch pad. Each starship has '+windows+' windows. How many windows are there in all?', a:ships*windows};
+      return {q:'Explorer counts '+ships+' starships on the launch pad. Each starship has '+windows+' windows. How many windows are there in all?', a:ships*windows};
     },
     subtract_left: function(){
       const cooked = rand(35,90), ate = rand(12, cooked-10);
-      return {q:'The cafeteria cooked '+cooked+' moon muffins. The astronauts ate '+ate+' of them. How many muffins are left for Rocco?', a:cooked-ate};
+      return {q:'The cafeteria cooked '+cooked+' moon muffins. The astronauts ate '+ate+' of them. How many muffins are left for Explorer?', a:cooked-ate};
     },
     full_buses: function(){
       const cap = rand(6,10), buses = rand(3,8);
-      return {q:'A space bus holds '+cap+' kids. Rocco sees '+buses+' full buses line up. How many kids are on the buses?', a:cap*buses};
+      return {q:'A space bus holds '+cap+' kids. Explorer sees '+buses+' full buses line up. How many kids are on the buses?', a:cap*buses};
     },
     give_away_two: function(){
       const start = rand(22,50);
       const a = rand(6,12);
       const b = rand(4, Math.max(4, start-a-5));
-      return {q:'Rocco packed '+start+' glow sticks. He gave '+a+' to his team and '+b+' to Cap\'n Calc. How many glow sticks does Rocco have now?', a:start-a-b};
+      return {q:'Explorer packed '+start+' glow sticks. He gave '+a+' to his team and '+b+' to Cap\'n Calc. How many glow sticks does Explorer have now?', a:start-a-b};
     },
     rows_plus_extra: function(){
       const rows = rand(3,8), each = rand(4,9), extra = rand(2,12);
@@ -353,7 +353,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     equal_share: function(){
       const groups = rand(3,9), size = rand(2,8);
       const total = groups*size;
-      return {q:'Rocco collected '+total+' space stamps. He puts them into equal groups of '+size+'. How many groups can he make?', a:groups};
+      return {q:'Explorer collected '+total+' space stamps. He puts them into equal groups of '+size+'. How many groups can he make?', a:groups};
     },
     add_together: function(){
       const red = rand(11,40), blue = rand(11,40);
@@ -365,20 +365,20 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     },
     plant_pots: function(){
       const beans = rand(4,9), pots = rand(3,8);
-      return {q:'Rocco plants '+beans+' moon beans in each of '+pots+' pots. How many moon beans did he plant?', a:beans*pots};
+      return {q:'Explorer plants '+beans+' moon beans in each of '+pots+' pots. How many moon beans did he plant?', a:beans*pots};
     },
     use_then_find: function(){
       const start = rand(40,90), used = rand(10, Math.floor(start/2)), found = rand(3,15);
-      return {q:'There were '+start+' stickers on a sheet. Rocco used '+used+', then found '+found+' more under a desk. How many stickers does he have now?', a:start-used+found};
+      return {q:'There were '+start+' stickers on a sheet. Explorer used '+used+', then found '+found+' more under a desk. How many stickers does he have now?', a:start-used+found};
     },
     teams_plus_bonus: function(){
       const teams = rand(3,8), pts = rand(5,9), bonus = rand(2,12);
-      return {q:teams+' teams each scored '+pts+' points. Then Rocco\'s team scored '+bonus+' bonus points. What is the total of all those points?', a:teams*pts+bonus};
+      return {q:teams+' teams each scored '+pts+' points. Then Explorer\'s team scored '+bonus+' bonus points. What is the total of all those points?', a:teams*pts+bonus};
     },
     each_took: function(){
       const kids = rand(3,9), each = rand(2,5);
       const start = kids*each + rand(8,28);
-      return {q:'The classroom had '+start+' pencils. '+kids+' kids each took '+each+' pencils. How many pencils are left for Rocco?', a:start-(kids*each)};
+      return {q:'The classroom had '+start+' pencils. '+kids+' kids each took '+each+' pencils. How many pencils are left for Explorer?', a:start-(kids*each)};
     }
   };
   const QUESTION_TYPE_IDS = Object.keys(QUESTION_TYPES);
@@ -398,35 +398,35 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       return {type:id, q:item.q, a:item.a, c:choicesFor(item.a)};
     });
   }
-  /* ::ROCCO_LOGIC_END:: */
+  /* ::EXPLORER_LOGIC_END:: */
 
   const GOOD_LINES = [
-    'Blast off, Rocco!',
-    'Star student, Rocco!',
+    'Blast off, Explorer!',
+    'Star student, Explorer!',
     'Calculations locked!',
-    'Nice one, Rocco!',
-    'Moon rocks approve, Rocco!',
+    'Nice one, Explorer!',
+    'Moon rocks approve, Explorer!',
     'Zoom zoom, perfect!',
-    'Cap\'n Calc is impressed, Rocco!',
-    'That answer sparkles, Rocco!',
+    'Cap\'n Calc is impressed, Explorer!',
+    'That answer sparkles, Explorer!',
     'Fuel tanks full of brains!',
-    'Orbit achieved, Rocco!',
+    'Orbit achieved, Explorer!',
     'A plus plus, space cadet!',
-    'You cracked the code, Rocco!'
+    'You cracked the code, Explorer!'
   ];
   const BAD_LINES = [
-    'The asteroid disagrees, Rocco!',
+    'The asteroid disagrees, Explorer!',
     'Hmm, recalculating...',
-    'Whoopsie rocket, Rocco!',
+    'Whoopsie rocket, Explorer!',
     'Not that star chart!',
     'Cap\'n Calc is peeking closer!',
-    'Silly spooky vibes rising, Rocco...',
+    'Silly spooky vibes rising, Explorer...',
     'That math went sideways!',
     'Uh-oh, hallway hop incoming!',
-    'Recheck those moon numbers, Rocco!',
-    'Almost — but not quite, Rocco!',
+    'Recheck those moon numbers, Explorer!',
+    'Almost — but not quite, Explorer!',
     'My rocket backpack just hiccuped!',
-    'Pop quiz panic, Rocco!'
+    'Pop quiz panic, Explorer!'
   ];
 
   const ROOM_PAL = {
@@ -998,8 +998,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       timeLeft -= 1;
       updateTimerHud();
       if(timeLeft === 10){
-        say('Hurry, Rocco!', 1200);
-        speak('Ten seconds, Rocco!', {rate:1.1, pitch:1.15});
+        say('Hurry, Explorer!', 1200);
+        speak('Ten seconds, Explorer!', {rate:1.1, pitch:1.15});
       }
       if(timeLeft <= 0){
         stopTimer();
@@ -1096,7 +1096,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     document.querySelectorAll('.choice').forEach(c => c.disabled = true);
     if(quizBook) collectBook(quizBook);
     closeQuiz();
-    applyMiss("Time's up, Rocco!");
+    applyMiss("Time's up, Explorer!");
   }
 
   function applyMiss(forcedLine){
@@ -1112,7 +1112,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   function triggerCaught(){
     if(deathPending || state === 'end') return;
     deathPending = true;
-    jumpScare('Cap\'n Calc caught you, Rocco!');
+    jumpScare('Cap\'n Calc caught you, Explorer!');
   }
 
   function jumpScare(line){
@@ -1124,7 +1124,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     void app.offsetWidth;
     app.classList.add('shake');
     const scare = $('jumpscare');
-    $('scareText').textContent = deathPending ? 'GOTCHA, ROCCO!' : 'POP QUIZ, ROCCO!';
+    $('scareText').textContent = deathPending ? 'GOTCHA, EXPLORER!' : 'POP QUIZ, EXPLORER!';
     scare.classList.remove('show');
     void scare.offsetWidth;
     scare.classList.add('show');
@@ -1146,22 +1146,22 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   function pickEnding(){
     if(mistakes === 0){
-      return {key:'secret', label:'★ Secret Ending Unlocked', title:'Beat the Principal', emoji:'👑🚀⭐', headline:'Rocco grades the Principal!', blurb:'Zero mistakes, Rocco! You walked the first-person halls, opened every glowing door, and Cap\'n Calc\'s rocket backpack sputtered out. Station Zoom crowns you Math Principal for a day.', tiny:'Secret clear · 0 mistakes · Made for Rocco', secret:true};
+      return {key:'secret', label:'★ Secret Ending Unlocked', title:'Beat the Principal', emoji:'👑🚀⭐', headline:'Explorer grades the Principal!', blurb:'Zero mistakes, Explorer! You walked the first-person halls, opened every glowing door, and Cap\'n Calc\'s rocket backpack sputtered out. Station Zoom crowns you Math Principal for a day.', tiny:'Secret clear · 0 mistakes · Made for Explorer', secret:true};
     }
     if(peakChaos >= 2){
-      return {key:'barely', label:'Ending · High Tension', title:'Barely Escaped', emoji:'😅💨⭐', headline:'Whew — you made it, Rocco!', blurb:'Cap\'n Calc was hopping the halls right behind you. You still opened the last notebook door and slipped past his rocket trail.', tiny:'Peak chaos · almost caught · Made for Rocco', secret:false};
+      return {key:'barely', label:'Ending · High Tension', title:'Barely Escaped', emoji:'😅💨⭐', headline:'Whew — you made it, Explorer!', blurb:'Cap\'n Calc was hopping the halls right behind you. You still opened the last notebook door and slipped past his rocket trail.', tiny:'Peak chaos · almost caught · Made for Explorer', secret:false};
     }
     if(mistakes === 1){
-      return {key:'close', label:'Ending · Close Call', title:'Close Call Clear', emoji:'🌟😅🚀', headline:'Close one, Rocco!', blurb:'Only one oops all day. Cap\'n Calc jump-scared once, then backed off when your next answer sparkled. School day\'s yours.', tiny:'1 mistake · Made for Rocco', secret:false};
+      return {key:'close', label:'Ending · Close Call', title:'Close Call Clear', emoji:'🌟😅🚀', headline:'Close one, Explorer!', blurb:'Only one oops all day. Cap\'n Calc jump-scared once, then backed off when your next answer sparkled. School day\'s yours.', tiny:'1 mistake · Made for Explorer', secret:false};
     }
-    return {key:'messy', label:'Ending · Messy Escape', title:'Messy Escape', emoji:'📚🌀🚀', headline:'Chaotic win, Rocco!', blurb:'Papers flying, moon muffins rolling — you still walked the whole school and finished the mission with a grin.', tiny: mistakes + ' mistakes · messy clear · Made for Rocco', secret:false};
+    return {key:'messy', label:'Ending · Messy Escape', title:'Messy Escape', emoji:'📚🌀🚀', headline:'Chaotic win, Explorer!', blurb:'Papers flying, moon muffins rolling — you still walked the whole school and finished the mission with a grin.', tiny: mistakes + ' mistakes · messy clear · Made for Explorer', secret:false};
   }
 
   function restartAfterCatch(){
     stopTimer();
     setHum(0);
     sfxCaught();
-    speak('Gotcha, Rocco! New questions incoming!', {rate:0.95, pitch:0.85});
+    speak('Gotcha, Explorer! New questions incoming!', {rate:0.95, pitch:0.85});
     startGame({respawn:true});
   }
 
@@ -1171,7 +1171,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     setHum(0);
     sfxWin();
     const e = pickEnding();
-    if(e.secret) speak('Incredible, Rocco! You beat the Principal! Secret ending unlocked!', {rate:1.05, pitch:1.35});
+    if(e.secret) speak('Incredible, Explorer! You beat the Principal! Secret ending unlocked!', {rate:1.05, pitch:1.35});
     else speak(e.headline, {rate:1.08, pitch:1.2});
     $('endingLabel').textContent = e.label;
     $('endingLabel').className = 'ending-label' + (e.secret ? ' secret' : '');
@@ -1216,11 +1216,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     renderView();
     state = 'explore';
     if(opts.respawn){
-      say('New notebooks, Rocco! Different kinds of questions this time!', 2400);
-      speak('Welcome back, Rocco. The notebooks changed. Find the glowing doors. Cap\'n Calc is still lurking!', {rate:1.05, pitch:1.15});
+      say('New notebooks, Explorer! Different kinds of questions this time!', 2400);
+      speak('Welcome back, Explorer. The notebooks changed. Find the glowing doors. Cap\'n Calc is still lurking!', {rate:1.05, pitch:1.15});
     } else {
-      say('Welcome, Rocco... Cap\'n Calc is lurking...', 2200);
-      speak('Welcome, Rocco. Walk the school in first person and open the glowing doors to find notebooks. Cap\'n Calc is lurking in the hallway!', {rate:1.05, pitch:1.15});
+      say('Welcome, Explorer... Cap\'n Calc is lurking...', 2200);
+      speak('Welcome, Explorer. Walk the school in first person and open the glowing doors to find notebooks. Cap\'n Calc is lurking in the hallway!', {rate:1.05, pitch:1.15});
     }
   }
 
