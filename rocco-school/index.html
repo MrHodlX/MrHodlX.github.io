@@ -871,7 +871,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     outLimiter.release.value = 0.06;
     outClipper = audioCtx.createWaveShaper();
     outClipper.curve = makeClipCurve(SCARE_PEAK);
-    outClipper.oversample = '2x';
+    outClipper.oversample = 'none';
     scareComp = audioCtx.createDynamicsCompressor();
     scareComp.threshold.value = -24;
     scareComp.knee.value = 10;
