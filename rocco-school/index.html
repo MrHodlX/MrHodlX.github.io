@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-08-bigger-school -->
+<!-- build 2026-11-08-classroom-decor -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -683,6 +683,73 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       {id:'body-thud', via:'scare', play:'tone', a:[42,0.66,'sine',0.46,0.2]}
     ];
   }
+
+  const CLASSROOM_VISUAL_MODE = 'raycast-column-palette';
+  const BRICK_ROWS = 10;
+  const ACADEMIC_ROOMS = ['Classroom','Computer Lab','Office','Library','Music Room','Art Studio'];
+  const BOARD_ROOMS = ['Classroom','Computer Lab','Office'];
+  function brickShade(base, wallX, mapX, mapY, row){
+    const src = base || [92,112,156];
+    const stagger = (row % 2) * 0.5;
+    const u = (wallX + stagger) * 4;
+    const brickI = Math.floor(u);
+    const frac = u - brickI;
+    if(frac < 0.08 || frac > 0.92){
+      return [
+        Math.max(0, Math.round(src[0]*0.52 + 30)),
+        Math.max(0, Math.round(src[1]*0.52 + 26)),
+        Math.max(0, Math.round(src[2]*0.48 + 22))
+      ];
+    }
+    const n = ((brickI * 17 + row * 13 + (mapX||0) * 9 + (mapY||0) * 5) % 9) - 4;
+    return [
+      Math.max(0, Math.min(255, src[0] + n * 6)),
+      Math.max(0, Math.min(255, src[1] + n * 5)),
+      Math.max(0, Math.min(255, src[2] + n * 4))
+    ];
+  }
+  function wallDecorAt(room, wallX, mapX, mapY, side){
+    const out = [];
+    if(BOARD_ROOMS.indexOf(room) >= 0 && side === 1 && wallX > 0.12 && wallX < 0.88){
+      if(wallX < 0.16 || wallX > 0.84){
+        out.push({kind:'board-frame', v0:0.26, v1:0.64, col:[86,58,32]});
+      } else {
+        out.push({kind:'board-frame', v0:0.26, v1:0.29, col:[86,58,32]});
+        out.push({kind:'blackboard', v0:0.29, v1:0.60, col:[30,56,42]});
+        out.push({kind:'chalk-line', v0:0.40, v1:0.415, col:[210,220,200]});
+        out.push({kind:'chalk-tray', v0:0.60, v1:0.64, col:[72,48,28]});
+      }
+    }
+    if(ACADEMIC_ROOMS.indexOf(room) >= 0 && side === 0){
+      const slot = Math.floor(wallX * 3);
+      const local = wallX * 3 - slot;
+      if(local > 0.28 && local < 0.72){
+        const posters = [[176,72,72],[72,112,176],[210,176,72],[142,86,168],[72,148,118]];
+        const idx = Math.abs((mapX||0) + (mapY||0) * 3 + slot) % posters.length;
+        out.push({kind:'poster-frame', v0:0.28, v1:0.60, col:[236,226,204]});
+        out.push({kind:'poster', v0:0.31, v1:0.57, col:posters[idx]});
+      }
+    }
+    return out;
+  }
+  function listClassroomDesks(){
+    return [
+      {x:28.5, y:2.4, room:'Classroom'},
+      {x:30.4, y:2.4, room:'Classroom'},
+      {x:33.5, y:2.4, room:'Classroom'},
+      {x:28.5, y:4.6, room:'Classroom'},
+      {x:30.4, y:4.6, room:'Classroom'},
+      {x:33.5, y:4.6, room:'Classroom'},
+      {x:49.5, y:7.5, room:'Computer Lab'},
+      {x:51.5, y:7.5, room:'Computer Lab'},
+      {x:53.4, y:7.5, room:'Computer Lab'},
+      {x:49.5, y:9.5, room:'Computer Lab'},
+      {x:51.5, y:9.5, room:'Computer Lab'},
+      {x:53.4, y:9.5, room:'Computer Lab'},
+      {x:51.5, y:2.4, room:'Office'},
+      {x:53.4, y:4.6, room:'Office'}
+    ];
+  }
   /* ::EXPLORER_LOGIC_END:: */
 
   const GOOD_LINES = [
@@ -1158,10 +1225,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
         if(wallX > 0.38 && wallX < 0.62) col = [180, 240, 255];
       }
     } else if(tile === '#'){
-      const stripe = Math.floor(wallX * 8) % 2;
-      if(stripe){
-        col = [Math.max(0, col[0]-12), Math.max(0, col[1]-12), Math.max(0, col[2]-10)];
-      }
+      col = brickShade(col, wallX, mapX, mapY, 4);
     }
     const fog = Math.max(0.18, 1 - dist / 16);
     const sideMul = side ? 0.72 : 1;
@@ -1194,6 +1258,40 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     return {dist:perp, side:side, tile:tile, wallX:wallX, mapX:mapX, mapY:mapY};
   }
 
+  const DESK_SVG = '<svg viewBox="0 0 160 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="80" cy="142" rx="50" ry="6" fill="#000" opacity=".2"/><rect x="18" y="48" width="124" height="16" rx="3" fill="#d7b07a" stroke="#6b4423" stroke-width="2"/><rect x="26" y="64" width="108" height="34" rx="2" fill="#b8884e"/><rect x="30" y="70" width="38" height="22" rx="2" fill="#8a6234"/><rect x="28" y="98" width="8" height="40" fill="#5c4630"/><rect x="124" y="98" width="8" height="40" fill="#5c4630"/><rect x="44" y="51" width="30" height="9" fill="#f3efe4"/><rect x="86" y="52" width="16" height="6" rx="1" fill="#3a7ca5"/></svg>';
+  let deskImg = null;
+  function ensureDeskImg(){
+    if(deskImg) return deskImg;
+    deskImg = new Image();
+    deskImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(DESK_SVG);
+    return deskImg;
+  }
+  function drawDecorSprites(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift, horizon){
+    const img = ensureDeskImg();
+    if(!img.complete || !img.naturalWidth) return;
+    const invDet = 1.0 / (planeX * dirY - dirX * planeY);
+    const items = listClassroomDesks().map(function(desk){
+      const dx = desk.x - player.x;
+      const dy = desk.y - player.y;
+      return {
+        desk:desk,
+        transformX: invDet * (dirY * dx - dirX * dy),
+        transformY: invDet * (-planeY * dx + planeX * dy)
+      };
+    }).filter(function(it){ return it.transformY > 0.2; });
+    items.sort(function(a,b){ return b.transformY - a.transformY; });
+    items.forEach(function(it){
+      const spriteScreenX = (w / 2) * (1 + it.transformX / it.transformY);
+      const spriteH = Math.abs(h / it.transformY) * 0.38;
+      const spriteW = spriteH * 1.15;
+      const floorY = horizon + Math.abs(h / it.transformY) * 0.5 + (typeof bob==='number'?bob:0);
+      const drawStartY = floorY - spriteH;
+      const col = Math.floor(spriteScreenX);
+      if(col < 0 || col >= w) return;
+      if(it.transformY >= zbuf[col] - 0.02) return;
+      viewCtx.drawImage(img, spriteScreenX - spriteW/2, drawStartY, spriteW, spriteH);
+    });
+  }
   function drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
     if(!calc.visible) return;
     const img = ensureCalcImg();
@@ -1243,8 +1341,30 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       let y1 = Math.ceil(horizon + lineH/2);
       if(y0 < 0) y0 = 0;
       if(y1 > h) y1 = h;
-      viewCtx.fillStyle = wallShadeColor(hit.tile, hit.side, hit.dist, hit.wallX, hit.mapX, hit.mapY);
-      viewCtx.fillRect(x, y0, 1, Math.max(1, y1-y0));
+      const fog = Math.max(0.18, 1 - hit.dist / 16);
+      const sideMul = hit.side ? 0.72 : 1;
+      if(hit.tile === '#'){
+        const wallH = Math.max(1, y1 - y0);
+        const fromX = hit.mapX + (hit.side===0 ? (player.x<hit.mapX?-0.1:1.1) : 0.5);
+        const fromY = hit.mapY + (hit.side===1 ? (player.y<hit.mapY?-0.1:1.1) : 0.5);
+        const hitRoom = roomNameAt(fromX, fromY);
+        const hitPal = ROOM_PAL[hitRoom] || ROOM_PAL.Hallway;
+        for(let row=0; row<BRICK_ROWS; row++){
+          const a = y0 + Math.floor(row * wallH / BRICK_ROWS);
+          const b = y0 + Math.floor((row + 1) * wallH / BRICK_ROWS);
+          viewCtx.fillStyle = rgb(brickShade(hitPal.wall, hit.wallX, hit.mapX, hit.mapY, row), fog * sideMul);
+          viewCtx.fillRect(x, a, 1, Math.max(1, b - a));
+        }
+        wallDecorAt(hitRoom, hit.wallX, hit.mapX, hit.mapY, hit.side).forEach(function(band){
+          const a = y0 + Math.floor(band.v0 * wallH);
+          const b = y0 + Math.floor(band.v1 * wallH);
+          viewCtx.fillStyle = rgb(band.col, fog * sideMul);
+          viewCtx.fillRect(x, a, 1, Math.max(1, b - a));
+        });
+      } else {
+        viewCtx.fillStyle = wallShadeColor(hit.tile, hit.side, hit.dist, hit.wallX, hit.mapX, hit.mapY);
+        viewCtx.fillRect(x, y0, 1, Math.max(1, y1-y0));
+      }
       if(hit.tile === 'L'){
         const ventH = Math.max(1, (y1-y0)*0.07);
         viewCtx.fillStyle = 'rgba(20,28,44,'+(hit.side?0.45:0.3)+')';
@@ -1253,6 +1373,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       viewCtx.fillStyle = 'rgba(10,8,16,'+(hit.side?0.38:0.22)+')';
       viewCtx.fillRect(x, y1 - Math.max(2, (y1-y0)*0.08), 1, Math.max(2, (y1-y0)*0.08));
     }
+    drawDecorSprites(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift, horizon);
     drawCalcSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
     drawRopeKidSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
     drawPopSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift);
