@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-07-touchdrag v2 -->
+<!-- build 2026-11-07-touchdrag v3 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -116,16 +116,19 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 }
 .ruler-swing{transform-box:view-box;transform-origin:102px 170px;animation:rulerTap .62s cubic-bezier(.18,1.12,.32,1) both}
 @keyframes rulerTap{0%{transform:rotate(-52deg)}42%{transform:rotate(8deg)}68%{transform:rotate(40deg)}82%{transform:rotate(34deg)}100%{transform:rotate(48deg)}}
-#ropeplay{position:absolute;inset:0;z-index:55;display:none;align-items:center;justify-content:flex-end;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 38%,rgba(24,10,14,.12),rgba(4,2,8,.32));padding-bottom:max(96px,calc(env(safe-area-inset-bottom) + 88px));overflow:hidden}
+#ropeplay{position:absolute;inset:0;z-index:55;display:none;align-items:center;justify-content:flex-end;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 38%,rgba(24,10,14,.12),rgba(4,2,8,.32));padding-bottom:max(110px,calc(env(safe-area-inset-bottom) + 104px));overflow:hidden}
+#ropeplay,#ropeplay *{pointer-events:none!important}
 #ropeplay.show{display:flex}
 #ropeplay .rope-art{width:min(58vw,300px);pointer-events:none}
 #ropeplay .rope-art svg{width:100%;height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
-#ropeplay .player-rope{width:min(92vw,560px);height:86px;pointer-events:none;margin-top:-8px}
-#ropeplay .player-rope path{fill:none;stroke:#1a1a1a;stroke-width:6;stroke-linecap:round}
-#ropeplay.in-window .player-rope path{stroke:#d4a017}
+#ropeplay .jump-rope-viz{width:min(96vw,640px);height:min(28vh,220px);margin-top:-6px;overflow:visible;pointer-events:none}
+#ropeplay .jump-rope-line{fill:none;stroke:#f8e7b0;stroke-width:10;stroke-linecap:round;filter:drop-shadow(0 0 10px #ffe66d)}
+#ropeplay.in-window .jump-rope-line{stroke:#ffe66d;stroke-width:12}
+#ropeplay .held-jump-rope{stroke:#f3e2b0;stroke-width:8;filter:drop-shadow(0 0 6px #ffe66d)}
 #ropeplay .rope-line{margin-top:6px;max-width:92%;text-align:center;font-size:clamp(18px,4.6vw,28px);font-weight:800;color:#fff4d2;text-shadow:0 0 12px #a01a4a,0 3px 0 #4a1020}
 #ropeplay .rope-count{margin-top:4px;font-size:clamp(20px,5vw,32px);font-weight:800;color:#ffe66d;text-shadow:0 2px 0 #5a1020}
-#btnJump{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#ff8fab,#e03131);color:#fff8f0;border:3px solid rgba(255,214,165,.65);box-shadow:0 7px 0 #9b1b1b,0 12px 22px rgba(224,49,49,.3);touch-action:none}
+#btnJump{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:58;min-width:132px;min-height:76px;padding:18px 28px;display:none;border-radius:24px;font-size:22px;font-weight:800;letter-spacing:.08em;background:linear-gradient(180deg,#ff8fab,#e03131);color:#fff8f0;border:3px solid rgba(255,214,165,.65);box-shadow:0 7px 0 #9b1b1b,0 12px 22px rgba(224,49,49,.3);touch-action:manipulation;pointer-events:auto}
+#btnJump,#btnJump *{pointer-events:auto}
 #btnJump.show{display:block}
 #btnJump.held,#btnJump:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #9b1b1b}
 @keyframes boomPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -180,7 +183,6 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     <div id="speech"><span id="speechText">Walk, Explorer!</span></div>
     <div id="dpad" hidden aria-hidden="true"></div>
     <button type="button" id="btnInteract" aria-label="Open door">OPEN</button>
-    <button type="button" id="btnJump" aria-label="Jump the rope">JUMP</button>
     <div id="hintFloat">drag left to walk / drag right to look</div>
   </div>
 
@@ -204,10 +206,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   <div id="ropeplay" aria-hidden="true">
     <div class="rope-art" id="ropeArt"></div>
-    <svg class="player-rope" viewBox="0 0 200 80" aria-hidden="true"><path id="ropeArc" d="M8,16 Q100,22 192,16"/></svg>
+    <svg class="jump-rope-viz" viewBox="0 0 200 130" aria-hidden="true"><path id="ropeArc" class="jump-rope-line" d="M10,28 Q100,48 190,28"/></svg>
     <div class="rope-line" id="ropeText"></div>
     <div class="rope-count" id="ropeCount"></div>
   </div>
+  <button type="button" id="btnJump" aria-label="Jump the rope">JUMP</button>
 
   <div id="caught" class="screen">
     <div class="panel">
@@ -353,6 +356,24 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       return {count: next, missed: false, done: next >= need};
     }
     return {count: 0, missed: true, done: false};
+  }
+  const ROPE_START_GRACE = 6;
+  const ROPE_COUNTDOWN_SEC = 2.5;
+  const ROPE_APPROACH_DIST = 2.6;
+  const ROPE_LEAVE_DIST = 4.8;
+  function isRopeMovementLocked(mode){
+    return mode === 'playing';
+  }
+  function ropeShouldStartCountdown(dist, cool, mode){
+    if((cool || 0) > 0) return false;
+    if(mode === 'countdown' || mode === 'playing') return false;
+    return dist < ROPE_APPROACH_DIST;
+  }
+  function ropeCountdownCancelled(dist, mode){
+    return mode === 'countdown' && dist > ROPE_LEAVE_DIST;
+  }
+  function ropeMissLeavesPlayable(result){
+    return !!(result && result.missed && result.count === 0 && result.done === false);
   }
 
   const MAP_ROWS = [
@@ -1112,10 +1133,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 
 
-  const ROPE_KID_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="rope-smile" d="M78 118 Q100 140 124 118" fill="none" stroke="#b03636" stroke-width="4" stroke-linecap="round"/></svg>';
-  const ROPE_KID_SAD_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="rope-frown" d="M80 132 Q100 116 122 132" fill="none" stroke="#6b3050" stroke-width="4" stroke-linecap="round"/></svg>';
+  const ROPE_KID_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="held-jump-rope" d="M22 178 Q100 262 178 176" fill="none" stroke="#2b2116" stroke-width="7" stroke-linecap="round"/><path class="rope-smile" d="M78 118 Q100 140 124 118" fill="none" stroke="#b03636" stroke-width="4" stroke-linecap="round"/></svg>';
+  const ROPE_KID_SAD_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="held-jump-rope" d="M22 178 Q100 262 178 176" fill="none" stroke="#2b2116" stroke-width="7" stroke-linecap="round"/><path class="rope-frown" d="M80 132 Q100 116 122 132" fill="none" stroke="#6b3050" stroke-width="4" stroke-linecap="round"/></svg>';
   let ropeKid = {x:10.5, y:3.5, visible:true};
-  let ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
+  let ropePlay = {active:false, mode:'idle', count:0, phase:0, jumped:false, done:false, cool:ROPE_START_GRACE, started:false, countDown:0};
   let ropeKidImg = null;
   function ensureRopeKidImg(){
     if(ropeKidImg) return ropeKidImg;
@@ -1124,7 +1145,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     return ropeKidImg;
   }
   function isRopeLocking(){
-    return !!(ropePlay && ropePlay.active && !ropePlay.done);
+    return !!(ropePlay && ropePlay.mode === 'playing' && !ropePlay.done);
+  }
+  function isRopeUiOpen(){
+    return !!(ropePlay && (ropePlay.mode === 'countdown' || ropePlay.mode === 'playing') && !ropePlay.done);
   }
   function setRopeHud(line, countText){
     if($('ropeText')) $('ropeText').textContent = line || '';
@@ -1136,7 +1160,12 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       box.classList.toggle('show', !!on);
       box.setAttribute('aria-hidden', on ? 'false' : 'true');
     }
-    if($('btnJump')) $('btnJump').classList.toggle('show', !!on);
+    const jump = $('btnJump');
+    if(jump){
+      jump.classList.toggle('show', !!on);
+      jump.disabled = false;
+      jump.style.pointerEvents = on ? 'auto' : '';
+    }
     if($('btnInteract')){
       if(on) $('btnInteract').classList.remove('show');
       else if(state === 'explore') $('btnInteract').classList.add('show');
@@ -1146,56 +1175,88 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const el = $('ropeArc');
     if(!el) return;
     const ph = ropePhaseWrap(ropePlay.phase);
-    const dip = reducedMotion ? 28 : (16 + Math.sin(ph * Math.PI) * 54);
-    el.setAttribute('d', 'M8,16 Q100,' + dip.toFixed(1) + ' 192,16');
+    const dip = reducedMotion ? 46 : (24 + Math.sin(ph * Math.PI) * 88);
+    el.setAttribute('d', 'M10,24 Q100,' + dip.toFixed(1) + ' 190,24');
     const box = $('ropeplay');
-    if(box) box.classList.toggle('in-window', ropeJumpWindow(ropePlay.phase));
+    if(box) box.classList.toggle('in-window', ropePlay.mode === 'playing' && ropeJumpWindow(ropePlay.phase));
   }
   function hideRopePlay(){
     showRopeUI(false);
     if($('ropeplay')) $('ropeplay').classList.remove('in-window');
   }
-  function startRopePlay(){
-    if(isRopeLocking() || quizOpen || paused || state !== 'explore' || deathPending) return false;
-    resetControls();
+  function startRopeCountdown(){
+    if(quizOpen || paused || state !== 'explore' || deathPending) return false;
+    if(ropePlay.mode === 'countdown' || ropePlay.mode === 'playing') return false;
     ropePlay.active = true;
+    ropePlay.mode = 'countdown';
+    ropePlay.countDown = ROPE_COUNTDOWN_SEC;
+    ropePlay.count = 0;
+    ropePlay.phase = 0.12;
+    ropePlay.jumped = false;
+    ropePlay.done = false;
+    ropePlay.started = false;
+    if($('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SVG;
+    showRopeUI(true);
+    setRopeHud('Hey! Jump rope with me! You can still walk — get ready in ' + Math.ceil(ROPE_COUNTDOWN_SEC) + '…', 'Ready');
+    updateRopeArc();
+    say('Hey! Jump rope with me — get ready!', 1600);
+    return true;
+  }
+  function beginRopeRound(){
+    ropePlay.active = true;
+    ropePlay.mode = 'playing';
     ropePlay.count = 0;
     ropePlay.phase = 0.08;
     ropePlay.jumped = false;
     ropePlay.done = false;
     ropePlay.started = true;
+    resetControls();
     if($('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SVG;
     showRopeUI(true);
-    setRopeHud('Hey! Jump rope with me — pretty please? Five good jumps in a row! Jump when the rope swings low.', '0 / 5');
+    setRopeHud('Jump when the rope swings low! Five good jumps in a row!', '0 / 5');
     updateRopeArc();
     return true;
   }
   function endRopePlay(sad){
-    if(sad && ropePlay.active && $('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SAD_SVG;
-    if(sad && ropePlay.active) setRopeHud('Oh no — our game stopped. I\'ll come find you later.', (ropePlay.count||0) + ' / ' + ROPE_NEED);
+    if(sad && isRopeUiOpen() && $('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SAD_SVG;
+    if(sad && isRopeUiOpen()) setRopeHud('Oh no — our game stopped. I\'ll come find you later.', (ropePlay.count||0) + ' / ' + ROPE_NEED);
     ropePlay.active = false;
+    ropePlay.mode = 'idle';
     ropePlay.done = false;
     ropePlay.started = false;
+    ropePlay.countDown = 0;
     ropePlay.cool = 15;
     hideRopePlay();
     ropeKid.x = 10.5;
     ropeKid.y = 3.5;
   }
   function interruptRopePlay(){
-    if(ropePlay && ropePlay.active) endRopePlay(true);
+    if(ropePlay && (ropePlay.mode === 'countdown' || ropePlay.mode === 'playing')) endRopePlay(true);
   }
   function resetRopePlay(){
-    ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
+    ropePlay = {active:false, mode:'idle', count:0, phase:0, jumped:false, done:false, cool:ROPE_START_GRACE, started:false, countDown:0};
     ropeKid = {x:10.5, y:3.5, visible:true};
     hideRopePlay();
   }
+  function ensureJumpReady(){
+    const jump = $('btnJump');
+    if(!jump) return;
+    jump.disabled = false;
+    jump.classList.add('show');
+    jump.style.pointerEvents = 'auto';
+  }
   function tryRopeJump(){
+    if(ropePlay.mode === 'countdown') return false;
     if(!isRopeLocking()) return false;
     const inWin = ropeJumpWindow(ropePlay.phase);
     const r = applyRopeJump(ropePlay.count, ROPE_NEED, inWin);
     ropePlay.jumped = true;
+    ropePlay.mode = 'playing';
+    ropePlay.done = !!r.done;
+    ensureJumpReady();
     if(r.missed){
       ropePlay.count = 0;
+      ropePlay.done = false;
       setRopeHud('Missed it! That\'s okay — we start the five over! Jump when the rope swings low.', '0 / 5');
       return true;
     }
@@ -1217,7 +1278,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
         ropePlay.phase -= 1;
         if(!ropePlay.jumped){
           ropePlay.count = 0;
+          ropePlay.done = false;
           setRopeHud('The rope came around — that one didn\'t count! From the top, five in a row!', '0 / 5');
+          ensureJumpReady();
         }
         ropePlay.jumped = false;
       }
@@ -1227,13 +1290,32 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(state !== 'explore' || quizOpen || paused || deathPending) return;
     const dx = player.x - ropeKid.x, dy = player.y - ropeKid.y;
     const dist = Math.hypot(dx, dy);
-    if(ropePlay.cool <= 0 && dist < 0.88){
-      startRopePlay();
+    if(ropePlay.mode === 'countdown'){
+      ropePlay.phase += dt / 1.15;
+      updateRopeArc();
+      ropePlay.countDown -= dt;
+      const left = Math.max(0, ropePlay.countDown);
+      setRopeHud('Hey! Jump rope with me! You can still walk — get ready in ' + Math.ceil(left) + '…', 'Ready');
+      if(ropeCountdownCancelled(dist, ropePlay.mode)){
+        ropePlay.mode = 'idle';
+        ropePlay.active = false;
+        ropePlay.cool = 4;
+        hideRopePlay();
+        return;
+      }
+      if(ropePlay.countDown <= 0){
+        beginRopeRound();
+      }
       return;
     }
-    const chase = ropePlay.cool <= 0 && dist < 8.5;
+    if(ropeShouldStartCountdown(dist, ropePlay.cool, ropePlay.mode)){
+      startRopeCountdown();
+      return;
+    }
+    if(ropePlay.cool > 0) return;
+    const chase = dist < 8.5;
     const speed = chase ? 3.05 : 1.25;
-    if(dist > 0.12){
+    if(dist > ROPE_APPROACH_DIST * 0.9){
       tryMoveEntity(ropeKid, ropeKid.x + (dx/dist)*speed*dt, ropeKid.y + (dy/dist)*speed*dt, 0.2);
     }
     if(chase && dist < 6.5){
@@ -1245,8 +1327,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       ropePlay.invited = false;
     }
   }
-  function drawRopeKidSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
-    if(!ropeKid || isRopeLocking()) return;
+    function drawRopeKidSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
+    if(!ropeKid || isRopeUiOpen()) return;
     const img = ensureRopeKidImg();
     if(!img.complete || !img.naturalWidth) return;
     const dx = ropeKid.x - player.x;
@@ -1504,7 +1586,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     $('roomLabel').classList.toggle('show', on);
     $('hintFloat').classList.toggle('show', on);
     $('btnInteract').classList.toggle('show', on && !isRopeLocking());
-    if($('btnJump')) $('btnJump').classList.toggle('show', on && isRopeLocking());
+    if($('btnJump')) $('btnJump').classList.toggle('show', on && isRopeUiOpen());
     if(on) resizeView();
   }
   function showScreen(id){
