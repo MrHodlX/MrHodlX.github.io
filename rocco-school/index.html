@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-08-rope-viz -->
+<!-- build 2026-11-08-slower-npcs -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -265,6 +265,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const CALC_RADIUS = 0.22;
   const MOVE_SPEED = 2.85;
   const ROT_SPEED = 2.35;
+  const NPC_MOVE_SCALE = 0.7;
+  function scaleNpcMove(base){
+    return base * NPC_MOVE_SCALE;
+  }
+  const ROPE_KID_CHASE_SPEED = scaleNpcMove(3.05);
+  const ROPE_KID_WALK_SPEED = scaleNpcMove(1.25);
+  const CALC_CHASE_SPEED_1 = scaleNpcMove(1.15);
+  const CALC_CHASE_SPEED_2 = scaleNpcMove(1.85);
+  const CALC_CHASE_SPEED_3 = scaleNpcMove(2.55);
   const FOV = Math.PI / 3;
   const INTERACT_DIST = 1.25;
   const SPAWN = {x:16.5, y:10.5, dir: -Math.PI/2, pitch: 0};
@@ -1256,7 +1265,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       return;
     }
     const chase = ropePlay.cool <= 0 && dist < 8.5;
-    const speed = chase ? 3.05 : 1.25;
+    const speed = chase ? ROPE_KID_CHASE_SPEED : ROPE_KID_WALK_SPEED;
     if(dist > 0.12){
       tryMoveEntity(ropeKid, ropeKid.x + (dx/dist)*speed*dt, ropeKid.y + (dy/dist)*speed*dt, 0.2);
     }
@@ -1490,7 +1499,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       spawnCalcAway();
       calc.visible = true;
     }
-    const speed = wrongs >= 3 ? 2.55 : (wrongs >= 2 ? 1.85 : 1.15);
+    const speed = wrongs >= 3 ? CALC_CHASE_SPEED_3 : (wrongs >= 2 ? CALC_CHASE_SPEED_2 : CALC_CHASE_SPEED_1);
     const vx = player.x - calc.x, vy = player.y - calc.y;
     const m = Math.hypot(vx, vy);
     if(m > 0.05){
