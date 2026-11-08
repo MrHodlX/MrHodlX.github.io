@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-07-touchdrag v2 -->
+<!-- build 2026-11-08-rope-viz -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -112,7 +112,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   #popscare .pop-loom{animation:popFade .4s ease both}
   #app.shake{animation:none}
   .ruler-swing{animation:none!important;transform:rotate(48deg)}
-  #ropeplay .player-rope path{transition:none}
+  #ropeplay .jump-rope-viz path{transition:none}
 }
 .ruler-swing{transform-box:view-box;transform-origin:102px 170px;animation:rulerTap .62s cubic-bezier(.18,1.12,.32,1) both}
 @keyframes rulerTap{0%{transform:rotate(-52deg)}42%{transform:rotate(8deg)}68%{transform:rotate(40deg)}82%{transform:rotate(34deg)}100%{transform:rotate(48deg)}}
@@ -120,9 +120,13 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 #ropeplay.show{display:flex}
 #ropeplay .rope-art{width:min(58vw,300px);pointer-events:none}
 #ropeplay .rope-art svg{width:100%;height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
-#ropeplay .player-rope{width:min(92vw,560px);height:86px;pointer-events:none;margin-top:-8px}
-#ropeplay .player-rope path{fill:none;stroke:#1a1a1a;stroke-width:6;stroke-linecap:round}
-#ropeplay.in-window .player-rope path{stroke:#d4a017}
+#ropeplay .jump-rope-viz{width:min(96vw,680px);height:min(32vh,240px);margin-top:-6px;overflow:visible;pointer-events:none}
+#ropeplay .jump-rope-outline{fill:none;stroke:#1a1040;stroke-width:22;stroke-linecap:round}
+#ropeplay .jump-rope-line{fill:none;stroke:url(#swingRopeGrad);stroke-width:14;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(255,230,109,.5))}
+#ropeplay .jump-rope-shine{fill:none;stroke:rgba(255,255,255,.55);stroke-width:4;stroke-linecap:round}
+#ropeplay.in-window .jump-rope-outline{stroke:#2a1860;stroke-width:24}
+#ropeplay.in-window .jump-rope-line{filter:drop-shadow(0 0 10px rgba(255,230,109,.75));stroke-width:16}
+#ropeplay .held-jump-rope{filter:drop-shadow(0 0 5px rgba(255,230,109,.45))}
 #ropeplay .rope-line{margin-top:6px;max-width:92%;text-align:center;font-size:clamp(18px,4.6vw,28px);font-weight:800;color:#fff4d2;text-shadow:0 0 12px #a01a4a,0 3px 0 #4a1020}
 #ropeplay .rope-count{margin-top:4px;font-size:clamp(20px,5vw,32px);font-weight:800;color:#ffe66d;text-shadow:0 2px 0 #5a1020}
 #btnJump{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#ff8fab,#e03131);color:#fff8f0;border:3px solid rgba(255,214,165,.65);box-shadow:0 7px 0 #9b1b1b,0 12px 22px rgba(224,49,49,.3);touch-action:none}
@@ -204,7 +208,21 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   <div id="ropeplay" aria-hidden="true">
     <div class="rope-art" id="ropeArt"></div>
-    <svg class="player-rope" viewBox="0 0 200 80" aria-hidden="true"><path id="ropeArc" d="M8,16 Q100,22 192,16"/></svg>
+    <svg class="jump-rope-viz" viewBox="0 0 200 140" aria-hidden="true">
+      <defs>
+        <linearGradient id="swingRopeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ff2d6a"/>
+          <stop offset="20%" stop-color="#ff9f1c"/>
+          <stop offset="40%" stop-color="#ffe66d"/>
+          <stop offset="60%" stop-color="#3ee89a"/>
+          <stop offset="80%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#c084fc"/>
+        </linearGradient>
+      </defs>
+      <path class="jump-rope-sync jump-rope-outline" d="M10,26 Q100,48 190,26"/>
+      <path class="jump-rope-sync jump-rope-line" id="ropeArc" d="M10,26 Q100,48 190,26"/>
+      <path class="jump-rope-sync jump-rope-shine" d="M10,26 Q100,48 190,26"/>
+    </svg>
     <div class="rope-line" id="ropeText"></div>
     <div class="rope-count" id="ropeCount"></div>
   </div>
@@ -1112,8 +1130,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
 
 
-  const ROPE_KID_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="rope-smile" d="M78 118 Q100 140 124 118" fill="none" stroke="#b03636" stroke-width="4" stroke-linecap="round"/></svg>';
-  const ROPE_KID_SAD_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="rope-frown" d="M80 132 Q100 116 122 132" fill="none" stroke="#6b3050" stroke-width="4" stroke-linecap="round"/></svg>';
+  const ROPE_KID_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="heldRopeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff2d6a"/><stop offset="20%" stop-color="#ff9f1c"/><stop offset="40%" stop-color="#ffe66d"/><stop offset="60%" stop-color="#3ee89a"/><stop offset="80%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="held-jump-rope-outline" d="M22 178 Q100 262 178 176" fill="none" stroke="#1a1040" stroke-width="18" stroke-linecap="round"/><path class="held-jump-rope" d="M22 178 Q100 262 178 176" fill="none" stroke="url(#heldRopeGrad)" stroke-width="11" stroke-linecap="round"/><path class="rope-smile" d="M78 118 Q100 140 124 118" fill="none" stroke="#b03636" stroke-width="4" stroke-linecap="round"/></svg>';
+  const ROPE_KID_SAD_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="heldRopeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff2d6a"/><stop offset="20%" stop-color="#ff9f1c"/><stop offset="40%" stop-color="#ffe66d"/><stop offset="60%" stop-color="#3ee89a"/><stop offset="80%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="held-jump-rope-outline" d="M22 178 Q100 262 178 176" fill="none" stroke="#1a1040" stroke-width="18" stroke-linecap="round"/><path class="held-jump-rope" d="M22 178 Q100 262 178 176" fill="none" stroke="url(#heldRopeGrad)" stroke-width="11" stroke-linecap="round"/><path class="rope-frown" d="M80 132 Q100 116 122 132" fill="none" stroke="#6b3050" stroke-width="4" stroke-linecap="round"/></svg>';
   let ropeKid = {x:10.5, y:3.5, visible:true};
   let ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
   let ropeKidImg = null;
@@ -1146,9 +1164,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const el = $('ropeArc');
     if(!el) return;
     const ph = ropePhaseWrap(ropePlay.phase);
-    const dip = reducedMotion ? 28 : (16 + Math.sin(ph * Math.PI) * 54);
-    el.setAttribute('d', 'M8,16 Q100,' + dip.toFixed(1) + ' 192,16');
+    const dip = reducedMotion ? 36 : (26 + Math.sin(ph * Math.PI) * 88);
+    const d = 'M10,26 Q100,' + dip.toFixed(1) + ' 190,26';
     const box = $('ropeplay');
+    const layers = box ? box.querySelectorAll('.jump-rope-sync') : null;
+    if(layers && layers.length){
+      for(let i=0;i<layers.length;i++) layers[i].setAttribute('d', d);
+    } else {
+      el.setAttribute('d', d);
+    }
     if(box) box.classList.toggle('in-window', ropeJumpWindow(ropePlay.phase));
   }
   function hideRopePlay(){
