@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-08-decor-fp-rope-scare -->
+<!-- build 2026-11-08-hallway-ambient -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -792,6 +792,77 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       {x:53.4, y:4.6, room:'Office'}
     ];
   }
+  const BGM_LEVEL = 0.30;
+  const BGM_DUCK_LEVEL = 0.028;
+  const BGM_MUTE_LEVEL = 0.0001;
+  const BGM_DRONE_FREQ = 49;
+  const BGM_DETUNE_FREQS = [73.42, 74.96];
+  const BGM_AIR_FREQ = 184.5;
+  const BGM_DRIFT_FREQS = [55.0, 65.41, 69.3, 82.41, 87.31, 103.83, 116.54];
+  const BGM_BELL_FREQS = [311.13, 369.99, 415.3, 466.16, 554.37];
+  const BGM_MAX_LIVE_OSC = 8;
+  const BGM_ORNAMENT_SLOTS = ['bell', 'creak', 'drift'];
+  function isHallwayExploreMusicActive(env){
+    if(!env) return false;
+    if(env.state !== 'explore' || env.quizOpen || env.paused || env.deathPending) return false;
+    if(env.hidden) return false;
+    if(env.room && env.room !== 'Hallway') return false;
+    return true;
+  }
+  function bgmAmbientTarget(env){
+    if(!env || env.muted) return BGM_MUTE_LEVEL;
+    if(!isHallwayExploreMusicActive(env)) return BGM_MUTE_LEVEL;
+    return BGM_LEVEL;
+  }
+  function bgmEffectiveTarget(env){
+    const ambient = bgmAmbientTarget(env);
+    if(!env) return ambient;
+    if(env.muted) return BGM_MUTE_LEVEL;
+    if(env.ducking) return Math.min(ambient, (env.duckLevel == null ? BGM_DUCK_LEVEL : env.duckLevel));
+    return ambient;
+  }
+  function bgmSyncShouldDeferToDuck(env){
+    if(!env || !env.ducking || env.muted) return false;
+    return bgmAmbientTarget(env) > (env.duckLevel == null ? BGM_DUCK_LEVEL : env.duckLevel);
+  }
+  function nextBgmOrnamentDelay(kind, randFn){
+    const r = (typeof randFn === 'function') ? randFn() : Math.random();
+    const span = kind === 'bell' ? [4.2, 11.0] : kind === 'creak' ? [6.0, 14.5] : [7.5, 13.5];
+    return span[0] + r * (span[1] - span[0]);
+  }
+  function describeHallwayBgmScore(){
+    return {
+      style: 'procedural-ambient-horror',
+      musical: true,
+      loopingAlarm: false,
+      layers: [
+        {id:'low-drone', type:'sine', freq:BGM_DRONE_FREQ, vol:0.13, detuneLfo:0.05},
+        {id:'uneasy-a', type:'triangle', freq:BGM_DETUNE_FREQS[0], vol:0.055, detune:0},
+        {id:'uneasy-b', type:'sine', freq:BGM_DETUNE_FREQS[1], vol:0.05, detune:11},
+        {id:'air-pad', type:'sine', freq:BGM_AIR_FREQ, vol:0.026, gainLfo:0.07},
+        {id:'drift-unresolved', type:'sine', freqs:BGM_DRIFT_FREQS.slice(), vol:0.04}
+      ],
+      ornaments: [
+        {id:'sparse-bells', kind:'bell', freqs:BGM_BELL_FREQS.slice()},
+        {id:'distant-creaks', kind:'creak'}
+      ],
+      maxLiveOsc: BGM_MAX_LIVE_OSC,
+      ornamentSlots: BGM_ORNAMENT_SLOTS.slice(),
+      level: BGM_LEVEL,
+      duckLevel: BGM_DUCK_LEVEL,
+      muteLevel: BGM_MUTE_LEVEL
+    };
+  }
+  function planBgmRestart(prev){
+    const prevTimers = (prev && prev.timers) ? prev.timers.length : 0;
+    return {
+      clearTimers: true,
+      reuseGraph: !!(prev && prev.started),
+      createGraph: !(prev && prev.started),
+      nextTimerCount: BGM_ORNAMENT_SLOTS.length,
+      clearedCount: prevTimers
+    };
+  }
   /* ::EXPLORER_LOGIC_END:: */
 
   const GOOD_LINES = [
@@ -861,6 +932,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   let quizBook = null;
   let muted = false;
   let audioCtx = null, masterGain = null, humOsc = null, humGain = null, bgmNodes = null, bgmTimer = null;
+  let bgmDuckUntil = 0, bgmDuckTimer = null, lastBgmGateKey = '';
   let lastTs = 0;
   let whooshCD = 0;
   let walkPhase = 0;
@@ -975,9 +1047,13 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
       masterGain.gain.linearRampToValueAtTime(muted ? 0.0001 : 1, audioCtx.currentTime + 0.08);
     }
-    if(bgmNodes && bgmNodes.gain && audioCtx){
-      bgmNodes.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-      bgmNodes.gain.gain.linearRampToValueAtTime(muted ? 0.0001 : 0.42, audioCtx.currentTime + 0.08);
+    lastBgmGateKey = '';
+    if(muted && bgmNodes && bgmNodes.gain && audioCtx){
+      const g = bgmNodes.gain.gain;
+      g.cancelScheduledValues(audioCtx.currentTime);
+      g.setValueAtTime(BGM_MUTE_LEVEL, audioCtx.currentTime);
+    } else {
+      syncBgm({fade:0.2});
     }
     if(muted && window.speechSynthesis){
       try { speechSynthesis.cancel(); } catch(e){}
@@ -1165,13 +1241,17 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
   function duckBgmForScare(seconds){
     if(!bgmNodes || !bgmNodes.gain || !audioCtx || muted) return;
-    const g = bgmNodes.gain.gain;
-    const t = audioCtx.currentTime;
     const back = seconds || 1.4;
-    g.cancelScheduledValues(t);
-    g.setValueAtTime(g.value, t);
-    g.linearRampToValueAtTime(0.035, t + 0.04);
-    g.linearRampToValueAtTime(0.42, t + back);
+    bgmDuckUntil = audioCtx.currentTime + back;
+    lastBgmGateKey = '';
+    syncBgm({fromDuck:true, fade:0.04});
+    if(bgmDuckTimer) clearTimeout(bgmDuckTimer);
+    bgmDuckTimer = setTimeout(function(){
+      bgmDuckTimer = null;
+      bgmDuckUntil = 0;
+      lastBgmGateKey = '';
+      syncBgm({fromDuckRestore:true, fade:0.55});
+    }, Math.floor(back * 1000) + 16);
   }
   function playScareCluster(when){
     const dest = scareDest();
@@ -1235,20 +1315,145 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     humGain.gain.cancelScheduledValues(audioCtx.currentTime);
     humGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 0.35);
   }
+  function bgmGateEnv(){
+    let hidden = false;
+    try { hidden = !!(typeof document !== 'undefined' && document.hidden); } catch(e){}
+    return {
+      state: state,
+      quizOpen: quizOpen,
+      paused: paused,
+      deathPending: deathPending,
+      hidden: hidden,
+      muted: muted,
+      room: player ? roomNameAt(player.x, player.y) : 'Hallway',
+      ducking: !!(audioCtx && audioCtx.currentTime < bgmDuckUntil),
+      duckLevel: BGM_DUCK_LEVEL
+    };
+  }
+  function syncBgm(opts){
+    if(!bgmNodes || !bgmNodes.gain || !audioCtx) return;
+    opts = opts || {};
+    const env = bgmGateEnv();
+    if(bgmSyncShouldDeferToDuck(env) && !opts.fromDuck && !opts.fromDuckRestore){
+      return;
+    }
+    const target = bgmEffectiveTarget(env);
+    const t = audioCtx.currentTime;
+    const fade = muted ? 0.05 : (opts.fade != null ? opts.fade : 0.55);
+    const g = bgmNodes.gain.gain;
+    try {
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(Math.max(0.0001, g.value), t);
+      g.linearRampToValueAtTime(target, t + Math.max(0.02, fade));
+    } catch(e){
+      try { g.value = target; } catch(err){}
+    }
+  }
+  function tickHallwayBgm(){
+    const env = bgmGateEnv();
+    const key = [env.state, !!env.quizOpen, !!env.paused, !!env.deathPending, !!env.hidden, !!env.muted, env.room, !!env.ducking].join('|');
+    if(key === lastBgmGateKey) return;
+    lastBgmGateKey = key;
+    syncBgm({fade: (env.hidden || env.muted) ? 0.12 : 0.55});
+  }
+  function clearBgmSchedules(){
+    if(bgmTimer){ clearTimeout(bgmTimer); bgmTimer = null; }
+    if(bgmDuckTimer){ clearTimeout(bgmDuckTimer); bgmDuckTimer = null; }
+    if(bgmNodes && bgmNodes.timers){
+      bgmNodes.timers.forEach(function(id){ try { clearTimeout(id); } catch(e){} });
+      bgmNodes.timers = [];
+    }
+  }
+  function shouldPlayBgmOrnament(){
+    if(muted || !audioCtx || !bgmNodes) return false;
+    if(audioCtx.currentTime < bgmDuckUntil) return false;
+    return isHallwayExploreMusicActive(bgmGateEnv());
+  }
+  function playBgmBell(){
+    if(!shouldPlayBgmOrnament()) return;
+    const dest = bgmNodes.gain;
+    const freq = BGM_BELL_FREQS[Math.floor(Math.random() * BGM_BELL_FREQS.length)];
+    const t0 = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    const f = audioCtx.createBiquadFilter();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    f.type = 'lowpass';
+    f.frequency.value = freq * 2.4;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.4);
+    o.connect(f); f.connect(g); g.connect(dest);
+    o.start(t0); o.stop(t0 + 2.55);
+  }
+  function playBgmCreak(){
+    if(!shouldPlayBgmOrnament()) return;
+    const dest = bgmNodes.gain;
+    const t0 = audioCtx.currentTime;
+    const dur = 0.42 + Math.random() * 0.38;
+    const len = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+    const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<len;i++) data[i] = (Math.random()*2-1) * (1 - i/len);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 260 + Math.random() * 480;
+    bp.Q.value = 3.2;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.045, t0 + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(bp); bp.connect(g); g.connect(dest);
+    src.start(t0); src.stop(t0 + dur + 0.03);
+  }
+  function glideBgmDrift(){
+    if(!shouldPlayBgmOrnament() || !bgmNodes.drift) return;
+    const freq = BGM_DRIFT_FREQS[Math.floor(Math.random() * BGM_DRIFT_FREQS.length)];
+    const t0 = audioCtx.currentTime;
+    const dur = 2.8 + Math.random() * 2.6;
+    try {
+      bgmNodes.drift.frequency.cancelScheduledValues(t0);
+      bgmNodes.drift.frequency.setValueAtTime(Math.max(30, bgmNodes.drift.frequency.value), t0);
+      bgmNodes.drift.frequency.exponentialRampToValueAtTime(Math.max(30, freq), t0 + dur);
+    } catch(e){}
+  }
+  function armBgmOrnament(kind){
+    if(!bgmNodes) return;
+    if(!bgmNodes.timers) bgmNodes.timers = [];
+    const delayMs = Math.floor(nextBgmOrnamentDelay(kind, Math.random) * 1000);
+    const id = setTimeout(function(){
+      if(bgmNodes && bgmNodes.timers){
+        bgmNodes.timers = bgmNodes.timers.filter(function(x){ return x !== id; });
+      }
+      if(kind === 'bell') playBgmBell();
+      else if(kind === 'creak') playBgmCreak();
+      else glideBgmDrift();
+      armBgmOrnament(kind);
+    }, delayMs);
+    bgmNodes.timers.push(id);
+    bgmTimer = id;
+  }
+  function scheduleBgmOrnaments(){
+    if(!bgmNodes) return;
+    if(bgmNodes.timers && bgmNodes.timers.length) return;
+    BGM_ORNAMENT_SLOTS.forEach(armBgmOrnament);
+  }
   function startBgm(){
     ensureAudio();
     if(!audioCtx) return;
     const boot = function(){
       if(bgmNodes && bgmNodes.started){
-        const g = muted ? 0.0001 : 0.42;
-        bgmNodes.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-        bgmNodes.gain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
+        scheduleBgmOrnaments();
+        syncBgm({fade:0.4});
         return;
       }
       const dest = outNode();
       if(!dest) return;
       const gain = audioCtx.createGain();
-      gain.gain.value = muted ? 0.0001 : 0.42;
+      gain.gain.value = BGM_MUTE_LEVEL;
       gain.connect(dest);
       function layer(type, freq, vol, detune){
         const o = audioCtx.createOscillator();
@@ -1261,23 +1466,38 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
         try { o.start(); } catch(e){}
         return o;
       }
-      const drone = layer('sine', 61.74, 0.16, 0);
-      const fifth = layer('triangle', 98, 0.11, 6);
-      const eerie = layer('triangle', 146.83, 0.08, -9);
-      const high = audioCtx.createOscillator();
-      const highG = audioCtx.createGain();
-      high.type = 'sine';
-      high.frequency.value = 196;
-      highG.gain.value = 0.045;
-      const lfo = audioCtx.createOscillator();
-      const lfoG = audioCtx.createGain();
-      lfo.frequency.value = 0.28;
-      lfoG.gain.value = 0.03;
-      lfo.connect(lfoG);
-      lfoG.connect(highG.gain);
-      high.connect(highG); highG.connect(gain);
-      try { high.start(); lfo.start(); } catch(e){}
-      bgmNodes = {gain, started:true, oscs:[drone, fifth, eerie, high, lfo]};
+      const drone = layer('sine', BGM_DRONE_FREQ, 0.13, 0);
+      const uneasyA = layer('triangle', BGM_DETUNE_FREQS[0], 0.055, 0);
+      const uneasyB = layer('sine', BGM_DETUNE_FREQS[1], 0.05, 11);
+      const air = audioCtx.createOscillator();
+      const airG = audioCtx.createGain();
+      air.type = 'sine';
+      air.frequency.value = BGM_AIR_FREQ;
+      airG.gain.value = 0.026;
+      const airLfo = audioCtx.createOscillator();
+      const airLfoG = audioCtx.createGain();
+      airLfo.frequency.value = 0.07;
+      airLfoG.gain.value = 0.012;
+      airLfo.connect(airLfoG);
+      airLfoG.connect(airG.gain);
+      air.connect(airG); airG.connect(gain);
+      const drift = layer('sine', BGM_DRIFT_FREQS[2], 0.04, -6);
+      const droneLfo = audioCtx.createOscillator();
+      const droneLfoG = audioCtx.createGain();
+      droneLfo.frequency.value = 0.05;
+      droneLfoG.gain.value = 7;
+      droneLfo.connect(droneLfoG);
+      droneLfoG.connect(drone.detune);
+      try { air.start(); airLfo.start(); droneLfo.start(); } catch(e){}
+      bgmNodes = {
+        gain: gain,
+        started: true,
+        oscs: [drone, uneasyA, uneasyB, air, drift, airLfo, droneLfo],
+        drift: drift,
+        timers: []
+      };
+      scheduleBgmOrnaments();
+      syncBgm({fade:0.85});
     };
     const p = audioCtx.state === 'suspended' ? audioCtx.resume() : Promise.resolve();
     Promise.resolve(p).then(boot).catch(function(){
@@ -2180,6 +2400,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   function endWin(){
     state = 'end';
+    lastBgmGateKey = '';
+    syncBgm({fade:0.45});
     stopTimer();
     setHum(0);
     sfxWin();
@@ -2202,7 +2424,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     opts = opts || {};
     ensureAudio();
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    startBgm();
+    clearBgmSchedules();
+    bgmDuckUntil = 0;
+    lastBgmGateKey = '';
     ensureCalcImg();
     quizOpen = false;
     paused = false;
@@ -2233,6 +2457,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     resizeView();
     renderView();
     state = 'explore';
+    startBgm();
     if(opts.respawn){
       say('New notebooks, Explorer! Different kinds of questions this time!', 2400);
       speak('Welcome back, Explorer. The notebooks changed. Find the glowing doors. Cap\'n Calc is still lurking!', {rate:1.05, pitch:1.15});
@@ -2259,6 +2484,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     } else if(state === 'quiz' || state === 'scare'){
       renderView();
     }
+    tickHallwayBgm();
     requestAnimationFrame(tick);
   }
 
@@ -2348,7 +2574,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       if(extra[e.key]) keys[extra[e.key]] = false;
     });
     window.addEventListener('blur', resetControls);
-    document.addEventListener('visibilitychange', function(){ if(document.hidden) resetControls(); });
+    document.addEventListener('visibilitychange', function(){
+      if(document.hidden) resetControls();
+      lastBgmGateKey = '';
+      syncBgm({fade: document.hidden ? 0.15 : 0.55});
+    });
   }
 
   $('btnPlay').addEventListener('click', function(){ startGame(); });
