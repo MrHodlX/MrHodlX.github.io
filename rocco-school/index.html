@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-08-rope-viz -->
+<!-- build 2026-11-08-occasional-rope-scare -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -93,15 +93,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 #jumpscare{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,#6a0a18,#080204 72%);flex-direction:column;pointer-events:none;overflow:hidden}
 #jumpscare.show{display:flex}
 #jumpscare.show .scare-slam{animation:scareSlam .42s cubic-bezier(.12,1.35,.28,.98) both}
-#jumpscare .scare-slam svg{width:min(98vw,640px);height:auto;filter:drop-shadow(0 0 42px #ff1a1a) drop-shadow(0 18px 16px rgba(0,0,0,.7));animation:scareShake .16s ease-in-out infinite}
+#jumpscare .scare-slam svg{width:min(98vw,640px);height:auto;filter:drop-shadow(0 0 42px #ff1a1a) drop-shadow(0 18px 16px rgba(0,0,0,.7)) contrast(1.18) saturate(.88);animation:scareSway .95s ease-in-out infinite alternate}
 #jumpscare .boom{margin-top:6px;font-size:clamp(30px,9vw,52px);color:#ffe66d;text-shadow:0 0 22px #ff2020,0 4px 0 #7a1020;font-weight:800}
 #jumpscare.show .boom{animation:boomPop .22s ease-out .08s both}
 @keyframes scareSlam{0%{transform:translateY(20vh) scale(.18);filter:brightness(.35);opacity:.2}28%{transform:translateY(8vh) scale(.55);filter:brightness(.7);opacity:.85}62%{transform:translateY(-7vh) scale(1.42);filter:brightness(1.28)}100%{transform:translateY(0) scale(1.26);filter:brightness(1)}}
-@keyframes scareShake{0%{transform:translate(-8px,4px) rotate(-2.4deg)}50%{transform:translate(9px,-5px) rotate(2.8deg)}100%{transform:translate(-6px,-3px) rotate(-1.8deg)}}
+@keyframes scareSway{0%{transform:translate(-3px,2px) rotate(-1.1deg) scale(1)}100%{transform:translate(3px,-2px) rotate(1.2deg) scale(1.03)}}
 #popscare{position:absolute;inset:0;z-index:65;display:none;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(40,8,14,.0),rgba(4,2,8,.55));overflow:hidden}
 #popscare.show{display:flex}
 #popscare .pop-loom{width:min(72vw,420px);animation:popLoom .55s cubic-bezier(.12,1.25,.28,.98) both}
-#popscare .pop-loom svg{width:100%;height:auto;filter:drop-shadow(0 0 28px rgba(255,70,70,.55)) drop-shadow(0 14px 12px rgba(0,0,0,.55))}
+#popscare .pop-loom svg{width:100%;height:auto;filter:drop-shadow(0 0 28px rgba(255,70,70,.55)) drop-shadow(0 14px 12px rgba(0,0,0,.55)) contrast(1.16) saturate(.9)}
 #popscare .pop-line{margin-top:8px;font-size:clamp(22px,6vw,36px);font-weight:800;color:#ffe66d;text-shadow:0 0 16px #c81e1e,0 3px 0 #5a1020}
 @keyframes popLoom{0%{transform:translateY(18vh) scale(.22);opacity:0;filter:brightness(.4)}40%{transform:translateY(4vh) scale(.7);opacity:1;filter:brightness(.85)}72%{transform:translateY(-4vh) scale(1.38);filter:brightness(1.18)}100%{transform:translateY(0) scale(1.12);opacity:1;filter:brightness(1)}}
 @keyframes popFade{0%{opacity:0;transform:scale(.92)}100%{opacity:1;transform:scale(1)}}
@@ -265,6 +265,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const CALC_RADIUS = 0.22;
   const MOVE_SPEED = 2.85;
   const ROT_SPEED = 2.35;
+  const NPC_MOVE_SCALE = 0.7;
+  function scaleNpcMove(base){
+    return base * NPC_MOVE_SCALE;
+  }
+  const ROPE_KID_CHASE_SPEED = scaleNpcMove(3.05);
+  const ROPE_KID_WALK_SPEED = scaleNpcMove(1.25);
+  const CALC_CHASE_SPEED_1 = scaleNpcMove(1.15);
+  const CALC_CHASE_SPEED_2 = scaleNpcMove(1.85);
+  const CALC_CHASE_SPEED_3 = scaleNpcMove(2.55);
   const FOV = Math.PI / 3;
   const INTERACT_DIST = 1.25;
   const SPAWN = {x:16.5, y:10.5, dir: -Math.PI/2, pitch: 0};
@@ -372,6 +381,33 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }
     return {count: 0, missed: true, done: false};
   }
+  const ROPE_INITIAL_GRACE = 45;
+  const ROPE_COOL_MIN = 45;
+  const ROPE_COOL_MAX = 75;
+  const ROPE_WANDER_MIN_DIST = 4.8;
+  function isRopeHallwayActive(env){
+    if(!env) return false;
+    if(env.state !== 'explore' || env.quizOpen || env.paused || env.deathPending) return false;
+    if(env.room && env.room !== 'Hallway') return false;
+    return true;
+  }
+  function nextRopeAvailability(randFn, initial){
+    if(initial) return ROPE_INITIAL_GRACE;
+    const draw = (typeof randFn === 'function') ? randFn() : Math.random();
+    const v = ROPE_COOL_MIN + draw * (ROPE_COOL_MAX - ROPE_COOL_MIN);
+    return Math.max(ROPE_COOL_MIN, Math.min(ROPE_COOL_MAX, v));
+  }
+  function tickRopeAvailability(cool, dt, hallwayActive){
+    if(!hallwayActive) return cool || 0;
+    const next = (cool || 0) - (dt || 0);
+    return next > 0 ? next : 0;
+  }
+  function ropeShouldStartEncounter(cool, dist){
+    return (cool || 0) <= 0 && dist < 0.88;
+  }
+  function ropeShouldChase(cool, dist){
+    return (cool || 0) <= 0 && dist < 8.5;
+  }
 
   const MAP_ROWS = [
     "####################################",
@@ -433,6 +469,24 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(tx>=27 && tx<=34 && ty>=7 && ty<=10) return 'Gym';
     if(tx>=27 && tx<=34 && ty>=12 && ty<=16) return 'Rocket Bay';
     return 'Hallway';
+  }
+  function pickRopeWanderTarget(px, py, randFn, minDist, isSolidFn, roomFn){
+    const rnd = randFn || Math.random;
+    const minD = (minDist == null) ? ROPE_WANDER_MIN_DIST : minDist;
+    const solid = isSolidFn || isSolid;
+    const roomAt = roomFn || roomNameAt;
+    let best = null;
+    for(let i=0;i<56;i++){
+      const tx = 1 + Math.floor(rnd() * (MAP_W - 2));
+      const ty = 1 + Math.floor(rnd() * (MAP_H - 2));
+      if(solid(tx, ty)) continue;
+      const x = tx + 0.5, y = ty + 0.5;
+      if(roomAt(x, y) !== 'Hallway') continue;
+      const d = Math.hypot(x - (px||0), y - (py||0));
+      if(d >= minD) return {x:x, y:y};
+      if(!best || d > best.d) best = {x:x, y:y, d:d};
+    }
+    return best ? {x:best.x, y:best.y} : {x:10.5, y:3.5};
   }
   function listNotebookDoors(){
     const doors = [];
@@ -549,6 +603,68 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       return {type:id, q:item.q, a:item.a, c:choicesFor(item.a)};
     });
   }
+  const SCARE_FACE_IDS = ['grin','uneven','blank','stretch','askew'];
+  const SCARE_FACE_DEFAULT = '<ellipse cx="82" cy="86" rx="9" ry="12" fill="#1a1a2e"/><ellipse cx="124" cy="86" rx="9" ry="12" fill="#1a1a2e"/><circle cx="85" cy="82" r="3" fill="#fff"/><circle cx="127" cy="82" r="3" fill="#fff"/><path d="M68 112 Q102 168 136 112" fill="#7a2020" stroke="#5a1010" stroke-width="3"/><path d="M78 124 Q102 150 126 124" fill="#3a0c0c"/>';
+  function scareFaceMarkup(face){
+    if(face === 'uneven'){
+      return '<ellipse cx="76" cy="80" rx="16" ry="18" fill="#1a1a2e"/><ellipse cx="128" cy="92" rx="6" ry="8" fill="#1a1a2e"/><circle cx="80" cy="76" r="4" fill="#fff"/><circle cx="130" cy="90" r="1.6" fill="#fff"/><path d="M64 118 Q88 138 118 122 Q138 148 148 116" fill="#6a1820" stroke="#4a1010" stroke-width="2.5"/>';
+    }
+    if(face === 'blank'){
+      return '<ellipse cx="82" cy="88" rx="11" ry="14" fill="#f0d0c4" stroke="#1a1a2e" stroke-width="2"/><ellipse cx="124" cy="88" rx="11" ry="14" fill="#f0d0c4" stroke="#1a1a2e" stroke-width="2"/><circle cx="82" cy="90" r="2.2" fill="#1a1a2e"/><circle cx="124" cy="86" r="2.2" fill="#1a1a2e"/><ellipse cx="102" cy="128" rx="7" ry="5" fill="#5a2030"/>';
+    }
+    if(face === 'stretch'){
+      return '<ellipse cx="78" cy="78" rx="8" ry="6" fill="#1a1a2e"/><ellipse cx="128" cy="78" rx="8" ry="6" fill="#1a1a2e"/><path d="M70 70 Q78 58 88 70" fill="none" stroke="#1a1a2e" stroke-width="3"/><path d="M116 70 Q128 56 138 72" fill="none" stroke="#1a1a2e" stroke-width="3"/><rect x="62" y="118" width="80" height="18" rx="6" fill="#5a1218" stroke="#3a080c" stroke-width="2"/><rect x="70" y="122" width="64" height="8" rx="3" fill="#1a0808"/>';
+    }
+    if(face === 'askew'){
+      return '<ellipse cx="80" cy="74" rx="10" ry="13" fill="#1a1a2e" transform="rotate(-18 80 74)"/><ellipse cx="126" cy="96" rx="10" ry="13" fill="#1a1a2e" transform="rotate(22 126 96)"/><circle cx="83" cy="70" r="2.5" fill="#fff"/><circle cx="123" cy="99" r="2.5" fill="#fff"/><path d="M70 120 L86 132 L102 118 L118 136 L136 122" fill="none" stroke="#5a1820" stroke-width="5" stroke-linecap="round"/>';
+    }
+    return SCARE_FACE_DEFAULT;
+  }
+  function pickScareFace(prev, randFn){
+    const rnd = typeof randFn === 'function' ? randFn() : Math.random();
+    let idx = Math.floor(rnd * SCARE_FACE_IDS.length) % SCARE_FACE_IDS.length;
+    if(idx < 0) idx = 0;
+    if(SCARE_FACE_IDS[idx] === prev && SCARE_FACE_IDS.length > 1) idx = (idx + 1) % SCARE_FACE_IDS.length;
+    return SCARE_FACE_IDS[idx];
+  }
+  function pickScareFaceSequence(count, randFn, prev){
+    const n = Math.max(1, count || 1);
+    const seq = [];
+    let last = prev;
+    for(let i=0;i<n;i++){
+      const face = pickScareFace(last, randFn);
+      seq.push(face);
+      last = face;
+    }
+    return seq;
+  }
+  function principalScareSvg(face, swinging, baseSvg){
+    const base = baseSvg || ((swinging === false) ? SCARE_SVG : PRINCIPAL_SCARE_SVG);
+    return String(base).replace(SCARE_FACE_DEFAULT, scareFaceMarkup(face || 'grin'));
+  }
+  function describeScareLayers(kind){
+    if(kind === 'pop'){
+      return [
+        {id:'stinger-slide', via:'scare', play:'slide', a:[164,62,0.26,'sawtooth',0.52,0]},
+        {id:'sub-drone', via:'scare', play:'tone', a:[46,0.44,'sine',0.36,0]},
+        {id:'dissonant-low', via:'scare', play:'tone', a:[51.5,0.4,'sine',0.22,0.03]},
+        {id:'dissonant-mid', via:'scare', play:'tone', a:[155,0.3,'triangle',0.16,0.05]},
+        {id:'air-noise', via:'scare', play:'noise', a:[0.32,0.38,0.05,380]},
+        {id:'weird-screech', via:'scare', play:'slide', a:[620,170,0.34,'square',0.24,0.08]}
+      ];
+    }
+    return [
+      {id:'stinger-slide', via:'scare', play:'slide', a:[164,62,0.28,'sawtooth',0.55,0]},
+      {id:'sub-drone', via:'scare', play:'tone', a:[41,0.84,'sine',0.4,0]},
+      {id:'sub-dissonant', via:'scare', play:'tone', a:[44.5,0.8,'sine',0.26,0.02]},
+      {id:'growl', via:'scare', play:'slide', a:[90,28,0.7,'sawtooth',0.48,0.16]},
+      {id:'metallic', via:'scare', play:'slide', a:[880,140,0.52,'square',0.32,0.18]},
+      {id:'cluster-rumble', via:'scare', play:'cluster', a:[0.2]},
+      {id:'noise-low', via:'scare', play:'noise', a:[0.58,0.48,0.18,420]},
+      {id:'noise-high', via:'scare', play:'noise', a:[0.4,0.34,0.22,1600]},
+      {id:'body-thud', via:'scare', play:'tone', a:[42,0.66,'sine',0.46,0.2]}
+    ];
+  }
   /* ::EXPLORER_LOGIC_END:: */
 
   const GOOD_LINES = [
@@ -619,6 +735,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   let lastLifeTypes = [];
   let deathPending = false;
   let scareTimer = null;
+  let scareFaceTimer = null;
+  let lastScareFace = null;
   let calcImg = null;
   let viewCanvas = null, viewCtx = null;
   let scareBus = null, scareComp = null, outLimiter = null, outClipper = null;
@@ -851,41 +969,43 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     src.connect(f); f.connect(g); g.connect(dest);
     src.start(t0); src.stop(t0+dur+0.02);
   }
-  function sfxScareStinger(){
-    scareSlide(164, 62, 0.26, 'sawtooth', 0.72, 0);
-    scareTone(98, 0.28, 'sine', 0.55, 0.02);
-    scareNoise(0.22, 0.35, 0.04, 280);
-  }
-  function sfxJumpScare(){
+  function playScareCluster(when){
     const dest = scareDest();
     if(!dest) return;
-    sfxScareStinger();
-    const t0 = audioCtx.currentTime + 0.2;
-    const freqs = [49, 52, 73.4, 98, 104, 146.8, 185, 207.6, 277, 311, 370, 466];
-    freqs.forEach((f,i)=>{
+    const t0 = audioCtx.currentTime + (when||0);
+    const freqs = [49, 73.4, 98, 146.8, 185, 311];
+    freqs.forEach(function(f,i){
       const o = audioCtx.createOscillator();
       const g = audioCtx.createGain();
-      o.type = i%3===0 ? 'square' : 'sawtooth';
+      o.type = i%2===0 ? 'sawtooth' : 'triangle';
       o.frequency.setValueAtTime(f, t0);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f*(i%2?1.41:0.61)), t0+0.62);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f*(i%2?1.18:0.72)), t0+0.58);
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.62, t0+0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.78);
+      g.gain.exponentialRampToValueAtTime(0.28, t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.7);
       o.connect(g); g.connect(dest);
-      o.start(t0); o.stop(t0+0.8);
+      o.start(t0); o.stop(t0+0.74);
     });
-    scareNoise(.64, .92, 0.2, 640);
-    scareNoise(.48, .8, 0.23, 1900);
-    scareSlide(1760, 110, .58, 'square', .88, 0.2);
-    scareSlide(90, 28, .72, 'sawtooth', .9, 0.2);
-    scareTone(42, 0.7, 'sine', 0.7, 0.22);
+  }
+  function playScareLayers(kind){
+    const dest = scareDest();
+    if(!dest) return false;
+    describeScareLayers(kind).forEach(function(layer){
+      if(layer.play === 'slide') scareSlide.apply(null, layer.a);
+      else if(layer.play === 'tone') scareTone.apply(null, layer.a);
+      else if(layer.play === 'noise') scareNoise.apply(null, layer.a);
+      else if(layer.play === 'cluster') playScareCluster((layer.a && layer.a[0]) || 0.2);
+    });
+    return true;
+  }
+  function sfxScareStinger(){
+    playScareLayers('pop');
+  }
+  function sfxJumpScare(){
+    playScareLayers('jump');
   }
   function sfxPopScare(){
-    if(muted) return;
-    sfxScareStinger();
-    scareNoise(.38, .78, 0.18, 880);
-    scareSlide(990, 150, .34, 'square', .8, 0.18);
-    scareTone(70, 0.4, 'sawtooth', 0.66, 0.18);
+    playScareLayers('pop');
   }
   function sfxWin(){ [523,659,784,988,1175].forEach((f,i)=>tone(f,.18,'triangle',.1,i*.11)); }
   function sfxCaught(){ tone(150,.18,'sawtooth',.08); noiseBurst(.4,.12,.15,220); }
@@ -1133,7 +1253,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   const ROPE_KID_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="heldRopeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff2d6a"/><stop offset="20%" stop-color="#ff9f1c"/><stop offset="40%" stop-color="#ffe66d"/><stop offset="60%" stop-color="#3ee89a"/><stop offset="80%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="held-jump-rope-outline" d="M22 178 Q100 262 178 176" fill="none" stroke="#1a1040" stroke-width="18" stroke-linecap="round"/><path class="held-jump-rope" d="M22 178 Q100 262 178 176" fill="none" stroke="url(#heldRopeGrad)" stroke-width="11" stroke-linecap="round"/><path class="rope-smile" d="M78 118 Q100 140 124 118" fill="none" stroke="#b03636" stroke-width="4" stroke-linecap="round"/></svg>';
   const ROPE_KID_SAD_SVG = '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="heldRopeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff2d6a"/><stop offset="20%" stop-color="#ff9f1c"/><stop offset="40%" stop-color="#ffe66d"/><stop offset="60%" stop-color="#3ee89a"/><stop offset="80%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs><ellipse cx="78" cy="268" rx="18" ry="8" fill="#c4a574"/><ellipse cx="124" cy="266" rx="17" ry="8" fill="#c4a574"/><path d="M70 198 q-4 48 8 68h20v-50h10v50h20q14-22 6-68z" fill="#3ec4d4"/><path d="M64 128 L46 206 h108 L136 128 Z" fill="#e03131"/><path d="M64 134 L16 166 L26 180 L72 152" fill="#e03131"/><path d="M136 134 L184 164 L174 178 L128 152" fill="#e03131"/><ellipse cx="18" cy="176" rx="13" ry="11" fill="#f3c19a"/><ellipse cx="182" cy="174" rx="13" ry="11" fill="#f3c19a"/><rect x="14" y="168" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(-28 18 180)"/><rect x="177" y="166" width="9" height="24" rx="3" fill="#1a1a1a" transform="rotate(24 182 178)"/><rect x="92" y="110" width="16" height="22" fill="#f3c19a"/><circle cx="100" cy="78" r="48" fill="#f3c19a"/><path d="M98 74 L96 106 L116 98 Z" fill="#e8b089" stroke="#d4a07a" stroke-width="1.2"/><path d="M70 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M112 66 q8-10 18 2 q-6 12 -18 2 q6 8 16-4" fill="none" stroke="#1a1a2e" stroke-width="3.2" stroke-linecap="round"/><path d="M72 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><path d="M112 90 l18 3" stroke="#c98880" stroke-width="2" fill="none"/><g class="rope-hair" data-rope-hair="custom"><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M58 52 q-20-28 8-40 q18-8 26 14" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#c4a36a" stroke-width="9" stroke-linecap="round"/><path d="M136 48 q22-26 4-40 q-20-10-30 12" fill="none" stroke="#8a5a32" stroke-width="2.2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#d7b07a" stroke-width="8" stroke-linecap="round"/><path d="M74 38 q12-24 28-8 q8 10-6 16" fill="none" stroke="#8a5a32" stroke-width="2" stroke-dasharray="3 5"/><path d="M50 70 q-16 10-8 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/><path d="M150 68 q16 12 6 28" fill="none" stroke="#c4a36a" stroke-width="7" stroke-linecap="round"/></g><path class="held-jump-rope-outline" d="M22 178 Q100 262 178 176" fill="none" stroke="#1a1040" stroke-width="18" stroke-linecap="round"/><path class="held-jump-rope" d="M22 178 Q100 262 178 176" fill="none" stroke="url(#heldRopeGrad)" stroke-width="11" stroke-linecap="round"/><path class="rope-frown" d="M80 132 Q100 116 122 132" fill="none" stroke="#6b3050" stroke-width="4" stroke-linecap="round"/></svg>';
   let ropeKid = {x:10.5, y:3.5, visible:true};
-  let ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
+  let ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:ROPE_INITIAL_GRACE, started:false};
+  let ropeWander = null;
   let ropeKidImg = null;
   function ensureRopeKidImg(){
     if(ropeKidImg) return ropeKidImg;
@@ -1200,7 +1321,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     ropePlay.active = false;
     ropePlay.done = false;
     ropePlay.started = false;
-    ropePlay.cool = 15;
+    ropePlay.cool = nextRopeAvailability(Math.random, false);
+    ropeWander = null;
     hideRopePlay();
     ropeKid.x = 10.5;
     ropeKid.y = 3.5;
@@ -1209,8 +1331,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(ropePlay && ropePlay.active) endRopePlay(true);
   }
   function resetRopePlay(){
-    ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:0, started:false};
+    ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:nextRopeAvailability(null, true), started:false};
     ropeKid = {x:10.5, y:3.5, visible:true};
+    ropeWander = null;
     hideRopePlay();
   }
   function tryRopeJump(){
@@ -1233,8 +1356,18 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }
     return true;
   }
+  function updateRopeWander(dt, px, py){
+    if(!ropeWander || Math.hypot(ropeKid.x - ropeWander.x, ropeKid.y - ropeWander.y) < 0.4){
+      ropeWander = pickRopeWanderTarget(px, py, Math.random, ROPE_WANDER_MIN_DIST);
+    }
+    if(!ropeWander) return;
+    const dx = ropeWander.x - ropeKid.x, dy = ropeWander.y - ropeKid.y;
+    const dist = Math.hypot(dx, dy);
+    if(dist > 0.12){
+      tryMoveEntity(ropeKid, ropeKid.x + (dx/dist)*ROPE_KID_WALK_SPEED*dt, ropeKid.y + (dy/dist)*ROPE_KID_WALK_SPEED*dt, 0.2);
+    }
+  }
   function updateRopeKid(dt){
-    if(ropePlay.cool > 0) ropePlay.cool -= dt;
     if(isRopeLocking()){
       ropePlay.phase += dt / (reducedMotion ? 1.25 : 0.95);
       if(ropePlay.phase >= 1){
@@ -1248,26 +1381,35 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       updateRopeArc();
       return;
     }
-    if(state !== 'explore' || quizOpen || paused || deathPending) return;
+    const hallwayOn = isRopeHallwayActive({
+      state:state, quizOpen:quizOpen, paused:paused, deathPending:deathPending,
+      room: roomNameAt(player.x, player.y)
+    });
+    if(!hallwayOn) return;
+    ropePlay.cool = tickRopeAvailability(ropePlay.cool, dt, true);
     const dx = player.x - ropeKid.x, dy = player.y - ropeKid.y;
     const dist = Math.hypot(dx, dy);
-    if(ropePlay.cool <= 0 && dist < 0.88){
+    if(ropeShouldStartEncounter(ropePlay.cool, dist)){
       startRopePlay();
       return;
     }
-    const chase = ropePlay.cool <= 0 && dist < 8.5;
-    const speed = chase ? 3.05 : 1.25;
-    if(dist > 0.12){
-      tryMoveEntity(ropeKid, ropeKid.x + (dx/dist)*speed*dt, ropeKid.y + (dy/dist)*speed*dt, 0.2);
-    }
-    if(chase && dist < 6.5){
-      if(!ropePlay.invited){
-        ropePlay.invited = true;
-        say('Hey! Jump rope with me — five in a row!', 1600);
+    if(ropeShouldChase(ropePlay.cool, dist)){
+      const speed = ROPE_KID_CHASE_SPEED;
+      if(dist > 0.12){
+        tryMoveEntity(ropeKid, ropeKid.x + (dx/dist)*speed*dt, ropeKid.y + (dy/dist)*speed*dt, 0.2);
       }
-    } else {
-      ropePlay.invited = false;
+      if(dist < 6.5){
+        if(!ropePlay.invited){
+          ropePlay.invited = true;
+          say('Hey! Jump rope with me — five in a row!', 1600);
+        }
+      } else {
+        ropePlay.invited = false;
+      }
+      return;
     }
+    ropePlay.invited = false;
+    updateRopeWander(dt, player.x, player.y);
   }
   function drawRopeKidSprite(zbuf, w, h, dirX, dirY, planeX, planeY, bob, pitchShift){
     if(!ropeKid || isRopeLocking()) return;
@@ -1289,6 +1431,25 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     viewCtx.drawImage(img, spriteScreenX - spriteW/2, drawStartY, spriteW, spriteH);
   }
 
+  function clearScareFaceTimer(){
+    if(scareFaceTimer){ clearTimeout(scareFaceTimer); scareFaceTimer = null; }
+  }
+  function applyScareFaceTo(elId, face, swinging){
+    const el = $(elId);
+    if(el) el.innerHTML = principalScareSvg(face, swinging);
+  }
+  function scheduleScareFaceChanges(elId, seq, swinging, reduced, gapMs){
+    clearScareFaceTimer();
+    if(reduced || !seq || seq.length < 2) return;
+    let i = 1;
+    function step(){
+      if(i >= seq.length) return;
+      applyScareFaceTo(elId, seq[i], swinging);
+      i++;
+      if(i < seq.length) scareFaceTimer = setTimeout(step, gapMs || 560);
+    }
+    scareFaceTimer = setTimeout(step, gapMs || 560);
+  }
   function hidePopScare(){
     const el = $('popscare');
     if(el){
@@ -1297,6 +1458,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     }
     popUntil = 0;
     popWorld = null;
+    clearScareFaceTimer();
   }
   function resetPopScares(){
     popFired = new Set();
@@ -1312,13 +1474,16 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     popLastAt = now;
     popUntil = now + (reducedMotion ? 0.55 : 0.85);
     const pos = scareAppearPos(player.x, player.y, player.dir, SCARE_APPEAR_DIST);
-    popWorld = {kind:'calc', x:pos.x, y:pos.y, born:now, teleport:true};
+    const faceSeq = pickScareFaceSequence(reducedMotion ? 1 : 2, Math.random, lastScareFace);
+    lastScareFace = faceSeq[faceSeq.length-1];
+    popWorld = {kind:'calc', x:pos.x, y:pos.y, born:now, teleport:true, face:faceSeq[0]};
     const art = $('popArt');
     const textEl = $('popText');
     const box = $('popscare');
     if(art){
-      art.innerHTML = PRINCIPAL_SCARE_SVG;
+      art.innerHTML = principalScareSvg(faceSeq[0], true);
     }
+    scheduleScareFaceChanges('popArt', faceSeq, true, reducedMotion, 420);
     if(textEl) textEl.textContent = line || 'PEEK-A-BOO!';
     if(box){
       box.classList.remove('show');
@@ -1345,11 +1510,12 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const now = (typeof performance !== 'undefined' && performance.now) ? performance.now()/1000 : Date.now()/1000;
     if(now > popUntil){ popWorld = null; return; }
     if(!drawPopSprite.cache) drawPopSprite.cache = {};
-    const kind = 'calc';
+    const face = (popWorld && popWorld.face) || 'grin';
+    const kind = 'calc-' + face;
     let img = drawPopSprite.cache[kind];
     if(!img){
       img = new Image();
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SCARE_SVG);
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(principalScareSvg(face, false));
       drawPopSprite.cache[kind] = img;
     }
     if(!img.complete || !img.naturalWidth) return;
@@ -1490,7 +1656,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       spawnCalcAway();
       calc.visible = true;
     }
-    const speed = wrongs >= 3 ? 2.55 : (wrongs >= 2 ? 1.85 : 1.15);
+    const speed = wrongs >= 3 ? CALC_CHASE_SPEED_3 : (wrongs >= 2 ? CALC_CHASE_SPEED_2 : CALC_CHASE_SPEED_1);
     const vx = player.x - calc.x, vy = player.y - calc.y;
     const m = Math.hypot(vx, vy);
     if(m > 0.05){
@@ -1698,11 +1864,16 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     paused = true;
     quizOpen = false;
     const app = $('app');
-    app.classList.remove('shake');
-    void app.offsetWidth;
-    app.classList.add('shake');
+    if(!reducedMotion){
+      app.classList.remove('shake');
+      void app.offsetWidth;
+      app.classList.add('shake');
+    }
     const scare = $('jumpscare');
-    if($('scareArt')) $('scareArt').innerHTML = PRINCIPAL_SCARE_SVG;
+    const faceSeq = pickScareFaceSequence(reducedMotion ? 1 : 3, Math.random, lastScareFace);
+    lastScareFace = faceSeq[faceSeq.length-1];
+    if($('scareArt')) $('scareArt').innerHTML = principalScareSvg(faceSeq[0], true);
+    scheduleScareFaceChanges('scareArt', faceSeq, true, reducedMotion, 560);
     $('scareText').textContent = deathPending ? 'GOTCHA, EXPLORER!' : 'POP QUIZ, EXPLORER!';
     scare.classList.remove('show');
     void scare.offsetWidth;
@@ -1714,6 +1885,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const wait = deathPending ? 2100 : 1900;
     scareTimer = setTimeout(() => {
       scare.classList.remove('show');
+      clearScareFaceTimer();
       if(deathPending){
         deathPending = false;
         restartAfterCatch();
@@ -1774,6 +1946,8 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     paused = false;
     deathPending = false;
     if(scareTimer){ clearTimeout(scareTimer); scareTimer = null; }
+    clearScareFaceTimer();
+    lastScareFace = null;
     $('jumpscare').classList.remove('show');
     $('quiz').classList.remove('show');
     const prev = opts.respawn ? lastLifeTypes.slice() : [];
@@ -1934,7 +2108,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   makeStars();
   bindPad();
   resizeView();
-  if($('scareArt')) $('scareArt').innerHTML = PRINCIPAL_SCARE_SVG;
+  if($('scareArt')) $('scareArt').innerHTML = principalScareSvg('grin', true);
   requestAnimationFrame(tick);
 })();
 </script>
