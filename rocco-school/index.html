@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-11-08-classroom-decor -->
+<!-- build 2026-11-08-decor-fp-rope-scare -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -116,19 +116,19 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 }
 .ruler-swing{transform-box:view-box;transform-origin:102px 170px;animation:rulerTap .62s cubic-bezier(.18,1.12,.32,1) both}
 @keyframes rulerTap{0%{transform:rotate(-52deg)}42%{transform:rotate(8deg)}68%{transform:rotate(40deg)}82%{transform:rotate(34deg)}100%{transform:rotate(48deg)}}
-#ropeplay{position:absolute;inset:0;z-index:55;display:none;align-items:center;justify-content:flex-end;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 38%,rgba(24,10,14,.12),rgba(4,2,8,.32));padding-bottom:max(96px,calc(env(safe-area-inset-bottom) + 88px));overflow:hidden}
+#ropeplay{position:absolute;inset:0;z-index:55;display:none;align-items:stretch;justify-content:stretch;flex-direction:column;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(24,10,14,.06),rgba(4,2,8,.2));padding:0;overflow:hidden}
 #ropeplay.show{display:flex}
-#ropeplay .rope-art{width:min(58vw,300px);pointer-events:none}
+#ropeplay .rope-art{display:none}
 #ropeplay .rope-art svg{width:100%;height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
-#ropeplay .jump-rope-viz{width:min(96vw,680px);height:min(32vh,240px);margin-top:-6px;overflow:visible;pointer-events:none}
+#ropeplay .jump-rope-viz{position:absolute;inset:0;width:100%;height:100%;margin:0;overflow:visible;pointer-events:none}
 #ropeplay .jump-rope-outline{fill:none;stroke:#1a1040;stroke-width:22;stroke-linecap:round}
 #ropeplay .jump-rope-line{fill:none;stroke:url(#swingRopeGrad);stroke-width:14;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(255,230,109,.5))}
 #ropeplay .jump-rope-shine{fill:none;stroke:rgba(255,255,255,.55);stroke-width:4;stroke-linecap:round}
 #ropeplay.in-window .jump-rope-outline{stroke:#2a1860;stroke-width:24}
 #ropeplay.in-window .jump-rope-line{filter:drop-shadow(0 0 10px rgba(255,230,109,.75));stroke-width:16}
 #ropeplay .held-jump-rope{filter:drop-shadow(0 0 5px rgba(255,230,109,.45))}
-#ropeplay .rope-line{margin-top:6px;max-width:92%;text-align:center;font-size:clamp(18px,4.6vw,28px);font-weight:800;color:#fff4d2;text-shadow:0 0 12px #a01a4a,0 3px 0 #4a1020}
-#ropeplay .rope-count{margin-top:4px;font-size:clamp(20px,5vw,32px);font-weight:800;color:#ffe66d;text-shadow:0 2px 0 #5a1020}
+#ropeplay .rope-line{position:absolute;left:50%;bottom:max(92px,calc(env(safe-area-inset-bottom) + 86px));transform:translateX(-50%);z-index:2;margin:0;max-width:92%;text-align:center;font-size:clamp(18px,4.6vw,28px);font-weight:800;color:#fff4d2;text-shadow:0 0 12px #a01a4a,0 3px 0 #4a1020}
+#ropeplay .rope-count{position:absolute;left:50%;bottom:max(58px,calc(env(safe-area-inset-bottom) + 52px));transform:translateX(-50%);z-index:2;margin:0;font-size:clamp(20px,5vw,32px);font-weight:800;color:#ffe66d;text-shadow:0 2px 0 #5a1020}
 #btnJump{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:36;min-width:88px;height:64px;display:none;border-radius:20px;font-size:18px;font-weight:700;letter-spacing:.08em;background:linear-gradient(180deg,#ff8fab,#e03131);color:#fff8f0;border:3px solid rgba(255,214,165,.65);box-shadow:0 7px 0 #9b1b1b,0 12px 22px rgba(224,49,49,.3);touch-action:none}
 #btnJump.show{display:block}
 #btnJump.held,#btnJump:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #9b1b1b}
@@ -208,7 +208,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
 
   <div id="ropeplay" aria-hidden="true">
     <div class="rope-art" id="ropeArt"></div>
-    <svg class="jump-rope-viz" viewBox="0 0 200 140" aria-hidden="true">
+    <svg class="jump-rope-viz" viewBox="0 0 200 180" aria-hidden="true">
       <defs>
         <linearGradient id="swingRopeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stop-color="#ff2d6a"/>
@@ -219,9 +219,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
           <stop offset="100%" stop-color="#c084fc"/>
         </linearGradient>
       </defs>
-      <path class="jump-rope-sync jump-rope-outline" d="M10,26 Q100,48 190,26"/>
-      <path class="jump-rope-sync jump-rope-line" id="ropeArc" d="M10,26 Q100,48 190,26"/>
-      <path class="jump-rope-sync jump-rope-shine" d="M10,26 Q100,48 190,26"/>
+      <path class="jump-rope-sync jump-rope-outline" d="M8,64 Q100,22 192,64"/>
+      <path class="jump-rope-sync jump-rope-line" id="ropeArc" d="M8,64 Q100,22 192,64"/>
+      <path class="jump-rope-sync jump-rope-shine" d="M8,64 Q100,22 192,64"/>
     </svg>
     <div class="rope-line" id="ropeText"></div>
     <div class="rope-count" id="ropeCount"></div>
@@ -291,6 +291,15 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     if(x > cap) return cap;
     if(x < -cap) return -cap;
     return x;
+  }
+  function makeSatCurve(){
+    const n = 2048;
+    const curve = new Float32Array(n);
+    for(let i=0;i<n;i++){
+      const x = (i / (n - 1)) * 2 - 1;
+      curve[i] = Math.tanh(x * 1.8);
+    }
+    return curve;
   }
   function makeClipCurve(peak){
     const cap = (peak == null) ? SCARE_PEAK : peak;
@@ -668,7 +677,11 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
         {id:'dissonant-low', via:'scare', play:'tone', a:[51.5,0.4,'sine',0.22,0.03]},
         {id:'dissonant-mid', via:'scare', play:'tone', a:[155,0.3,'triangle',0.16,0.05]},
         {id:'air-noise', via:'scare', play:'noise', a:[0.32,0.38,0.05,380]},
-        {id:'weird-screech', via:'scare', play:'slide', a:[620,170,0.34,'square',0.24,0.08]}
+        {id:'weird-screech', via:'scare', play:'slide', a:[620,170,0.34,'square',0.24,0.08]},
+        {id:'sweep-1', via:'scare', play:'sweep', a:[0.00,2000,200,0.16,0.30]},
+        {id:'sweep-2', via:'scare', play:'sweep', a:[0.12,1500,140,0.16,0.28]},
+        {id:'sweep-3', via:'scare', play:'sweep', a:[0.24,1100,90,0.18,0.26]},
+        {id:'voice-howl', via:'scare', play:'voice', a:[0.04,0.38]}
       ];
     }
     return [
@@ -680,8 +693,37 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       {id:'cluster-rumble', via:'scare', play:'cluster', a:[0.2]},
       {id:'noise-low', via:'scare', play:'noise', a:[0.58,0.48,0.18,420]},
       {id:'noise-high', via:'scare', play:'noise', a:[0.4,0.34,0.22,1600]},
-      {id:'body-thud', via:'scare', play:'tone', a:[42,0.66,'sine',0.46,0.2]}
+      {id:'body-thud', via:'scare', play:'tone', a:[42,0.66,'sine',0.46,0.2]},
+      {id:'sweep-1', via:'scare', play:'sweep', a:[0.00,2200,170,0.20,0.36]},
+      {id:'sweep-2', via:'scare', play:'sweep', a:[0.15,1680,120,0.20,0.34]},
+      {id:'sweep-3', via:'scare', play:'sweep', a:[0.30,1260,78,0.24,0.32]},
+      {id:'voice-howl', via:'scare', play:'voice', a:[0.06,0.62]}
     ];
+  }
+  const ROPE_HOP_DUR = 0.32;
+  function ropeFpCloseness(phase, lo, hi){
+    const p = ropePhaseWrap(phase);
+    const a = (lo == null) ? ROPE_JUMP_LO : lo;
+    const b = (hi == null) ? ROPE_JUMP_HI : hi;
+    if(p >= a && p <= b) return 1;
+    if(p < a) return Math.pow(a <= 0 ? 1 : (p / a), 1.15) * 0.84;
+    const span = 1 - b;
+    return Math.pow(span <= 0 ? 0 : ((1 - p) / span), 1.15) * 0.84;
+  }
+  function ropeFpUnderCamera(phase, lo, hi){
+    return ropeJumpWindow(phase, lo, hi);
+  }
+  function ropeFpControlY(phase, reduced, lo, hi){
+    const farY = 22;
+    const nearY = reduced ? 150 : 176;
+    return farY + ropeFpCloseness(phase, lo, hi) * (nearY - farY);
+  }
+  function ropeFpPath(phase, reduced, lo, hi){
+    return 'M8,64 Q100,' + ropeFpControlY(phase, reduced, lo, hi).toFixed(1) + ' 192,64';
+  }
+  function ropeHopAmount(age, dur, reduced){
+    if(reduced || !(age >= 0) || !(dur > 0) || age > dur) return 0;
+    return Math.sin(Math.PI * (age / dur));
   }
 
   const CLASSROOM_VISUAL_MODE = 'raycast-column-palette';
@@ -830,7 +872,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   let lastScareFace = null;
   let calcImg = null;
   let viewCanvas = null, viewCtx = null;
-  let scareBus = null, scareComp = null, outLimiter = null, outClipper = null;
+  let scareBus = null, scareComp = null, scareSat = null, scareMakeup = null, outLimiter = null, outClipper = null;
   let playerMoving = false;
   let popFired = new Set();
   let popLastAt = -999;
@@ -896,20 +938,27 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     outLimiter.release.value = 0.06;
     outClipper = audioCtx.createWaveShaper();
     outClipper.curve = makeClipCurve(SCARE_PEAK);
-    outClipper.oversample = '2x';
+    outClipper.oversample = 'none';
     scareComp = audioCtx.createDynamicsCompressor();
-    scareComp.threshold.value = -8;
-    scareComp.knee.value = 4;
-    scareComp.ratio.value = 12;
-    scareComp.attack.value = 0.002;
-    scareComp.release.value = 0.1;
+    scareComp.threshold.value = -24;
+    scareComp.knee.value = 10;
+    scareComp.ratio.value = 5;
+    scareComp.attack.value = 0.004;
+    scareComp.release.value = 0.2;
+    scareSat = audioCtx.createWaveShaper();
+    scareSat.curve = makeSatCurve();
+    scareSat.oversample = '2x';
+    scareMakeup = audioCtx.createGain();
+    scareMakeup.gain.value = 2.4;
     scareBus = audioCtx.createGain();
     scareBus.gain.value = 1;
     masterGain.connect(outLimiter);
     outLimiter.connect(outClipper);
     outClipper.connect(audioCtx.destination);
-    scareBus.connect(scareComp);
-    scareComp.connect(masterGain);
+    scareBus.connect(scareSat);
+    scareSat.connect(scareComp);
+    scareComp.connect(scareMakeup);
+    scareMakeup.connect(masterGain);
   }
   function outNode(kind){
     ensureAudio();
@@ -1060,6 +1109,70 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     src.connect(f); f.connect(g); g.connect(dest);
     src.start(t0); src.stop(t0+dur+0.02);
   }
+  function playScareSweep(when, f1, f2, dur, vol){
+    const dest = scareDest();
+    if(!dest) return;
+    const t0 = audioCtx.currentTime + (when||0);
+    const length = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+    const buf = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<length;i++) data[i] = (Math.random()*2-1) * (1 - i/length);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 2.2;
+    bp.frequency.setValueAtTime(Math.max(40, f1||1200), t0);
+    bp.frequency.exponentialRampToValueAtTime(Math.max(40, f2||90), t0+dur);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol||0.3), t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    src.connect(bp); bp.connect(g); g.connect(dest);
+    src.start(t0); src.stop(t0+dur+0.02);
+    const o = audioCtx.createOscillator();
+    const og = audioCtx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(Math.max(30, (f1||1200)*0.45), t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(30, (f2||90)*0.55), t0+dur);
+    og.gain.setValueAtTime(0.0001, t0);
+    og.gain.exponentialRampToValueAtTime(Math.max(0.0002, (vol||0.3)*0.55), t0+0.018);
+    og.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(og); og.connect(dest);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+  function playScareVoice(when, dur){
+    const dest = scareDest();
+    if(!dest) return;
+    const t0 = audioCtx.currentTime + (when||0);
+    const formants = [640, 1180, 2550];
+    formants.forEach(function(ff, i){
+      const o = audioCtx.createOscillator();
+      const bp = audioCtx.createBiquadFilter();
+      const g = audioCtx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(140 - i*12, t0);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, 70 - i*6), t0+dur);
+      bp.type = 'bandpass';
+      bp.frequency.value = ff;
+      bp.Q.value = 6;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.22 - i*0.04, t0+0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+      o.connect(bp); bp.connect(g); g.connect(dest);
+      o.start(t0); o.stop(t0+dur+0.03);
+    });
+  }
+  function duckBgmForScare(seconds){
+    if(!bgmNodes || !bgmNodes.gain || !audioCtx || muted) return;
+    const g = bgmNodes.gain.gain;
+    const t = audioCtx.currentTime;
+    const back = seconds || 1.4;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(g.value, t);
+    g.linearRampToValueAtTime(0.035, t + 0.04);
+    g.linearRampToValueAtTime(0.42, t + back);
+  }
   function playScareCluster(when){
     const dest = scareDest();
     if(!dest) return;
@@ -1086,7 +1199,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
       else if(layer.play === 'tone') scareTone.apply(null, layer.a);
       else if(layer.play === 'noise') scareNoise.apply(null, layer.a);
       else if(layer.play === 'cluster') playScareCluster((layer.a && layer.a[0]) || 0.2);
+      else if(layer.play === 'sweep') playScareSweep.apply(null, layer.a);
+      else if(layer.play === 'voice') playScareVoice.apply(null, layer.a);
     });
+    duckBgmForScare(kind === 'jump' ? 1.6 : 1.05);
     return true;
   }
   function sfxScareStinger(){
@@ -1320,8 +1436,9 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     const pal = ROOM_PAL[room] || ROOM_PAL.Hallway;
     const moving = playerMoving;
     const bob = moving ? Math.sin(walkPhase) * h * 0.012 : 0;
+    const hop = ropeHopAmount(ROPE_HOP_DUR - ropeHop, ROPE_HOP_DUR, reducedMotion) * h * 0.055;
     const pitchShift = Math.tan(clampPitch(player.pitch || 0)) * (h / (2 * Math.tan(FOV/2)));
-    const horizon = h/2 + bob + pitchShift;
+    const horizon = h/2 + bob + pitchShift - hop;
     viewCtx.fillStyle = rgb(pal.ceil);
     viewCtx.fillRect(0, 0, w, Math.ceil(horizon));
     viewCtx.fillStyle = rgb(pal.floor);
@@ -1400,6 +1517,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   let ropeKid = {x:10.5, y:3.5, visible:true};
   let ropePlay = {active:false, count:0, phase:0, jumped:false, done:false, cool:ROPE_INITIAL_GRACE, started:false};
   let ropeWander = null;
+  let ropeHop = 0;
   let ropeKidImg = null;
   function ensureRopeKidImg(){
     if(ropeKidImg) return ropeKidImg;
@@ -1429,9 +1547,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   function updateRopeArc(){
     const el = $('ropeArc');
     if(!el) return;
-    const ph = ropePhaseWrap(ropePlay.phase);
-    const dip = reducedMotion ? 36 : (26 + Math.sin(ph * Math.PI) * 88);
-    const d = 'M10,26 Q100,' + dip.toFixed(1) + ' 190,26';
+    const d = ropeFpPath(ropePlay.phase, reducedMotion);
     const box = $('ropeplay');
     const layers = box ? box.querySelectorAll('.jump-rope-sync') : null;
     if(layers && layers.length){
@@ -1456,7 +1572,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     ropePlay.started = true;
     if($('ropeArt')) $('ropeArt').innerHTML = ROPE_KID_SVG;
     showRopeUI(true);
-    setRopeHud('Hey! Jump rope with me — pretty please? Five good jumps in a row! Jump when the rope swings low.', '0 / 5');
+    setRopeHud('Hey! Jump rope with me — pretty please? Five good jumps in a row! Jump when the rope sweeps under you.', '0 / 5');
     updateRopeArc();
     return true;
   }
@@ -1488,9 +1604,10 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     ropePlay.jumped = true;
     if(r.missed){
       ropePlay.count = 0;
-      setRopeHud('Missed it! That\'s okay — we start the five over! Jump when the rope swings low.', '0 / 5');
+      setRopeHud('Missed it! That\'s okay — we start the five over! Jump when the rope sweeps under you.', '0 / 5');
       return true;
     }
+    ropeHop = ROPE_HOP_DUR;
     ropePlay.count = r.count;
     const words = ['', 'One!', 'Two!', 'Three!', 'Four!', 'Five!'];
     setRopeHud(words[r.count] || (r.count + '!'), r.count + ' / ' + ROPE_NEED);
@@ -1514,6 +1631,7 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   }
   function updateRopeKid(dt){
     if(isRopeLocking()){
+      if(ropeHop > 0) ropeHop = Math.max(0, ropeHop - dt);
       ropePlay.phase += dt / (reducedMotion ? 1.25 : 0.95);
       if(ropePlay.phase >= 1){
         ropePlay.phase -= 1;
@@ -2025,7 +2143,6 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
     scare.classList.add('show');
     sfxJumpScare();
     say(line, 1600);
-    speak(line, {rate:0.95, pitch:0.82});
     if(scareTimer) clearTimeout(scareTimer);
     const wait = deathPending ? 2100 : 1900;
     scareTimer = setTimeout(() => {
@@ -2250,9 +2367,56 @@ h1{font-size:clamp(28px,8vw,42px);line-height:1.15;margin-bottom:6px}
   if(window.speechSynthesis){
     try { speechSynthesis.getVoices(); } catch(e){}
   }
+
+  function maybeInstallPreviewHooks(){
+    try {
+      if(!/[?&]pwpreview=1(?:&|$)/.test(String(location.search || ''))) return;
+    } catch(e){ return; }
+    window.__pwPreview = {
+      setPhase: function(p){
+        ropePlay.active = true;
+        ropePlay.done = false;
+        ropePlay.started = true;
+        ropePlay.phase = ropePhaseWrap(p);
+        showRopeUI(true);
+        updateRopeArc();
+        return window.__pwPreview.state();
+      },
+      jump: function(){ return tryRopeJump(); },
+      scare: function(kind){ ensureAudio(); if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); return playScareLayers(kind || 'jump'); },
+      state: function(){
+        return {
+          phase: ropePlay.phase,
+          under: ropeFpUnderCamera(ropePlay.phase),
+          inWindow: ropeJumpWindow(ropePlay.phase),
+          path: ropeFpPath(ropePlay.phase, reducedMotion),
+          count: ropePlay.count
+        };
+      }
+    };
+    const bar = document.createElement('div');
+    bar.id = 'pwPreviewBar';
+    bar.style.cssText = 'position:fixed;z-index:120;left:8px;top:8px;display:flex;flex-wrap:wrap;gap:6px;max-width:92vw;pointer-events:auto;font:700 13px Nunito,sans-serif';
+    function btn(label, fn){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.style.cssText = 'pointer-events:auto;min-height:36px;padding:6px 10px;border-radius:10px;border:2px solid #ffe66d;background:#1a1028;color:#fff4d2';
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); fn(); });
+      bar.appendChild(b);
+    }
+    btn('Early .30', function(){ window.__pwPreview.setPhase(0.30); });
+    btn('Window .52', function(){ window.__pwPreview.setPhase(0.52); });
+    btn('Late .80', function(){ window.__pwPreview.setPhase(0.80); });
+    btn('Jump now', function(){ window.__pwPreview.jump(); });
+    btn('Jump scare', function(){ window.__pwPreview.scare('jump'); });
+    btn('Pop scare', function(){ window.__pwPreview.scare('pop'); });
+    document.body.appendChild(bar);
+  }
   makeStars();
   bindPad();
   resizeView();
+  maybeInstallPreviewHooks();
   if($('scareArt')) $('scareArt').innerHTML = principalScareSvg('grin', true);
   requestAnimationFrame(tick);
 })();
