@@ -505,6 +505,19 @@ button{font-family:inherit;border:none;cursor:pointer}
 .l2-win-msg{font-size:18px;color:#fce7f3;max-width:360px;line-height:1.4}
 .l2-win-btn{padding:14px 28px;border-radius:999px;font-size:18px;font-weight:700;color:#1a0a2e;background:linear-gradient(180deg,#67e8f9,#22d3ee);box-shadow:0 4px 0 #0e7490}
 .l2-win-btn.alt{background:linear-gradient(180deg,#ffe66d,#fbbf24);box-shadow:0 4px 0 #d97706}
+
+/* ===== WRITING PAD (pencil + eraser) ===== */
+#writing-pad{position:absolute;inset:0;z-index:97;display:none;flex-direction:column;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 12px 14px;background:rgba(26,10,46,.92)}
+#writing-pad.show{display:flex}
+#writing-pad .wp-title{font-size:clamp(20px,5vw,26px);font-weight:700;color:#ffe66d}
+#writing-pad .wp-tools{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+#writing-pad .wp-btn{padding:12px 18px;border-radius:999px;font-size:17px;font-weight:700;color:#1a0a2e;background:#e9d5ff;box-shadow:0 4px 0 #7c3aed;border:3px solid transparent}
+#writing-pad .wp-btn[aria-pressed="true"]{background:linear-gradient(180deg,#ffe66d,#fbbf24);border-color:#fff;box-shadow:0 4px 0 #d97706;transform:scale(1.08)}
+#writing-pad .wp-btn.done{background:linear-gradient(180deg,#67e8f9,#22d3ee);box-shadow:0 4px 0 #0e7490}
+#writing-pad .wp-btn.clear{background:linear-gradient(180deg,#fda4af,#fb7185);box-shadow:0 4px 0 #be185d;color:#fff}
+#wp-paper{position:relative;flex:1;width:min(96vw,720px);min-height:200px;border-radius:18px;overflow:hidden;background-color:#fffdf5;background-image:repeating-linear-gradient(180deg,transparent 0 38px,#93c5fd 38px 40px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#wp-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+#wp-status{min-height:20px;font-size:14px;color:#c4b5fd}
 </style>
 </head>
 <body>
@@ -528,6 +541,7 @@ button{font-family:inherit;border:none;cursor:pointer}
     <div class="hud-pill" id="progress-pill">⭐ <span id="progress-text">0 of 10</span></div>
     <div id="prize-shelf"></div>
     <div class="hud-pill"><button type="button" id="sing-hud-btn" style="display:none">🎤 Sing</button></div>
+    <div class="hud-pill"><button type="button" id="write-hud-btn" aria-label="Open writing pad">✏️ Write</button></div>
   </div>
 
   <!-- WORLD -->
@@ -610,6 +624,19 @@ button{font-family:inherit;border:none;cursor:pointer}
       <button type="button" class="l2-win-btn" id="l2-studio">🎤 Recording Studio</button>
       <button type="button" class="l2-back" id="l2-win-back">Back to Party</button>
     </div>
+  </div>
+
+  <!-- WRITING PAD -->
+  <div id="writing-pad" role="dialog" aria-label="Writing pad" aria-hidden="true">
+    <div class="wp-title">✏️ Star’s Writing Pad</div>
+    <div class="wp-tools" role="group" aria-label="Writing tools">
+      <button type="button" class="wp-btn" id="wp-pencil" aria-pressed="true">✏️ Pencil</button>
+      <button type="button" class="wp-btn" id="wp-eraser" aria-pressed="false">🧽 Eraser</button>
+      <button type="button" class="wp-btn clear" id="wp-clear">🗑️ Clear page</button>
+      <button type="button" class="wp-btn done" id="wp-done">✅ Done</button>
+    </div>
+    <div id="wp-paper"><canvas id="wp-canvas" aria-label="Drawing area"></canvas></div>
+    <div id="wp-status" aria-live="polite">Pencil is ready — write anything!</div>
   </div>
 
   <div id="particles"></div>
@@ -2456,5 +2483,54 @@ document.addEventListener('touchmove',e=>{
 
 })();
 </script>
+<script>
+/* ===== WRITING PAD: pencil writes, eraser erases her own marks (local only, nothing saved/sent) ===== */
+(function(root){
+'use strict';
+var PENCIL={tool:'pencil',size:4,color:'#3b0764'}, ERASER={tool:'eraser',size:28};
+function createPadModel(){
+  var m={tool:'pencil',strokes:[],current:null};
+  m.setTool=function(t){if(t==='pencil'||t==='eraser'){m.tool=t;m.current=null;}return m.tool;};
+  m.begin=function(x,y,id){var c=m.tool==='eraser'?ERASER:PENCIL;m.current={tool:c.tool,size:c.size,color:c.color,id:id,points:[[x,y]]};m.strokes.push(m.current);return m.current;};
+  m.move=function(x,y,id){if(!m.current||m.current.id!==id)return null;m.current.points.push([x,y]);return m.current;};
+  m.end=function(id){if(m.current&&m.current.id===id)m.current=null;};
+  m.clear=function(){m.strokes=[];m.current=null;};
+  return m;
+}
+/* points stored normalized 0..1 so strokes survive resizes */
+function toNorm(clientX,clientY,rect){var w=rect.width||1,h=rect.height||1;return [Math.min(1,Math.max(0,(clientX-rect.left)/w)),Math.min(1,Math.max(0,(clientY-rect.top)/h))];}
+function drawStroke(ctx,s,w,h,scale){
+  ctx.save();
+  ctx.globalCompositeOperation=s.tool==='eraser'?'destination-out':'source-over';
+  ctx.strokeStyle=s.tool==='eraser'?'rgba(0,0,0,1)':s.color;ctx.fillStyle=ctx.strokeStyle;
+  ctx.lineWidth=s.size*scale;ctx.lineCap='round';ctx.lineJoin='round';
+  var p=s.points;
+  if(p.length===1){ctx.beginPath();ctx.arc(p[0][0]*w,p[0][1]*h,s.size*scale/2,0,Math.PI*2);ctx.fill();}
+  else{ctx.beginPath();ctx.moveTo(p[0][0]*w,p[0][1]*h);for(var i=1;i<p.length;i++)ctx.lineTo(p[i][0]*w,p[i][1]*h);ctx.stroke();}
+  ctx.restore();
+}
+function redraw(ctx,model,w,h,dpr){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,w*dpr,h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);for(var i=0;i<model.strokes.length;i++)drawStroke(ctx,model.strokes[i],w,h,1);}
+root.NotePartyWritingPad={createPadModel:createPadModel,toNorm:toNorm,drawStroke:drawStroke,redraw:redraw};
+if(typeof document==='undefined')return;
+var pad=document.getElementById('writing-pad'),canvas=document.getElementById('wp-canvas'),openBtn=document.getElementById('write-hud-btn');
+if(!pad||!canvas||!openBtn)return;
+var ctx=canvas.getContext('2d'),model=createPadModel(),cw=0,ch=0,dpr=1;
+var bP=document.getElementById('wp-pencil'),bE=document.getElementById('wp-eraser'),st=document.getElementById('wp-status');
+function resize(){var r=canvas.getBoundingClientRect();dpr=Math.max(1,Math.min(3,root.devicePixelRatio||1));cw=Math.max(1,r.width);ch=Math.max(1,r.height);canvas.width=Math.round(cw*dpr);canvas.height=Math.round(ch*dpr);redraw(ctx,model,cw,ch,dpr);}
+function setTool(t){model.setTool(t);bP.setAttribute('aria-pressed',String(t==='pencil'));bE.setAttribute('aria-pressed',String(t==='eraser'));canvas.style.cursor=t==='eraser'?'cell':'crosshair';st.textContent=t==='eraser'?'Eraser on — rub out what you wrote.':'Pencil is ready — write anything!';}
+function pt(e){return toNorm(e.clientX,e.clientY,canvas.getBoundingClientRect());}
+canvas.addEventListener('pointerdown',function(e){e.preventDefault();try{canvas.setPointerCapture(e.pointerId);}catch(_){}var p=pt(e);drawStroke(ctx,model.begin(p[0],p[1],e.pointerId),cw,ch,1);});
+canvas.addEventListener('pointermove',function(e){if(!model.current)return;e.preventDefault();var p=pt(e);var s=model.move(p[0],p[1],e.pointerId);if(s)redraw(ctx,model,cw,ch,dpr);});
+['pointerup','pointercancel','lostpointercapture'].forEach(function(ev){canvas.addEventListener(ev,function(e){model.end(e.pointerId);});});
+canvas.addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});
+bP.onclick=function(){setTool('pencil');};bE.onclick=function(){setTool('eraser');};
+document.getElementById('wp-clear').onclick=function(){if(!model.strokes.length)return;if(root.confirm&&!root.confirm('Clear the whole page?'))return;model.clear();redraw(ctx,model,cw,ch,dpr);st.textContent='Fresh page!';};
+function open(){pad.classList.add('show');pad.setAttribute('aria-hidden','false');resize();}
+function close(){model.end(model.current&&model.current.id);pad.classList.remove('show');pad.setAttribute('aria-hidden','true');}
+openBtn.onclick=open;document.getElementById('wp-done').onclick=close;
+root.addEventListener('resize',function(){if(pad.classList.contains('show'))resize();});
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+
 </body>
 </html>
