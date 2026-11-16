@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MrHodl Security Reviews</title>
+<meta name="description" content="Security reviews of Bitcoin software that holds keys or moves funds: wallets, signers, hardware-wallet companions, Lightning tools and pools.">
+<link rel="canonical" href="https://mrhodlx.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MrHodl Security Reviews">
+<meta property="og:description" content="Security reviews of Bitcoin software that holds keys or moves funds: wallets, signers, hardware-wallet companions, Lightning tools and pools.">
+<meta property="og:url" content="https://mrhodlx.github.io/">
+<meta property="og:image" content="https://mrhodlx.github.io/og.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mrhodl">
+<meta name="twitter:title" content="MrHodl Security Reviews">
+<meta name="twitter:description" content="Security reviews of Bitcoin software that holds keys or moves funds: wallets, signers, hardware-wallet companions, Lightning tools and pools.">
+<meta name="twitter:image" content="https://mrhodlx.github.io/og.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one left-aligned reading column, sections set apart by space and a small mono label; the record of public findings reads like a review log. */
+  :root {
+    --paper: #f6f7f6;
+    --ink: #15181b;
+    --muted: #59626a;
+    --rule: #d7dcdf;
+    --link: #1d4ed8;
+    --mark: #9a3412;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --step-0: 1rem;
+    --step-1: 1.15rem;
+    --step-2: 1.45rem;
+    --step-3: 2rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121518; --ink: #e6e9eb; --muted: #9aa3aa; --rule: #2b3237;
+      --link: #8ab4ff; --mark: #f0a070; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #121518; --ink: #e6e9eb; --muted: #9aa3aa; --rule: #2b3237;
+    --link: #8ab4ff; --mark: #f0a070; color-scheme: dark;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.6;
+  }
+  .page {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 3.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.25rem;
+  }
+  a { color: var(--link); text-underline-offset: 0.18em; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+  h1, h2 { text-wrap: balance; font-weight: 600; line-height: 1.25; margin: 0; }
+  h1 { font-size: var(--step-3); letter-spacing: -0.01em; }
+  h2 { font-size: var(--step-2); }
+  p { margin: 0; }
+  section { display: flex; flex-direction: column; gap: 1rem; }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lede { font-size: var(--step-1); color: var(--ink); }
+  .quiet { color: var(--muted); }
+  code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
+
+  .cta {
+    align-self: flex-start;
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .cta:hover { background: var(--ink); color: var(--paper); }
+
+  .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .log li {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 0.25rem 1.25rem;
+    padding-block: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .log li:last-child { border-bottom: 1px solid var(--rule); }
+  .log .who { font-weight: 600; min-width: 0; }
+  .log .when { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); }
+  .log .what { min-width: 0; }
+  .log .sev { font-family: var(--font-mono); font-size: 0.8rem; color: var(--mark); letter-spacing: 0.03em; }
+
+  ul.plain { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  ol.steps { margin: 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  ol.steps li::marker { font-family: var(--font-mono); color: var(--muted); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .split > div { min-width: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+  h3 { font-size: var(--step-0); font-weight: 600; margin: 0; }
+
+  .send {
+    border-left: 3px solid var(--ink);
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  footer { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+
+  @media (max-width: 34rem) {
+    .log li { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; }
+    h1 { font-size: 1.7rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="hero" style="display:flex;flex-direction:column;gap:1.1rem">
+    <span class="label">MrHodl &middot; security reviews</span>
+    <h1>I review the source of Bitcoin software that holds keys or moves funds.</h1>
+    <p class="lede">Wallets, signers, hardware-wallet companions, Lightning tools, pools. Every finding in a report has been traced through the code and checked against the spec before it goes out, and every report says what was not read.</p>
+    <a class="cta" href="#contact">Request a review</a>
+  </header>
+
+  <section aria-labelledby="work">
+    <span class="label">Public record</span>
+    <h2 id="work">Recent work</h2>
+    <p class="quiet">Only findings that are fixed or public. More than 30 other projects have private reports open; they get named here once each one ships its fix.</p>
+    <ul class="log">
+      <li>
+        <div><div class="who">Sparrow</div><div class="when">Oct 2026</div></div>
+        <div class="what"><span class="sev">MEDIUM, FIXED</span><br>Adding an account to a multisig wallet with mixed seed and watch-only keystores could leave the wallet decrypted for the session. Confirmed and fixed within two days, shipped in <a href="https://github.com/sparrowwallet/sparrow/releases/tag/2.5.6">2.5.6</a>.</div>
+      </li>
+      <li>
+        <div><div class="who">Foxy</div><div class="when">Nov 2026</div></div>
+        <div class="what"><span class="sev">CRITICAL + MEDIUM, FIXED</span><br>Reviewed at the team's request. A failed install-marker write could make the next launch treat the app as reinstalled and delete the seed (<a href="https://github.com/getfoxy/iOS/security/advisories/GHSA-38xx-q9p3-2f57"><span class="mono">GHSA-38xx-q9p3-2f57</span></a>). On the ecash card, the Schnorr nonce stayed in persistent storage after signing (<a href="https://github.com/getfoxy/card/security/advisories/GHSA-vppf-jq63-hwx9"><span class="mono">GHSA-vppf-jq63-hwx9</span></a>).</div>
+      </li>
+      <li>
+        <div><div class="who">Faraday</div><div class="when">Oct 2026</div></div>
+        <div class="what"><span class="sev">3 ADVISORIES, FIXED IN 0.1.8</span><br>FROST nonce handling, the multisig change check, secret QR frames left unwiped, and finalized inputs that skipped the unverified-amount guard (<a href="https://github.com/bitcoinpasada/faraday/security/advisories/GHSA-7h4m-p8qx-pxrf"><span class="mono">GHSA-7h4m-p8qx-pxrf</span></a>).</div>
+      </li>
+      <li>
+        <div><div class="who">BIP-373</div><div class="when">Nov 2026</div></div>
+        <div class="what"><span class="sev">MERGED</span><br>One test vector repeated another case, so x-only output participant keys were never tested. Replaced with the vector Bitcoin Core uses (<a href="https://github.com/bitcoin/bips/pull/2345">bips#2345</a>); the BIP's author gave a post-merge ACK.</div>
+      </li>
+      <li>
+        <div><div class="who">rbitcoin</div><div class="when">Nov 2026</div></div>
+        <div class="what"><span class="sev">5 MEDIUM, FIXED</span><br>One peer could grow a node's outbound queue without limit, because compact-filter replies and pongs were not counted against the send budget. Recorded and fixed in the project's <a href="https://github.com/rbitcoin-org/rbitcoin/tree/master/docs/external_findings">external findings</a>; a patch of mine was merged as <a href="https://github.com/rbitcoin-org/rbitcoin/pull/1629">#1629</a>.</div>
+      </li>
+      <li>
+        <div><div class="who">ZEUS</div><div class="when">Oct 2026</div></div>
+        <div class="what"><span class="sev">CREDITED</span><br>A private code and security review, credited in the <a href="https://x.com/ZeusLN/status/2115791922774348183">v13.2.4 release</a>.</div>
+      </li>
+    </ul>
+    <p>The full list, with how each finding was checked: <a href="https://github.com/MrHodlX/security-reviews">github.com/MrHodlX/security-reviews</a></p>
+  </section>
+
+  <section aria-labelledby="what">
+    <span class="label">Scope</span>
+    <h2 id="what">What I review</h2>
+    <div class="split">
+      <div>
+        <h3>Source review</h3>
+        <p>The parts of your code that can lose or leak funds, named up front:</p>
+        <ul class="plain">
+          <li>entropy, seed and key generation</li>
+          <li>derivation and descriptors (BIP-32, 39, 86, 380s)</li>
+          <li>PSBT building and signing, change and address checks</li>
+          <li>backups, seed storage, memory and wipe paths</li>
+          <li>Lightning payments, swaps and channel funds</li>
+          <li>pool shares and payouts</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Release and signing</h3>
+        <p>How a user knows the build they run is the build you made:</p>
+        <ul class="plain">
+          <li>reproducible builds and checksums</li>
+          <li>release signing and key handling</li>
+          <li>CI workflows, tokens and permissions</li>
+          <li>dependency updates</li>
+        </ul>
+      </div>
+    </div>
+    <p>After you ship fixes, one fix check is part of the quote: the changed code is read again against each finding, and you hear which ones are closed.</p>
+  </section>
+
+  <section aria-labelledby="how">
+    <span class="label">Process</span>
+    <h2 id="how">How it works</h2>
+    <ol class="steps">
+      <li>You send the repository, the commit, the parts that matter to you and your deadline.</li>
+      <li>Within two business days I reply with the scope, what is left out, and a fixed price.</li>
+      <li>The review runs. The report names the commit, links every finding to a file and line, and gives its impact, how likely it is, a suggested fix and what was not read. If you want, it comes with patches and regression tests.</li>
+      <li>You fix. The fixes get checked once, and you hear which findings are closed.</li>
+    </ol>
+    <p>Findings stay private until you have shipped a fix or until a date we agree on before I start. After that I may publish them, and you may publish the report.</p>
+  </section>
+
+  <section aria-labelledby="price">
+    <span class="label">Pricing</span>
+    <h2 id="price">What sets the price</h2>
+    <ul class="plain">
+      <li><strong>What the code does.</strong> Key generation and signing get read line by line. Screens and settings get a lighter pass. Two thousand lines of signing code can take longer than twenty thousand lines of interface.</li>
+      <li><strong>How much of it is in scope,</strong> counting the code that matters, not tests or vendored libraries.</li>
+      <li><strong>Languages and layers.</strong> Firmware in C or Rust, a Go backend and a web frontend are three reviews in one.</li>
+      <li><strong>What it follows.</strong> Code that implements a BIP, or has a design document, is faster to check.</li>
+      <li><strong>Your deadline.</strong> A rush costs more.</li>
+      <li><strong>Extras,</strong> such as patches with tests or a summary written for your users.</li>
+    </ul>
+    <p>A report you allow me to publish after the fix costs a little less. Most reviews take one to three weeks. Quotes are in US dollars, paid in bitcoin, on-chain or over Lightning.</p>
+  </section>
+
+  <section aria-labelledby="method">
+    <span class="label">Method</span>
+    <h2 id="method">How I check</h2>
+    <p>The review is done by AI models. Several read the code on their own and raise claims. Other models then try to knock each claim down, and most do not survive. What is left is traced through the code by a frontier model and checked against the BIP or the project's test vectors, and anything rated medium or above is read again by a model released only to vetted security researchers. Every report goes out under my name, and I answer for it.</p>
+    <p>The review reads source. Nothing is built or run, and the report says so. A review that lists what it did not read is worth more than one that claims to have read everything.</p>
+  </section>
+
+  <section aria-labelledby="not">
+    <span class="label">Limits</span>
+    <h2 id="not">What I won't do</h2>
+    <ul class="plain">
+      <li>Write a pass letter, a certificate, or a sentence saying your users' funds are safe. You get findings and a list of what was out of scope.</li>
+      <li>Take a seed, a private key or a live macaroon from you, for any reason.</li>
+      <li>Charge for a report I sent you unasked. Those are free and never come with a payment request; paid work starts only when you ask for it.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="about">
+    <span class="label">About</span>
+    <h2 id="about">MrHodl</h2>
+    <p>I maintain <a href="https://github.com/OogaBoogaX/entropylab">EntropyLab</a>, an offline Bitcoin key tool built around entropy you supply yourself: dice, cards or coins, with live fairness checks, reproducible builds and signed releases. Working on it is how I learned where key-handling code goes wrong.</p>
+    <p><a href="https://github.com/MrHodlX">GitHub</a> &middot; <a href="https://x.com/mrhodl">X</a></p>
+  </section>
+
+  <section aria-labelledby="contact" id="contact">
+    <span class="label">Contact</span>
+    <h2>Request a review</h2>
+    <div class="send">
+      <p>Send me a message on X at <strong class="mono">@mrhodl</strong> with:</p>
+      <ul class="plain">
+        <li>the repository link and the commit</li>
+        <li>what the software does with keys or funds</li>
+        <li>which parts matter most</li>
+        <li>your deadline, and whether the report may be published after the fix</li>
+      </ul>
+      <p class="quiet">Keep the first message to scope. Nothing sensitive until we have an encrypted channel.</p>
+    </div>
+  </section>
+
+  <footer>
+    Security reviews of source code. Not an audit firm, and no certification. Updated November 2026.
+  </footer>
+
+</main>
+</body>
+</html>
