@@ -198,6 +198,10 @@
         <div><div class="who">p2pool-lab</div><div class="kind">Testnet mining lab and miner dashboard</div><div class="when">Nov 2026</div></div>
         <div class="what"><span class="sev">3 LOW, FIXED</span><br>Three hardening notes on the miner dashboard: status polls followed redirects, one wrongly typed field from a miner stopped every miner's collection cycle, and the device MAC check passed when the MAC was missing. Reproduced and fixed the same day in <a href="https://github.com/EthnTuttle/p2pool-lab/commit/74513cf4b1a06de3d815852aadce3ce0eb135107"><span class="mono">74513cf</span></a>, with regression tests.</div>
       </li>
+      <li id="arkpool">
+        <div><div class="who">ArkPool gateway</div><div class="kind">Home miner gateway (Bitaxe to ArkPool over Tor)</div><div class="when">Nov 2026</div></div>
+        <div class="what"><span class="sev">6 LOW, FIXED</span><br>Six hardening notes: two LAN addresses could hold every mining slot, a slow client could hold the status server, one slow miner stalled telemetry, a Tor route that dropped streams kept being chosen, plus an optional payout-username pin and a docs line. All six fixed within about an hour (<a href="https://gitlab.com/arkpool/arkpool-gateway/-/commit/80b0abc0087fdf92216ea46bbe9cac3ba2946a4e"><span class="mono">80b0abc0</span></a>).</div>
+      </li>
     </ul>
     <p>The full list, with how each finding was checked: <a href="https://github.com/MrHodlX/security-reviews">github.com/MrHodlX/security-reviews</a></p>
   </section>
