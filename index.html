@@ -114,6 +114,11 @@
   .log .what { min-width: 0; }
   .log .sev { font-family: var(--font-mono); font-size: 0.8rem; color: var(--mark); letter-spacing: 0.03em; }
 
+  .proof { display: flex; flex-direction: column; gap: 0.45rem; }
+  .names { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.15rem; font-size: var(--step-1); font-weight: 600; }
+  .names a { color: var(--ink); text-decoration: none; border-bottom: 1.5px solid var(--rule); }
+  .names a:hover { border-bottom-color: var(--ink); }
+
   ul.plain { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.45rem; }
   ol.steps { margin: 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.7rem; }
   ol.steps li::marker { font-family: var(--font-mono); color: var(--muted); }
@@ -146,6 +151,17 @@
     <span class="label">MrHodl &middot; security reviews</span>
     <h1>I review the source of Bitcoin software that holds keys or moves funds.</h1>
     <p class="lede">Wallets, signers, hardware-wallet companions, Lightning tools, pools. Every finding in a report has been traced through the code and checked against the spec before it goes out, and every report says what was not read.</p>
+    <div class="proof">
+      <span class="label">Fixes, merges and credits in</span>
+      <ul class="names">
+        <li><a href="#sparrow">Sparrow</a></li>
+        <li><a href="#zeus">ZEUS</a></li>
+        <li><a href="#bips">Bitcoin BIPs</a></li>
+        <li><a href="#rbitcoin">rbitcoin</a></li>
+        <li><a href="#foxy">Foxy</a></li>
+        <li><a href="#faraday">Faraday</a></li>
+      </ul>
+    </div>
     <a class="cta" href="#contact">Request a review</a>
   </header>
 
@@ -154,29 +170,29 @@
     <h2 id="work">Recent work</h2>
     <p class="quiet">Only findings that are fixed or public. More than 30 other projects have private reports open; they get named here once each one ships its fix.</p>
     <ul class="log">
-      <li>
+      <li id="sparrow">
         <div><div class="who">Sparrow</div><div class="kind">Desktop Bitcoin wallet</div><div class="when">Oct 2026</div></div>
         <div class="what"><span class="sev">MEDIUM, FIXED</span><br>Adding an account to a multisig wallet with mixed seed and watch-only keystores could leave the wallet decrypted for the session. Confirmed and fixed within two days, shipped in <a href="https://github.com/sparrowwallet/sparrow/releases/tag/2.5.6">2.5.6</a>.</div>
       </li>
-      <li>
-        <div><div class="who">Foxy</div><div class="kind">Mobile wallet and ecash card</div><div class="when">Nov 2026</div></div>
-        <div class="what"><span class="sev">CRITICAL + MEDIUM, FIXED</span><br>Reviewed at the team's request. A failed install-marker write could make the next launch treat the app as reinstalled and delete the seed (<a href="https://github.com/getfoxy/iOS/security/advisories/GHSA-38xx-q9p3-2f57"><span class="mono">GHSA-38xx-q9p3-2f57</span></a>). On the ecash card, the Schnorr nonce stayed in persistent storage after signing (<a href="https://github.com/getfoxy/card/security/advisories/GHSA-vppf-jq63-hwx9"><span class="mono">GHSA-vppf-jq63-hwx9</span></a>).</div>
+      <li id="zeus">
+        <div><div class="who">ZEUS</div><div class="kind">Mobile Lightning wallet</div><div class="when">Oct 2026</div></div>
+        <div class="what"><span class="sev">CREDITED</span><br>A private code and security review, credited in the <a href="https://x.com/ZeusLN/status/2115791922774348183">v13.2.4</a> and <a href="https://github.com/ZeusLN/zeus/releases/tag/v13.2.5">v13.2.5</a> releases.</div>
       </li>
-      <li>
-        <div><div class="who">Faraday</div><div class="kind">Offline key appliance</div><div class="when">Oct 2026</div></div>
-        <div class="what"><span class="sev">3 ADVISORIES, FIXED IN 0.1.8</span><br>FROST nonce handling, the multisig change check, secret QR frames left unwiped, and finalized inputs that skipped the unverified-amount guard (<a href="https://github.com/bitcoinpasada/faraday/security/advisories/GHSA-7h4m-p8qx-pxrf"><span class="mono">GHSA-7h4m-p8qx-pxrf</span></a>).</div>
-      </li>
-      <li>
+      <li id="bips">
         <div><div class="who">BIP-373</div><div class="kind">MuSig2 fields in PSBTs</div><div class="when">Nov 2026</div></div>
         <div class="what"><span class="sev">MERGED</span><br>One test vector repeated another case, so x-only output participant keys were never tested. Replaced with the vector Bitcoin Core uses (<a href="https://github.com/bitcoin/bips/pull/2345">bips#2345</a>); the BIP's author gave a post-merge ACK.</div>
       </li>
-      <li>
+      <li id="rbitcoin">
         <div><div class="who">rbitcoin</div><div class="kind">Bitcoin full node in Rust</div><div class="when">Nov 2026</div></div>
         <div class="what"><span class="sev">5 MEDIUM, FIXED</span><br>One peer could grow a node's outbound queue without limit, because compact-filter replies and pongs were not counted against the send budget. Recorded and fixed in the project's <a href="https://github.com/rbitcoin-org/rbitcoin/tree/master/docs/external_findings">external findings</a>; a patch of mine was merged as <a href="https://github.com/rbitcoin-org/rbitcoin/pull/1629">#1629</a>.</div>
       </li>
-      <li>
-        <div><div class="who">ZEUS</div><div class="kind">Mobile Lightning wallet</div><div class="when">Oct 2026</div></div>
-        <div class="what"><span class="sev">CREDITED</span><br>A private code and security review, credited in the <a href="https://x.com/ZeusLN/status/2115791922774348183">v13.2.4</a> and <a href="https://github.com/ZeusLN/zeus/releases/tag/v13.2.5">v13.2.5</a> releases.</div>
+      <li id="foxy">
+        <div><div class="who">Foxy</div><div class="kind">Mobile wallet and ecash card</div><div class="when">Nov 2026</div></div>
+        <div class="what"><span class="sev">CRITICAL + MEDIUM, FIXED</span><br>Reviewed at the team's request. A failed install-marker write could make the next launch treat the app as reinstalled and delete the seed (<a href="https://github.com/getfoxy/iOS/security/advisories/GHSA-38xx-q9p3-2f57"><span class="mono">GHSA-38xx-q9p3-2f57</span></a>). On the ecash card, the Schnorr nonce stayed in persistent storage after signing (<a href="https://github.com/getfoxy/card/security/advisories/GHSA-vppf-jq63-hwx9"><span class="mono">GHSA-vppf-jq63-hwx9</span></a>).</div>
+      </li>
+      <li id="faraday">
+        <div><div class="who">Faraday</div><div class="kind">Offline key appliance</div><div class="when">Oct 2026</div></div>
+        <div class="what"><span class="sev">3 ADVISORIES, FIXED IN 0.1.8</span><br>FROST nonce handling, the multisig change check, secret QR frames left unwiped, and finalized inputs that skipped the unverified-amount guard (<a href="https://github.com/bitcoinpasada/faraday/security/advisories/GHSA-7h4m-p8qx-pxrf"><span class="mono">GHSA-7h4m-p8qx-pxrf</span></a>).</div>
       </li>
     </ul>
     <p>The full list, with how each finding was checked: <a href="https://github.com/MrHodlX/security-reviews">github.com/MrHodlX/security-reviews</a></p>
