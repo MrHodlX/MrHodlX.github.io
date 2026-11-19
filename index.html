@@ -194,6 +194,10 @@
         <div><div class="who">Faraday</div><div class="kind">Offline key appliance</div><div class="when">Oct 2026</div></div>
         <div class="what"><span class="sev">3 ADVISORIES, FIXED IN 0.1.8</span><br>FROST nonce handling, the multisig change check, secret QR frames left unwiped, and finalized inputs that skipped the unverified-amount guard (<a href="https://github.com/bitcoinpasada/faraday/security/advisories/GHSA-7h4m-p8qx-pxrf"><span class="mono">GHSA-7h4m-p8qx-pxrf</span></a>).</div>
       </li>
+      <li id="p2pool-lab">
+        <div><div class="who">p2pool-lab</div><div class="kind">Testnet mining lab and miner dashboard</div><div class="when">Nov 2026</div></div>
+        <div class="what"><span class="sev">3 LOW, FIXED</span><br>Three hardening notes on the miner dashboard: status polls followed redirects, one wrongly typed field from a miner stopped every miner's collection cycle, and the device MAC check passed when the MAC was missing. Reproduced and fixed the same day in <a href="https://github.com/EthnTuttle/p2pool-lab/commit/74513cf4b1a06de3d815852aadce3ce0eb135107"><span class="mono">74513cf</span></a>, with regression tests.</div>
+      </li>
     </ul>
     <p>The full list, with how each finding was checked: <a href="https://github.com/MrHodlX/security-reviews">github.com/MrHodlX/security-reviews</a></p>
   </section>
