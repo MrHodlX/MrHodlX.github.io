@@ -24,9 +24,13 @@
   html { -webkit-text-size-adjust: 100%; scroll-padding-top: 1rem; }
   body { margin: 0; }
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="preload" href="fonts/ibm-plex-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  /* IBM Plex (SIL Open Font License 1.1, fonts/OFL.txt), Latin subset, served from this site: no third-party requests. */
+  @font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 400 700; font-display: swap; src: url("fonts/ibm-plex-sans-latin-var.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/ibm-plex-mono-latin-400.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/ibm-plex-mono-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+</style>
 <style>
   /* Identity from og.png: the MrHodl wordmark ("Hodl" in bitcoin orange) with its short orange rule under it.
      Everything else is charcoal on off-white on one ledger grid with hairline rows. No JavaScript on this page.
@@ -216,52 +220,6 @@
     </dl>
 
     <ol class="record">
-      <li id="sparrow">
-        <div class="who"><span class="project">Sparrow</span><span class="kind">Desktop Bitcoin wallet</span><span class="date">Oct 2026</span></div>
-        <div class="body">
-          <p class="status">MEDIUM &middot; FIXED</p>
-          <h3>A multisig wallet could stay decrypted for the rest of the session.</h3>
-          <p>Adding an account to a multisig wallet with mixed seed and watch-only keystores could leave the wallet decrypted for the session. Confirmed and fixed within two days.</p>
-          <p class="evidence"><a href="https://github.com/sparrowwallet/sparrow/releases/tag/2.5.6">Read the Sparrow <span class="mono">2.5.6</span> release</a></p>
-        </div>
-      </li>
-      <li id="zeus">
-        <div class="who"><span class="project">ZEUS</span><span class="kind">Mobile Lightning wallet</span><span class="date">Oct 2026</span></div>
-        <div class="body">
-          <p class="status">REVIEW CREDIT</p>
-          <h3>Credited for a private code and security review.</h3>
-          <p>The review was delivered privately and its findings are not published. ZEUS credited it in two releases.</p>
-          <p class="evidence"><a href="https://x.com/ZeusLN/status/2115791922774348183">See the <span class="mono">v13.2.4</span> credit</a> <a href="https://github.com/ZeusLN/zeus/releases/tag/v13.2.5">Read the <span class="mono">v13.2.5</span> release notes</a></p>
-        </div>
-      </li>
-      <li id="bips">
-        <div class="who"><span class="project">BIP-373</span><span class="kind">MuSig2 fields in PSBTs</span><span class="date">Nov 2026</span></div>
-        <div class="body">
-          <p class="status">MERGED</p>
-          <h3>The BIP now tests x-only output participant keys.</h3>
-          <p>One test vector repeated another case, so that path was never exercised. I replaced it with the vector Bitcoin Core uses, and the BIP&rsquo;s author gave a post-merge ACK.</p>
-          <p class="evidence"><a href="https://github.com/bitcoin/bips/pull/2345">View the merged test vector (<span class="mono">bips#2345</span>)</a></p>
-        </div>
-      </li>
-      <li id="rbitcoin">
-        <div class="who"><span class="project">rbitcoin</span><span class="kind">Bitcoin full node in Rust</span><span class="date">Nov 2026</span></div>
-        <div class="body">
-          <p class="status">5 MEDIUM &middot; FIXED</p>
-          <h3>One peer can no longer grow a node&rsquo;s outbound queue without limit.</h3>
-          <p>Compact-filter replies and pongs were not counted against the send budget. The project recorded and fixed all five findings, and merged five patches of mine.</p>
-          <p class="evidence"><a href="https://github.com/rbitcoin-org/rbitcoin/tree/master/docs/external_findings">Read the project&rsquo;s external findings</a></p>
-          <details>
-            <summary>Merged patches (5)</summary>
-            <ul class="mono">
-              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1629">#1629</a></li>
-              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1695">#1695</a></li>
-              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1696">#1696</a></li>
-              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1697">#1697</a></li>
-              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1698">#1698</a></li>
-            </ul>
-          </details>
-        </div>
-      </li>
       <li id="bark">
         <div class="who"><span class="project">Second (Bark)</span><span class="kind">Ark wallet and server</span><span class="date">Nov 2026</span></div>
         <div class="body">
@@ -288,12 +246,41 @@
           <p class="evidence"><a href="https://github.com/getfoxy/iOS/security/advisories/GHSA-38xx-q9p3-2f57">Read the iOS advisory (<span class="mono">GHSA-38xx-q9p3-2f57</span>)</a> <a href="https://github.com/getfoxy/card/security/advisories/GHSA-vppf-jq63-hwx9">Read the card advisory (<span class="mono">GHSA-vppf-jq63-hwx9</span>)</a></p>
         </div>
       </li>
-      <li id="bitbox">
-        <div class="who"><span class="project">BitBoxApp</span><span class="kind">Hardware-wallet companion app</span><span class="date">Nov 2026</span></div>
+      <li id="rbitcoin">
+        <div class="who"><span class="project">rbitcoin</span><span class="kind">Bitcoin full node in Rust</span><span class="date">Nov 2026</span></div>
         <div class="body">
-          <p class="status">ACKNOWLEDGED &middot; PRIVATE HARDENING</p>
-          <h3>Confirmed privately and tracked as hardening; no change has shipped yet.</h3>
-          <p>A private report, sent PGP-encrypted to Shift Crypto&rsquo;s security team, who had already been tracking it internally. Listed with their permission; no details until they ship a change.</p>
+          <p class="status">5 MEDIUM &middot; FIXED</p>
+          <h3>One peer can no longer grow a node&rsquo;s outbound queue without limit.</h3>
+          <p>Compact-filter replies and pongs were not counted against the send budget. The project recorded and fixed all five findings, and merged five patches of mine.</p>
+          <p class="evidence"><a href="https://github.com/rbitcoin-org/rbitcoin/tree/master/docs/external_findings">Read the project&rsquo;s external findings</a></p>
+          <details>
+            <summary>Merged patches (5)</summary>
+            <ul class="mono">
+              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1629">#1629</a></li>
+              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1695">#1695</a></li>
+              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1696">#1696</a></li>
+              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1697">#1697</a></li>
+              <li><a href="https://github.com/rbitcoin-org/rbitcoin/pull/1698">#1698</a></li>
+            </ul>
+          </details>
+        </div>
+      </li>
+      <li id="bips">
+        <div class="who"><span class="project">BIP-373</span><span class="kind">MuSig2 fields in PSBTs</span><span class="date">Nov 2026</span></div>
+        <div class="body">
+          <p class="status">MERGED</p>
+          <h3>The BIP now tests x-only output participant keys.</h3>
+          <p>One test vector repeated another case, so that path was never exercised. I replaced it with the vector Bitcoin Core uses, and the BIP&rsquo;s author gave a post-merge ACK.</p>
+          <p class="evidence"><a href="https://github.com/bitcoin/bips/pull/2345">View the merged test vector (<span class="mono">bips#2345</span>)</a></p>
+        </div>
+      </li>
+      <li id="zeus">
+        <div class="who"><span class="project">ZEUS</span><span class="kind">Mobile Lightning wallet</span><span class="date">Oct 2026</span></div>
+        <div class="body">
+          <p class="status">REVIEW CREDIT</p>
+          <h3>Credited for a private code and security review.</h3>
+          <p>The review was delivered privately and its findings are not published. ZEUS credited it in two releases.</p>
+          <p class="evidence"><a href="https://x.com/ZeusLN/status/2115791922774348183">See the <span class="mono">v13.2.4</span> credit</a> <a href="https://github.com/ZeusLN/zeus/releases/tag/v13.2.5">Read the <span class="mono">v13.2.5</span> release notes</a></p>
         </div>
       </li>
       <li id="faraday">
@@ -303,6 +290,23 @@
           <h3>Nonce, change-check and secret-wiping gaps closed in Faraday <span class="mono">0.1.8</span>.</h3>
           <p>FROST nonce handling, the multisig change check, secret QR frames left unwiped, and finalized inputs that skipped the unverified-amount guard.</p>
           <p class="evidence"><a href="https://github.com/bitcoinpasada/faraday/security/advisories/GHSA-7h4m-p8qx-pxrf">Read the advisory (<span class="mono">GHSA-7h4m-p8qx-pxrf</span>)</a></p>
+        </div>
+      </li>
+      <li id="sparrow">
+        <div class="who"><span class="project">Sparrow</span><span class="kind">Desktop Bitcoin wallet</span><span class="date">Oct 2026</span></div>
+        <div class="body">
+          <p class="status">MEDIUM &middot; FIXED</p>
+          <h3>A multisig wallet could stay decrypted for the rest of the session.</h3>
+          <p>Adding an account to a multisig wallet with mixed seed and watch-only keystores could leave the wallet decrypted for the session. Confirmed and fixed within two days.</p>
+          <p class="evidence"><a href="https://github.com/sparrowwallet/sparrow/releases/tag/2.5.6">Read the Sparrow <span class="mono">2.5.6</span> release</a></p>
+        </div>
+      </li>
+      <li id="bitbox">
+        <div class="who"><span class="project">BitBoxApp</span><span class="kind">Hardware-wallet companion app</span><span class="date">Nov 2026</span></div>
+        <div class="body">
+          <p class="status">ACKNOWLEDGED &middot; PRIVATE HARDENING</p>
+          <h3>Confirmed privately and tracked as hardening; no change has shipped yet.</h3>
+          <p>A private report, sent PGP-encrypted to Shift Crypto&rsquo;s security team, who had already been tracking it internally. Listed with their permission; no details until they ship a change.</p>
         </div>
       </li>
       <li id="p2pool-lab">
