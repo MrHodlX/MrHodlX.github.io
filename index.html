@@ -246,6 +246,23 @@
           <p class="evidence"><a href="https://github.com/getfoxy/iOS/security/advisories/GHSA-38xx-q9p3-2f57">Read the iOS advisory (<span class="mono">GHSA-38xx-q9p3-2f57</span>)</a> <a href="https://github.com/getfoxy/card/security/advisories/GHSA-vppf-jq63-hwx9">Read the card advisory (<span class="mono">GHSA-vppf-jq63-hwx9</span>)</a></p>
         </div>
       </li>
+      <li id="ckpool">
+        <div class="who"><span class="project">ckpool</span><span class="kind">Bitcoin mining pool server</span><span class="date">Nov 2026</span></div>
+        <div class="body">
+          <p class="status">4 MEDIUM &middot; FIXED</p>
+          <h3>A solved block is no longer dropped when the node is unreachable.</h3>
+          <p>It is now resubmitted to every configured bitcoind. Also fixed: one file-descriptor or memory error stopped the connector from accepting miners, solo usernames that are not addresses piled up, and an SV2 custom-job block solve was dropped when the upstream was down. Con Kolivas shipped the fixes within two days.</p>
+          <details>
+            <summary>Fix commits (4)</summary>
+            <ul class="mono">
+              <li><a href="https://bitbucket.org/ckolivas/ckpool/commits/227c1567d86fd11d0039be69607745265341fd2c">227c156</a></li>
+              <li><a href="https://bitbucket.org/ckolivas/ckpool/commits/72aff21b0d3316fbe69e98e81784911859bd2307">72aff21</a></li>
+              <li><a href="https://bitbucket.org/ckolivas/ckpool/commits/bce5fc5c31873a79536091dc88aa038ecb03e529">bce5fc5</a></li>
+              <li><a href="https://bitbucket.org/ckolivas/ckpool/commits/a78c5cca5d576659b9b81a145f0488aecc5fe23d">a78c5cc</a></li>
+            </ul>
+          </details>
+        </div>
+      </li>
       <li id="rbitcoin">
         <div class="who"><span class="project">rbitcoin</span><span class="kind">Bitcoin full node in Rust</span><span class="date">Nov 2026</span></div>
         <div class="body">
